@@ -90,3 +90,19 @@ profile; it does not package a runtime binary or silently replace an existing
 namespace. `./verify-source-package.sh` proves the deterministic source package.
 Native Codex execution, model behavior, and authenticated evaluation remain
 separate evidence and are not implied by source validation.
+
+## Third-party notices
+
+Heading bundles no third-party source, vendored library, or external package.
+Its Python source and validation scripts use the Python standard library only;
+there is no project manifest declaring a third-party runtime or build-time
+dependency to enumerate. The Python interpreter and the Codex host are runtime
+boundaries, not redistributed dependencies. Heading does not ship either one,
+and this statement does not make a claim about their separate licenses or
+availability.
+
+The source-only publication contains the five skills, references, tests,
+installer, and validation scripts. Installation writes into the caller's
+selected Codex profile; native Codex execution, model behavior, and
+authenticated evaluation remain outside this source package. No third-party
+package or generated runtime artifact is bundled here.
