@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "action": {
+      "enum": [
+        "PROCEED",
+        "ASK",
+        "REFUSE"
+      ],
+      "type": "string"
+    },
+    "adjustments": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 5,
+      "type": "array"
+    },
+    "assumptions": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 5,
+      "type": "array"
+    },
+    "evidenceToInspect": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 8,
+      "type": "array"
+    },
+    "mode": {
+      "enum": [
+        "",
+        "desirability",
+        "workflow",
+        "feasibility",
+        "viability",
+        "generative-quality",
+        "product-slice",
+        "library-api",
+        "service",
+        "adapter",
+        "data-change",
+        "delivery-infra",
+        "delete",
+        "collapse",
+        "refactor",
+        "ui",
+        "performance",
+        "randomized",
+        "sequential",
+        "switchback",
+        "holdout-rollout",
+        "observational",
+        "incident",
+        "defect",
+        "security",
+        "reliability-capacity",
+        "planned-change",
+        "data-repair"
+      ],
+      "type": "string"
+    },
+    "normalizedRequest": {
+      "type": "string"
+    },
+    "question": {
+      "type": "string"
+    },
+    "reason": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "routedFrom": {
+      "enum": [
+        "",
+        "prototype",
+        "build",
+        "sweep",
+        "grow",
+        "maintain"
+      ],
+      "type": "string"
+    },
+    "safeAlternative": {
+      "type": "string"
+    },
+    "track": {
+      "enum": [
+        "prototype",
+        "build",
+        "sweep",
+        "grow",
+        "maintain"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "action",
+    "track",
+    "routedFrom",
+    "mode",
+    "normalizedRequest",
+    "question",
+    "reason",
+    "assumptions",
+    "adjustments",
+    "safeAlternative",
+    "evidenceToInspect"
+  ],
+  "type": "object"
+}

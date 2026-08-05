@@ -1,0 +1,522 @@
+{
+  "cases": [
+    {
+      "id": "prototype-desirability-accessible-flow",
+      "kind": "positive",
+      "mode": "desirability",
+      "must": [
+        "representative task observation",
+        "decision threshold",
+        "ADOPT|REJECT|ITERATE|INCONCLUSIVE"
+      ],
+      "mustNot": [
+        "production-ready claim",
+        "merge disposable probe"
+      ],
+      "prompt": "$heading-prototype Decide whether keyboard-only analysts can complete the new triage flow. Observe five representative tasks with a reversible click-through; do not connect production data. ADOPT only if four of five users finish without moderator rescue.",
+      "skill": "heading-prototype"
+    },
+    {
+      "id": "prototype-workflow-wizard-of-oz",
+      "kind": "positive",
+      "mode": "workflow",
+      "must": [
+        "Wizard-of-Oz or concierge run",
+        "intervention log",
+        "disposal rule"
+      ],
+      "mustNot": [
+        "automate before workflow evidence",
+        "real passenger data"
+      ],
+      "prompt": "$heading-prototype Test whether airport operations staff can hand off an irregular-flight case using a Wizard-of-Oz assistant. Use synthetic passenger records, record intervention points, and decide whether the workflow is viable before automating it.",
+      "skill": "heading-prototype"
+    },
+    {
+      "id": "prototype-feasibility-resource-envelope",
+      "kind": "positive",
+      "mode": "feasibility",
+      "must": [
+        "resource threshold",
+        "representative corpus",
+        "isolated spike"
+      ],
+      "mustNot": [
+        "production integration",
+        "threshold relaxation after results"
+      ],
+      "prompt": "$heading-prototype Determine whether the parser can run as WebAssembly under 32 MB and p95 100 ms on the representative corpus. Build only the smallest isolated spike and reject the approach if either threshold fails.",
+      "skill": "heading-prototype"
+    },
+    {
+      "id": "prototype-viability-fake-door",
+      "kind": "positive",
+      "mode": "viability",
+      "must": [
+        "no deceptive charge or unauthorized data capture",
+        "qualified-request threshold",
+        "debrief"
+      ],
+      "mustNot": [
+        "collect payment data",
+        "claim feature availability"
+      ],
+      "prompt": "$heading-prototype Test willingness to request a paid export add-on with a reversible fake door. Do not charge, collect payment data, or imply availability; lock the qualified-request threshold before exposure.",
+      "skill": "heading-prototype"
+    },
+    {
+      "id": "prototype-generative-quality-holdout",
+      "kind": "positive",
+      "mode": "generative-quality",
+      "must": [
+        "locked corpus, rubric, holdout cases",
+        "blinded repeated evaluation",
+        "slice and failure clusters"
+      ],
+      "mustNot": [
+        "self-review as evidence",
+        "cherry-picked examples"
+      ],
+      "prompt": "$heading-prototype Decide whether a support-answer generator meets Korean, English, and code-switching quality requirements. Lock the corpus, rubric, blinded raters, repeated samples, slices, and holdout cases before prompt iteration; report failure clusters, not showcase examples.",
+      "skill": "heading-prototype"
+    },
+    {
+      "id": "build-product-slice-ai-assistant",
+      "kind": "positive",
+      "mode": "product-slice",
+      "must": [
+        "entry-to-durable-output path",
+        "versioned model prompt and tool contract",
+        "slice-based repeated eval"
+      ],
+      "mustNot": [
+        "aggregate-only score",
+        "mock-only success"
+      ],
+      "prompt": "$heading-build Deliver the accepted support assistant from UI entry through tool authorization, versioned model and prompt configuration, durable conversation state, fallback, and recovery. Prove representative eval slices with repeated samples plus target-runtime latency and cost.",
+      "skill": "heading-build"
+    },
+    {
+      "id": "build-library-api-contract",
+      "kind": "positive",
+      "mode": "library-api",
+      "must": [
+        "public contract",
+        "consumer fixture",
+        "typed failure semantics"
+      ],
+      "mustNot": [
+        "undocumented behavior change",
+        "sample-only proof"
+      ],
+      "prompt": "$heading-build Complete the accepted SDK API with explicit validation, typed errors, cancellation, thread-safety contract, documentation examples, and compatibility tests for the declared public surface.",
+      "skill": "heading-build"
+    },
+    {
+      "id": "build-service-backpressure",
+      "kind": "positive",
+      "mode": "service",
+      "must": [
+        "bounded concurrency",
+        "idempotency",
+        "durable acknowledgement"
+      ],
+      "mustNot": [
+        "unbounded retry",
+        "terminal marker as proof"
+      ],
+      "prompt": "$heading-build Implement the accepted queue consumer on the real service path with idempotency, bounded concurrency, backpressure, cancellation, retry limits, durable acknowledgement, and observable failure behavior.",
+      "skill": "heading-build"
+    },
+    {
+      "id": "build-adapter-provider-failure",
+      "kind": "positive",
+      "mode": "adapter",
+      "must": [
+        "authoritative fixture",
+        "provider failure mapping",
+        "redaction"
+      ],
+      "mustNot": [
+        "mock as production proof",
+        "silent fallback"
+      ],
+      "prompt": "$heading-build Add the accepted payment-provider adapter using the authoritative sandbox and contract fixtures. Preserve provider error identity, timeout and rate-limit behavior, idempotency keys, and redaction at the boundary.",
+      "skill": "heading-build"
+    },
+    {
+      "id": "build-data-change-large-migration",
+      "kind": "positive",
+      "mode": "data-change",
+      "must": [
+        "restartable migration",
+        "integrity proof",
+        "partial-failure recovery"
+      ],
+      "mustNot": [
+        "one-shot irreversible mutation",
+        "tiny fixture as sole evidence"
+      ],
+      "prompt": "$heading-build Deliver the accepted 500-million-row schema change with versioned state, bounded batches, restartability, partial-failure recovery, integrity checks, rollback constraints, and a representative migration rehearsal.",
+      "skill": "heading-build"
+    },
+    {
+      "id": "build-delivery-infra-provenance",
+      "kind": "positive",
+      "mode": "delivery-infra",
+      "must": [
+        "reproducible build",
+        "artifact identity",
+        "provenance"
+      ],
+      "mustNot": [
+        "developer-machine-only proof",
+        "embedded secret"
+      ],
+      "prompt": "$heading-build Complete reproducible arm64 and x86_64 release packaging with pinned inputs, artifact identity, provenance, secret isolation, clean-environment verification, and install/uninstall smoke tests.",
+      "skill": "heading-build"
+    },
+    {
+      "id": "sweep-delete-stale-flag",
+      "kind": "positive",
+      "mode": "delete",
+      "must": [
+        "locked oracle",
+        "net deletion",
+        "residue scan"
+      ],
+      "mustNot": [
+        "compatibility shim",
+        "new abstraction"
+      ],
+      "prompt": "$heading-sweep Remove the fully rolled-out feature flag, dead branch, unused dependency, stale configuration, and obsolete tests while preserving the representative behavior oracle and proving no runtime lookup remains.",
+      "skill": "heading-sweep"
+    },
+    {
+      "id": "sweep-collapse-duplicate-state",
+      "kind": "positive",
+      "mode": "collapse",
+      "must": [
+        "single canonical owner",
+        "same event corpus",
+        "complexity removed rather than moved"
+      ],
+      "mustNot": [
+        "new facade retaining both owners",
+        "scope expansion"
+      ],
+      "prompt": "$heading-sweep Collapse two duplicate state owners into the existing canonical owner. Use the same event corpus before and after, remove forwarding layers, and prove ownership and failure semantics did not move elsewhere.",
+      "skill": "heading-sweep"
+    },
+    {
+      "id": "sweep-refactor-semantic-move",
+      "kind": "positive",
+      "mode": "refactor",
+      "must": [
+        "behavior oracle",
+        "one responsibility seam",
+        "semantic comparison"
+      ],
+      "mustNot": [
+        "broad rewrite",
+        "weaker tests"
+      ],
+      "prompt": "$heading-sweep Refactor the oversized parser without changing public behavior. Lock golden outputs and properties, apply one responsibility seam, use refactoring-aware or semantic comparison for moved code, and revert if the oracle weakens.",
+      "skill": "heading-sweep"
+    },
+    {
+      "id": "sweep-ui-keyboard-flow",
+      "kind": "positive",
+      "mode": "ui",
+      "must": [
+        "interaction oracle",
+        "accessibility checks",
+        "before/after task comparison"
+      ],
+      "mustNot": [
+        "new product behavior",
+        "visual-only proof"
+      ],
+      "prompt": "$heading-sweep Simplify the modal workflow from four steps to two while preserving task completion, keyboard order, screen-reader labels, error recovery, and visual states across the representative interaction corpus.",
+      "skill": "heading-sweep"
+    },
+    {
+      "id": "sweep-performance-noisy-cli",
+      "kind": "positive",
+      "mode": "performance",
+      "must": [
+        "comparable benchmark",
+        "warmup and repeated samples",
+        "variance"
+      ],
+      "mustNot": [
+        "single-run claim",
+        "incomparable environment"
+      ],
+      "prompt": "$heading-sweep Reduce CLI cold-start latency on the locked dataset without changing output. Separate cold and warm cache, use warmup and repeated samples, record environment and variance, and keep the change only if the precommitted delta holds.",
+      "skill": "heading-sweep"
+    },
+    {
+      "id": "grow-randomized-account",
+      "kind": "positive",
+      "mode": "randomized",
+      "must": [
+        "assignment and analysis unit",
+        "sample-ratio check",
+        "precommitted decision rule"
+      ],
+      "mustNot": [
+        "metric switching",
+        "post-hoc success segment"
+      ],
+      "prompt": "$heading-grow Test the shipped onboarding treatment with account-level randomization. Precommit exposure, one primary activation metric, retention and support guardrails, MDE, fixed horizon, SRM checks, and the KEEP or ROLLBACK rule.",
+      "skill": "heading-grow"
+    },
+    {
+      "id": "grow-sequential-low-traffic",
+      "kind": "positive",
+      "mode": "sequential",
+      "must": [
+        "anytime-valid stopping rule",
+        "maximum duration",
+        "data-quality gate"
+      ],
+      "mustNot": [
+        "fixed-horizon peeking",
+        "unbounded experiment"
+      ],
+      "prompt": "$heading-grow Evaluate a low-traffic pricing explanation with a declared anytime-valid sequential rule. Lock the primary metric, guardrails, maximum duration, minimum effect, exposure semantics, and stop boundaries before shipping.",
+      "skill": "heading-grow"
+    },
+    {
+      "id": "grow-switchback-marketplace",
+      "kind": "positive",
+      "mode": "switchback",
+      "must": [
+        "time-block assignment",
+        "carryover and washout",
+        "interference control"
+      ],
+      "mustNot": [
+        "user-level independence assumption",
+        "naive pooled comparison"
+      ],
+      "prompt": "$heading-grow Test a marketplace matching policy where users interfere. Randomize time blocks, lock washout and carryover assumptions, stratify by market and time, validate exposure, and decide only from the precommitted switchback analysis.",
+      "skill": "heading-grow"
+    },
+    {
+      "id": "grow-holdout-rollout-ranking",
+      "kind": "positive",
+      "mode": "holdout-rollout",
+      "must": [
+        "stable holdout",
+        "stage gates",
+        "rollback"
+      ],
+      "mustNot": [
+        "holdout contamination",
+        "rollout completion as impact proof"
+      ],
+      "prompt": "$heading-grow Roll out the shipped search-ranking change from 1% to 50% while retaining a stable holdout. Lock stage gates, guardrails, rollback, allocation integrity, and the final decision window before the first exposure.",
+      "skill": "heading-grow"
+    },
+    {
+      "id": "grow-observational-policy",
+      "kind": "positive",
+      "mode": "observational",
+      "must": [
+        "confounder plan",
+        "sensitivity analysis",
+        "evidence grade"
+      ],
+      "mustNot": [
+        "unqualified causal claim",
+        "post-hoc cohort"
+      ],
+      "prompt": "$heading-grow Estimate the effect of a regulatory policy that cannot be randomized. Predeclare cohort construction, confounders, falsification and sensitivity checks, missingness handling, and an ASSOCIATIONAL or QUASI_CAUSAL evidence grade.",
+      "skill": "heading-grow"
+    },
+    {
+      "id": "maintain-incident-region-outage",
+      "kind": "positive",
+      "mode": "incident",
+      "must": [
+        "containment before permanent fix",
+        "timeline",
+        "post-change observation"
+      ],
+      "mustNot": [
+        "opportunistic refactor",
+        "test-only restoration claim"
+      ],
+      "prompt": "$heading-maintain A region is returning partial writes and elevated errors. Preserve evidence, establish impact and timeline, contain writes, restore the invariant, verify durable recovery, and watch the affected SLI before declaring RESTORED.",
+      "skill": "heading-maintain"
+    },
+    {
+      "id": "maintain-defect-leap-timezone",
+      "kind": "positive",
+      "mode": "defect",
+      "must": [
+        "affected-version reproduction",
+        "root cause",
+        "regression matrix"
+      ],
+      "mustNot": [
+        "symptom-only patch",
+        "silent fallback"
+      ],
+      "prompt": "$heading-maintain Reproduce the leap-day and timezone defect on the affected version, isolate the causal boundary, apply the smallest complete correction, and run regression cases across DST, leap years, invalid inputs, and persistence round trips.",
+      "skill": "heading-maintain"
+    },
+    {
+      "id": "maintain-security-revoked-secret",
+      "kind": "positive",
+      "mode": "security",
+      "must": [
+        "revoke and contain",
+        "blast-radius assessment",
+        "post-change monitoring"
+      ],
+      "mustNot": [
+        "publish secret",
+        "delay containment for refactor"
+      ],
+      "prompt": "$heading-maintain A production credential was exposed. Contain and revoke it, preserve forensic evidence, assess blast radius, remove the cause, rotate dependent secrets, prove redaction and authorization boundaries, and monitor for misuse.",
+      "skill": "heading-maintain"
+    },
+    {
+      "id": "maintain-reliability-capacity-burst",
+      "kind": "positive",
+      "mode": "reliability-capacity",
+      "must": [
+        "bounded load",
+        "overload semantics",
+        "recovery observation"
+      ],
+      "mustNot": [
+        "unbounded production stress",
+        "average-only metric"
+      ],
+      "prompt": "$heading-maintain The mature service saturates at a 10x burst. Lock the SLO and resource invariant, reproduce with a bounded load, identify the bottleneck, apply one complete capacity correction, and prove overload, backpressure, recovery, and steady-state behavior.",
+      "skill": "heading-maintain"
+    },
+    {
+      "id": "maintain-planned-change-db-canary",
+      "kind": "positive",
+      "mode": "planned-change",
+      "must": [
+        "one active candidate",
+        "stop signals",
+        "rollback rehearsal"
+      ],
+      "mustNot": [
+        "simultaneous fleet rollout",
+        "success from installer exit alone"
+      ],
+      "prompt": "$heading-maintain Upgrade the mature database minor version with one canary, explicit blast radius, compatibility and backup proof, stop signals, rollback rehearsal, and a post-change watch before fleet expansion.",
+      "skill": "heading-maintain"
+    },
+    {
+      "id": "maintain-data-repair-ledger",
+      "kind": "positive",
+      "mode": "data-repair",
+      "must": [
+        "immutable backup or snapshot",
+        "idempotent dry run",
+        "integrity verification"
+      ],
+      "mustNot": [
+        "irreversible in-place repair",
+        "row-count-only proof"
+      ],
+      "prompt": "$heading-maintain Repair the corrupted ledger only after an immutable snapshot. Produce a dry-run plan, make the repair idempotent and restartable, checksum affected records, handle partial failure, and independently verify invariants before closure.",
+      "skill": "heading-maintain"
+    },
+    {
+      "id": "boundary-prototype-accepted-production",
+      "kind": "boundary",
+      "mode": "",
+      "must": [
+        "AUTO_ROUTE",
+        "effective track: build",
+        "continue in the same conversation"
+      ],
+      "mustNot": [
+        "ask the user to repeat",
+        "ask the user to invoke another skill",
+        "stop at route mismatch"
+      ],
+      "prompt": "$heading-prototype The behavior and contract are already accepted. Implement, integrate, harden, and release the production service now.",
+      "skill": "heading-prototype"
+    },
+    {
+      "id": "boundary-build-unresolved-value",
+      "kind": "boundary",
+      "mode": "",
+      "must": [
+        "AUTO_ROUTE",
+        "effective track: prototype",
+        "continue in the same conversation"
+      ],
+      "mustNot": [
+        "ask the user to repeat",
+        "ask the user to invoke another skill",
+        "stop at route mismatch"
+      ],
+      "prompt": "$heading-build We do not know whether anyone wants this concept. Generate several options and test user desirability before committing engineering effort.",
+      "skill": "heading-build"
+    },
+    {
+      "id": "boundary-sweep-new-scope",
+      "kind": "boundary",
+      "mode": "",
+      "must": [
+        "AUTO_ROUTE",
+        "effective track: build",
+        "continue in the same conversation"
+      ],
+      "mustNot": [
+        "ask the user to repeat",
+        "ask the user to invoke another skill",
+        "stop at route mismatch"
+      ],
+      "prompt": "$heading-sweep Add a new analytics dashboard, notification system, and billing controls while cleaning the settings screen.",
+      "skill": "heading-sweep"
+    },
+    {
+      "id": "boundary-grow-no-shipped-product",
+      "kind": "boundary",
+      "mode": "",
+      "must": [
+        "AUTO_ROUTE",
+        "effective track: prototype",
+        "continue in the same conversation"
+      ],
+      "mustNot": [
+        "ask the user to repeat",
+        "ask the user to invoke another skill",
+        "stop at route mismatch"
+      ],
+      "prompt": "$heading-grow There is no usable product or baseline data yet. Interview users and decide which problem is worth solving.",
+      "skill": "heading-grow"
+    },
+    {
+      "id": "boundary-maintain-greenfield",
+      "kind": "boundary",
+      "mode": "",
+      "must": [
+        "AUTO_ROUTE",
+        "effective track: build",
+        "continue in the same conversation"
+      ],
+      "mustNot": [
+        "ask the user to repeat",
+        "ask the user to invoke another skill",
+        "stop at route mismatch"
+      ],
+      "prompt": "$heading-maintain Design and implement a brand-new queue service with no existing operational contract or installed system.",
+      "skill": "heading-maintain"
+    }
+  ],
+  "schemaVersion": 1
+}
