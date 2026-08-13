@@ -70,6 +70,16 @@ Modes: `incident`, `defect`, `security`, `reliability-capacity`, `planned-change
 
 Best method: assess impact → contain active harm → fix the causal boundary → recover and regress → observe after change.
 
+## Orchestrate
+
+Use only after a product track locks one outcome, owner, and proof requirement.
+
+```text
+$heading-orchestrate Coordinate the locked build outcome. Keep one writer per file boundary and do not create a separate task unless I explicitly authorize it.
+```
+
+Best method: write the task packet → choose one observable lane → observe the actual worker/task identity → independently review → let the primary agent accept or reject the evidence. Native roles and user-visible tasks are optional capabilities, never a quota or silent fallback.
+
 ## Invalid requested methods
 
 Heading preserves a legitimate goal whenever possible:

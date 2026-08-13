@@ -1,0 +1,23 @@
+{
+  "name": "heading",
+  "version": "0.3.0",
+  "description": "Evidence-first product work tracks with capability-gated delegation.",
+  "author": {
+    "name": "AxiomOrient",
+    "url": "https://github.com/AxiomOrient"
+  },
+  "homepage": "https://github.com/AxiomOrient/heading",
+  "repository": "https://github.com/AxiomOrient/heading",
+  "license": "MIT",
+  "keywords": ["product", "engineering", "evidence", "orchestration"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Heading",
+    "shortDescription": "Evidence-first product and engineering work tracks.",
+    "longDescription": "Choose a product work track, lock the proof needed for its claim, and use capability-gated delegation only when its evidence is observable.",
+    "developerName": "AxiomOrient",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Use $heading-build to turn accepted behavior into one evidence-backed production outcome."
+  }
+}

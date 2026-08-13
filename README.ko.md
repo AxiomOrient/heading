@@ -1,6 +1,6 @@
-# Heading 0.1.0
+# Heading 0.3.0
 
-Heading은 제품 작업을 다섯 방향으로 나누는 명시적 Codex 스킬입니다.
+Heading은 다섯 제품 작업 트랙과 선택적 오케스트레이션 트랙을 제공하는 이식 가능한 skills 플러그인입니다.
 
 ```text
 $heading-prototype  무엇을 만들지 결정
@@ -8,6 +8,7 @@ $heading-build      결정된 동작을 제품으로 완성
 $heading-sweep      동작을 보존하며 복잡도 제거
 $heading-grow       출시된 변경의 제품 효과 측정
 $heading-maintain   기존 시스템의 위험·장애·변경 통제
+$heading-orchestrate 잠긴 outcome을 관측 가능한 위임으로 조율
 ```
 
 ## 사용법
@@ -53,22 +54,34 @@ $heading-build 이 아이디어를 사람들이 원하는지 검증해
 Lead       GPT-5.6 Sol high    라우팅·범위·통합·최종 판정
 Planner    GPT-5.6 Luna max    읽기 전용 탐색·리서치·계획
 Executor   GPT-5.6 Luna max    유일한 제품 writer
-Reviewer   GPT-5.6 Terra high  독립 read-only 리뷰
+Reviewer   GPT-5.6 Terra high/xhigh  독립 read-only 리뷰; 중요한 위험은 xhigh
 Architect  GPT-5.6 Terra xhigh 비국소 경계 자문
 ```
 
 - writable outcome은 한 번에 하나입니다.
-- 동일 outcome의 구현·수리·재검증은 같은 Executor thread를 사용합니다.
+- 동일 outcome의 구현·수리·재검증은 같은 Executor thread를 사용합니다. 위임을 사용할 수 없거나, 허용되지 않거나, 작은 로컬 변경에는 과도하면 Lead가 같은 소유권·증거 잠금 아래 선언된 `executionMode: DIRECT`로 직접 수행할 수 있습니다.
 - Reviewer는 수정하거나 Executor를 직접 지휘하지 않고 Lead에게만 보고합니다.
 - Luna/Terra 사용 비율은 고정하지 않습니다.
 
-## 설치
+## 플러그인 설치
 
-지원 조건: POSIX, Python 3.11 이상. 설치 결과는 20 files입니다.
+주 배포물은 `plugins/heading/` 플러그인입니다. Agent Plugins 표준의 `plugin.json`과 Codex의 `.codex-plugin/plugin.json`이 같은 여섯 skill 폴더를 가리킵니다.
 
 ```bash
 ./verify-source-package.sh
 
+codex plugin marketplace add /absolute/path/to/heading
+codex plugin add heading@heading
+codex plugin list --json
+```
+
+Git 저장소에서는 로컬 경로 대신 `AxiomOrient/heading --ref main`을 사용합니다. repo marketplace를 추가한 뒤 데스크톱 앱을 재시작하고 **Heading Plugins**에서 **Heading**을 설치합니다. marketplace 파일은 `.agents/plugins/marketplace.json`이며 저장소 루트 기준 `./plugins/heading`을 가리킵니다.
+
+## 선택적 실행 프로파일
+
+지원 조건: POSIX, Python 3.11 이상. 호환용 프로파일 설치 결과는 5 files이며, 플러그인 skill 폴더를 전역 skill namespace에 복사하지 않습니다.
+
+```bash
 ./scripts/install.sh --dry-run
 ./scripts/install.sh
 ./scripts/install.sh --check
@@ -76,16 +89,18 @@ Architect  GPT-5.6 Terra xhigh 비국소 경계 자문
 codex --profile heading
 ```
 
-설치기는 비파괴 방식입니다. 기존 파일이나 네임스페이스를 삭제하지 않으며, Heading 네임스페이스 충돌이 있으면 먼저 정리한 뒤 설치해야 합니다.
+이 프로파일은 작업 단계의 런타임 선택지이며 플러그인 배포 방식이 아닙니다. 설치기는 비파괴 방식입니다. 기존 파일이나 네임스페이스를 삭제하지 않습니다. `--install-legacy-skills`는 명시적인 호환용 탈출구일 뿐이며, 같은 이름의 설치된 플러그인을 가릴 수 있으므로 일반 플러그인 배포에는 사용하지 않습니다.
 
 Heading은 실행 증거를 내부 판단에 사용하지만, 답변 길이는 작업에 맞춥니다. 단순한 일은 짧게, 복잡하거나 위험한 일은 판단에 필요한 증거까지 설명합니다. 원시 결과 필드가 필요하면 요청하면 됩니다.
 
 스킬별 최적 사용법은 [PLAYBOOK.ko.md](PLAYBOOK.ko.md)에 있습니다.
 
+## 위임 경계
+
+`$heading-orchestrate`는 다섯 트랙 중 하나가 outcome과 증명을 잠근 뒤에만 사용합니다. direct 작업, 관측된 native 역할, 사용자가 승인한 user-visible task 세 경로만 사용합니다. 사용자가 요구한 모델·역할·reviewer·쓰기 경계·task surface를 조용히 대체하지 않으며, 런타임 사실이 없으면 완료로 바꾸지 않고 `NOT_PROVEN`으로 남깁니다. 사용자가 그 위임 경로를 필수로 요구하지 않았다면, 선택적 위임 경로가 없다는 사실만으로 범위가 잠긴 직접 작업을 막지 않습니다.
+
 ## 배포 경계
 
-배포 가능한 source는 다섯 스킬, reference, tests, 설치기와 검증 스크립트입니다.
-설치기는 호출자가 선택한 Codex profile에 파일을 쓰며, 기존 namespace를 조용히
-교체하거나 runtime binary를 패키징하지 않습니다. `./verify-source-package.sh`는
-결정적인 source package를 검증합니다. Native Codex 실행, 모델 동작, 인증이 필요한
-evaluation은 별도 증거이며 source 검증만으로 입증되지 않습니다.
+배포 가능한 source는 `plugins/heading/`입니다. 여섯 skill, reference, portable manifest, Codex manifest만 포함합니다. 별도 `runtime/heading/`에는 선택적 profile과 role template이 있습니다. repository marketplace는 로컬·팀 테스트용이고, public directory 제출은 별도의 게시자 심사 단계입니다. 선택적 profile 설치기는 사용자가 선택한 Codex profile에만 쓰며 플러그인을 대체하지 않습니다.
+
+`./verify-source-package.sh`는 결정적인 source package와 두 manifest 계약을 검증합니다. Native Codex 실행, 모델 동작, 인증이 필요한 evaluation, public directory 승인 여부는 별도 증거입니다.

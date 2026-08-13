@@ -16,10 +16,13 @@ import sys
 import tomllib
 
 ROOT = Path(__file__).resolve().parent.parent
-VERSION = "0.1.0"
+PLUGIN_ROOT = ROOT / "plugins" / "heading"
+SKILLS_ROOT = PLUGIN_ROOT / "skills"
+RUNTIME_ROOT = ROOT / "runtime" / "heading"
+VERSION = "0.3.0"
 TRACK_ORDER = ("prototype", "build", "sweep", "grow", "maintain")
 # Version-control metadata is not part of the package and never installed.
-IGNORED_ROOT_ENTRIES = (".git",)
+IGNORED_ROOT_ENTRIES = (".git", ".DS_Store", ".coverage", ".pytest_cache", "eval-results")
 EVALS_DIGEST = "dcf9a9b55f9ea8869fd24029bb33cdf64af0ace3b4a919e88674fb3ea53ea376"
 INTAKE_EVALS_DIGEST = "87ca287ac7df3ce686b098042adeaa4c3c3ea42e8518468bd47d0eaae01e9967"
 DIALOGUE_EVALS_DIGEST = "d050367a4004a7f541a88bd7bce50476c1c728c49e5a715d37d308bc80dc5442"
@@ -88,8 +91,8 @@ TRACKS = {
         "Actual observations cross the locked threshold and support `ADOPT`, `REJECT`, `ITERATE`, or `INCONCLUSIVE`; only transferable learning survives.",
         "FRAME -> SELECT -> PROBE -> OBSERVE -> DECIDE",
         ("desirability", "workflow", "feasibility", "viability", "generative-quality"),
-        "f413792832360810da0b434e7bfb4c7b84103b24eef48ee48c0b1e940d5936ea",
-        "f2a601aec6eb16ecf43615dc1f463ff15e918d70cfbcdb009c49d8111018a595",
+        "e76632f613793f4330ffe3463c477398cfe75f2bb037a0ab8965dc37bb798121",
+        "ea9a14d20d3cf0bc742d896e5fd9e0a65f15fddab25fa1e2299d57f885e295de",
         ("Repair the method instead of rejecting a valid goal", "Wizard-of-Oz or concierge run", "locked corpus, rubric, holdout cases", "Refuse only when deception"),
     ),
     "build": TrackSpec(
@@ -103,8 +106,8 @@ TRACKS = {
         "The entry-to-effect-to-durable-output path and every applicable failure, recovery, release, and operational proof pack pass.",
         "CLASSIFY -> CONTRACT -> SLICE -> PROVE -> RELEASE",
         ("product-slice", "library-api", "service", "adapter", "data-change", "delivery-infra"),
-        "3429175cbef7fafd34d83a9dfa786a844e22cffb99fdd130700a2e5209e7ddfc",
-        "341d9ee350a9e6dcbbf6b6399955b37759d2680b0e60ee5dedc82fc89ba7661d",
+        "6df27d8bd4264739083b53561341b76a37575e1be28b97c4dc573379cf563bb2",
+        "780e44b75f2f8a96fe38b482568cbec4f4a0e5f71c90d155b2d9754a97430988",
         ("Repair invalid methods while preserving the build goal", "native or authoritative fixture", "versioned model, prompt, tool", "Refuse only when bypass"),
     ),
     "sweep": TrackSpec(
@@ -118,8 +121,8 @@ TRACKS = {
         "The same oracle passes before and after, and evidence shows net deletion, simpler ownership, clearer interaction, or measured resource gain.",
         "ORACLE -> CUT -> COMPARE -> KEEP_OR_REVERT",
         ("delete", "collapse", "refactor", "ui", "performance"),
-        "e2892c8e4eea1c6eff18fb1516c5eb4ff61824dae8a94bfc10596b89176ecf99",
-        "95aa7193b121765cf7d9e432c5278103b0669b1720ef53c45f4d8c8504d043c3",
+        "5f9907856e9264339d1938a0c150ee771a0ff2e41eadd2ca0dfd7e8eb0b9e6fa",
+        "44b804d9788efacd3cc880e0e7f72439517be614a131454c42b3ea773a544cd7",
         ("Repair invalid methods while preserving the goal", "same outputs and failures", "warmup and repeated samples", "Refuse only when concealment"),
     ),
     "grow": TrackSpec(
@@ -133,13 +136,13 @@ TRACKS = {
         "Implementation and data quality are separately proven; completed evidence supports `KEEP`, `ROLLBACK`, `ITERATE`, or `NOT_PROVEN` with an explicit evidence grade.",
         "DESIGN -> INSTRUMENT -> SHIP -> ANALYZE -> DECIDE",
         ("randomized", "sequential", "switchback", "holdout-rollout", "observational"),
-        "0515ac224284e4693258241ea8ef24435871c79c06e548feb16b73342100f0ec",
-        "15d9dc53ae0f2fa2976cd2398001ed6263739ea1fb8e9f6fbb1aa46ada32444a",
+        "1d6bed95f3785f47acbb7c37e19c6df99e4b755bfaa1951b94de484dc0e68da9",
+        "556451dba4dbd12537e9295e94d6316b7c42c62f4711e5203ecae701a9955174",
         ("Repair invalid methods while preserving the growth goal", "sample-ratio check", "precommitted sequential method", "Refuse only when fabricated reporting"),
     ),
     "maintain": TrackSpec(
         "Maintain",
-        "Explicit Heading maintain track for controlling an existing-system risk, repair, or operational change. A wrong explicit track is corrected before work starts.",
+        "Explicit Heading maintain track for existing-system risk, repair, or operational change; require evidence-based recovery and bounded no-survivor custody for external work. Correct a wrong explicit track before work starts.",
         "Restore, protect, or safely change a mature system while preserving explicit invariants and recovery control.",
         "The primary outcome is incident response, defect repair, security remediation, reliability or capacity work, planned operational change, or data repair.",
         "The primary outcome is a new product slice, discovery experiment, growth experiment, or elective simplification.",
@@ -148,8 +151,8 @@ TRACKS = {
         "Impact is controlled; cause or rationale is evidenced; change, recovery, regression, and post-change observations support `RESTORED`, `STABILIZED`, `CHANGED`, `PARTIAL`, or `BLOCKED`.",
         "TRIAGE -> CONTAIN -> CHANGE -> RECOVER -> WATCH",
         ("incident", "defect", "security", "reliability-capacity", "planned-change", "data-repair"),
-        "6d6b9ccae3bcb06ff245d7e79abc7298612c028050fd42d4ee29fca802f8fd7f",
-        "b3217586501f1d5f1f9fb4abab337bb322a1f5097ab7f724d0a6d530e8661f86",
+        "7c146f304ab46a65e85156554a8400b32c290042c74c57c6211e73ee4b76c322",
+        "f4f2734c8770d092f3018c78667186d926043ad931686ab8484c4e378d8b0318",
         ("Repair invalid methods while preserving the operational goal", "Contain harm before", "immutable backup or snapshot", "Refuse only when concealment"),
     ),
 }
@@ -172,17 +175,25 @@ def expected_files() -> set[Path]:
     files = {
         Path(".gitignore"), Path("DESIGN.md"), Path("LICENSE"), Path("PLAYBOOK.ko.md"), Path("PLAYBOOK.md"),
         Path("README.ko.md"), Path("README.md"), Path("VALIDATION.md"), Path("VERSION"),
-        Path("profile/heading.config.toml"), Path("verify-source-package.sh"),
+        Path(".agents/plugins/marketplace.json"), Path("verify-source-package.sh"),
         Path("evals/cases.json"), Path("evals/dialogue_cases.json"), Path("evals/intake-output.schema.json"), Path("evals/intake_cases.json"),
         Path("scripts/grade-evals.py"), Path("scripts/install.py"), Path("scripts/install.sh"), Path("scripts/run-evals.py"),
-        Path("scripts/run-tests.py"), Path("scripts/validate.py"), Path("scripts/validate.sh"),
+        Path("scripts/run-tests.py"), Path("scripts/validate.py"), Path("scripts/validate-plugin.py"), Path("scripts/validate.sh"),
         Path("tests/__init__.py"), Path("tests/test_heading.py"), Path("tests/test_intake.py"),
     }
+    files.update({
+        Path("plugins/heading/plugin.json"),
+        Path("plugins/heading/.codex-plugin/plugin.json"),
+        Path("runtime/heading/profile/heading.config.toml"),
+    })
     for name in AGENTS:
-        files.add(Path("agents") / f"{name}.toml")
+        files.add(Path("runtime/heading/agents") / f"{name}.toml")
     for track in TRACK_ORDER:
-        base = Path("skills") / f"heading-{track}"
+        base = Path("plugins/heading/skills") / f"heading-{track}"
         files.update({base / "SKILL.md", base / "agents/openai.yaml", base / "references/METHOD.md"})
+    files.add(Path("plugins/heading/skills/heading-maintain/references/PROCESS-LIFECYCLE.md"))
+    orchestrate = Path("plugins/heading/skills/heading-orchestrate")
+    files.update({orchestrate / "SKILL.md", orchestrate / "agents/openai.yaml", orchestrate / "references/ORCHESTRATION.md"})
     return files
 
 
@@ -211,7 +222,7 @@ def validate_layout() -> None:
 
 
 def validate_profile() -> None:
-    payload = tomllib.loads((ROOT / "profile/heading.config.toml").read_text(encoding="utf-8"))
+    payload = tomllib.loads((RUNTIME_ROOT / "profile/heading.config.toml").read_text(encoding="utf-8"))
     require(payload == {
         "model": "gpt-5.6-sol", "model_reasoning_effort": "high", "sandbox_mode": "workspace-write", "approval_policy": "on-request",
     }, "profile contract mismatch")
@@ -220,7 +231,7 @@ def validate_profile() -> None:
 def validate_agents() -> None:
     writable = 0
     for key, spec in AGENTS.items():
-        path = ROOT / "agents" / f"{key}.toml"
+        path = RUNTIME_ROOT / "agents" / f"{key}.toml"
         payload = tomllib.loads(path.read_text(encoding="utf-8"))
         require(set(payload) == {"name", "description", "model", "model_reasoning_effort", "sandbox_mode", "developer_instructions"}, f"agent fields mismatch: {key}")
         require(payload["name"] == spec.name, f"agent name mismatch: {key}")
@@ -261,16 +272,16 @@ def validate_skills() -> None:
         "Lead: Sol `high`",
         "Planner: Luna `max`",
         "Executor: Luna `max`",
-        "Reviewer: Terra `high`",
+        "Reviewer: Terra `xhigh`",
         "Architect: Terra `xhigh`",
         "same Executor thread",
         "There is no Luna/Terra quota.",
         "Report a route correction only when the effective track differs from the invoked track: append one concise correction to `adjustments`",
-        "Executor delegation gate",
+        "Before writable work, lock `outcome_id`, `owned_surface`, `done`, and `evidence`",
         "non-empty child thread ID",
-        "Never wait with an empty receiver list",
-        "releaseState: BLOCKED",
-        "Only Lead may integrate, review, or claim `PASS`/`READY`",
+        "executionMode: DIRECT",
+        "independentReview: NOT_PROVEN",
+        "Only Lead makes final claims.",
         "User-facing result",
         "Use the method schema and proof fields to decide the claim",
         "plain words and a Feynman-style explanation",
@@ -280,7 +291,7 @@ def validate_skills() -> None:
         "Never make a response shorter by omitting material evidence",
     )
     for track, spec in TRACKS.items():
-        base = ROOT / "skills" / f"heading-{track}"
+        base = SKILLS_ROOT / f"heading-{track}"
         skill = base / "SKILL.md"
         text = skill.read_text(encoding="utf-8")
         require(digest_file(skill) == spec.skill_digest, f"skill content mismatch: {track}")
@@ -308,15 +319,30 @@ def validate_skills() -> None:
 
         metadata = (base / "agents/openai.yaml").read_text(encoding="utf-8")
         require(f'display_name: "Heading {spec.title}"' in metadata, f"skill display name mismatch: {track}")
-        require(f'default_prompt: "Use $heading-{track}. Treat the selected track as a hint:' in metadata, f"skill default prompt mismatch: {track}")
+        require(f'default_prompt: "Use $heading-{track}. Bind the canonical workspace and evidence freshness first;' in metadata, f"skill default prompt mismatch: {track}")
         require("auto-correct the effective track before lock" in metadata, f"skill auto-route prompt missing: {track}")
         require("allow_implicit_invocation: false" in metadata, f"skill must be explicit-only: {track}")
 
-    prototype = (ROOT / "skills" / "heading-prototype" / "SKILL.md").read_text(encoding="utf-8")
+    prototype = (SKILLS_ROOT / "heading-prototype" / "SKILL.md").read_text(encoding="utf-8")
     require(
         "A request to test an otherwise unspecified idea is still a usable desirability decision" in prototype,
         "prototype default-probe rule missing",
     )
+    maintain = SKILLS_ROOT / "heading-maintain"
+    lifecycle = (maintain / "references/PROCESS-LIFECYCLE.md").read_text(encoding="utf-8")
+    for phrase in ("Immediately after\nspawn succeeds", "Never reconstruct a kill scope from a late PGID", "runtimeObserved: NOT_PROVEN", "Exact-scope teardown", "no owned descendant"):
+        require(phrase in lifecycle, f"process lifecycle contract missing: {phrase}")
+    orchestrate = SKILLS_ROOT / "heading-orchestrate"
+    orchestrate_skill = (orchestrate / "SKILL.md").read_text(encoding="utf-8")
+    frontmatter = parse_frontmatter(orchestrate_skill, orchestrate.relative_to(ROOT) / "SKILL.md")
+    require(frontmatter["name"] == "heading-orchestrate", "orchestration skill name mismatch")
+    for phrase in ("task packet", "Direct lane", "Native lane", "User-visible task lane", "Never silently substitute", "non-empty task ID", "primary reviewer", "NOT_PROVEN", "BLOCKED"):
+        require(phrase in orchestrate_skill, f"orchestration contract missing: {phrase}")
+    metadata = (orchestrate / "agents/openai.yaml").read_text(encoding="utf-8")
+    require('display_name: "Heading Orchestrate"' in metadata and "allow_implicit_invocation: false" in metadata, "orchestration metadata mismatch")
+    reference = (orchestrate / "references/ORCHESTRATION.md").read_text(encoding="utf-8")
+    for phrase in ("exactly one writer", "observed facts", "Task packet schema", "PASS", "PARTIAL", "NOT_PROVEN", "BLOCKED"):
+        require(phrase in reference, f"orchestration reference missing: {phrase}")
 
 
 def load_pinned_json(relative: str, digest: str) -> dict:
@@ -559,23 +585,23 @@ def validate_docs() -> None:
         require(spec.flow in docs["DESIGN.md"], f"design flow missing: {track}")
     for name in ("README.md", "README.ko.md"):
         text = docs[name]
-        for phrase in ("--dry-run", "./scripts/install.sh", "--check", "Python 3.11", "20 files", "PROCEED", "ASK", "REFUSE", "NOT_PROVEN"):
+        for phrase in ("--dry-run", "./scripts/install.sh", "--check", "Python 3.11", "5 files", "--install-legacy-skills", "PROCEED", "ASK", "REFUSE", "NOT_PROVEN", "$heading-orchestrate", "plugin.json", ".codex-plugin/plugin.json", "marketplace.json"):
             require(phrase in text, f"README contract missing: {name}: {phrase}")
         require(("--" + "clean" + "-break") not in text, f"obsolete install option leaked: {name}")
         require("non-destructive" in text or "비파괴" in text, f"non-destructive install contract missing: {name}")
         require("routing hint" in text or "힌트" in text, f"auto-route explanation missing: {name}")
     design = docs["DESIGN.md"]
-    for phrase in ("Routing before lock", "Bias for useful action", "progressive disclosure", "one outcome", "PROCEED", "ASK", "REFUSE"):
+    for phrase in ("Routing before lock", "Bias for useful action", "progressive disclosure", "one outcome", "PROCEED", "ASK", "REFUSE", "capability-gated", "profile"):
         require(phrase in design, f"design rationale missing: {phrase}")
     validation = docs["VALIDATION.md"]
-    for phrase in ("100 `PROCEED`, 20 `ASK`, 5 `REFUSE`", "125 intake", "25 dialogue", "native Codex eval", "adversarial deployment matrix", "Native Codex CLI compatibility"):
+    for phrase in ("100 `PROCEED`, 20 `ASK`, 5 `REFUSE`", "125 intake", "25 dialogue", "native Codex eval", "adversarial deployment matrix", "Native Codex CLI compatibility", "plugin"):
         require(phrase in validation, f"validation boundary missing: {phrase}")
 
 
 def validate_identity_boundary() -> None:
     obsolete_option = "--" + "clean" + "-break"
     removed_identity = "team" + "play"
-    for base in (ROOT / "profile", ROOT / "agents", ROOT / "skills", ROOT / "scripts"):
+    for base in (RUNTIME_ROOT / "profile", RUNTIME_ROOT / "agents", SKILLS_ROOT, ROOT / "scripts"):
         for path in base.rglob("*"):
             if path.is_file():
                 text = path.read_text(encoding="utf-8").casefold()
@@ -594,6 +620,14 @@ def validate_scripts() -> None:
     for path in sorted(ROOT.rglob("*.sh")):
         result = subprocess.run(["sh", "-n", str(path)], capture_output=True, text=True, check=False)
         require(result.returncode == 0, f"shell syntax error in {path.relative_to(ROOT)}: {result.stderr.strip()}")
+
+
+def validate_plugin_package() -> None:
+    result = subprocess.run(
+        [sys.executable, "-B", str(ROOT / "scripts/validate-plugin.py")],
+        cwd=ROOT, capture_output=True, text=True, check=False,
+    )
+    require(result.returncode == 0, result.stderr.strip() or "plugin package validation failed")
 
 
 def validate_installed(codex_home: Path, skills_root: Path) -> None:
@@ -617,7 +651,7 @@ def main() -> int:
     try:
         validate_layout(); validate_profile(); validate_agents(); validate_skills()
         mode_evals, intake_evals, dialogue_evals = validate_evals()
-        validate_docs(); validate_identity_boundary(); validate_scripts()
+        validate_docs(); validate_identity_boundary(); validate_scripts(); validate_plugin_package()
         if args.installed:
             require(args.codex_home is not None and args.skills_root is not None, "--installed requires both target roots")
             validate_installed(args.codex_home, args.skills_root)
@@ -625,7 +659,7 @@ def main() -> int:
         print(f"validate: {error}", file=sys.stderr)
         return 1
     print(json.dumps({
-        "status": "PASS", "version": VERSION, "files": len(expected_files()), "tracks": len(TRACK_ORDER), "childRoles": len(AGENTS),
+        "status": "PASS", "version": VERSION, "files": len(expected_files()), "tracks": len(TRACK_ORDER), "skills": len(TRACK_ORDER) + 1, "childRoles": len(AGENTS),
         "modes": sum(len(spec.modes) for spec in TRACKS.values()), "evals": mode_evals + intake_evals + dialogue_evals,
         "modeEvals": mode_evals, "intakeEvals": intake_evals, "dialogueEvals": dialogue_evals,
     }, sort_keys=True))

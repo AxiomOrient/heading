@@ -12,7 +12,7 @@ import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parent.parent
-EXPECTED_TESTS = 38
+EXPECTED_TESTS = 42
 
 
 def flatten(suite: unittest.TestSuite) -> list[str]:

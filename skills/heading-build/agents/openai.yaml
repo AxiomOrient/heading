@@ -1,6 +1,0 @@
-interface:
-  display_name: "Heading Build"
-  short_description: "Deliver one complete production outcome."
-  default_prompt: "Use $heading-build. Treat the selected track as a hint: infer and auto-correct the effective track before lock, inspect context, proceed by default, and ask only one material question."
-policy:
-  allow_implicit_invocation: false

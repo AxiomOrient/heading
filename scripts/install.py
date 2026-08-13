@@ -19,6 +19,8 @@ from typing import Iterable
 
 
 ROOT = Path(__file__).resolve().parent.parent
+PLUGIN_ROOT = ROOT / "plugins" / "heading"
+RUNTIME_ROOT = ROOT / "runtime" / "heading"
 PRODUCT = "heading"
 SKILLS = (
     "heading-prototype",
@@ -26,6 +28,7 @@ SKILLS = (
     "heading-sweep",
     "heading-grow",
     "heading-maintain",
+    "heading-orchestrate",
 )
 LOCK_NAME = ".heading-deploy.lock"
 MACOS_SYSTEM_ALIASES = {
@@ -246,17 +249,18 @@ def source_files(directory: Path) -> Iterable[Path]:
             yield path
 
 
-def inventory() -> list[Item]:
-    items = [source_item("codex", ROOT / "profile/heading.config.toml", Path("heading.config.toml"))]
-    agent_files = sorted((ROOT / "agents").glob("heading-*.toml"))
+def inventory(*, include_legacy_skills: bool) -> list[Item]:
+    items = [source_item("codex", RUNTIME_ROOT / "profile/heading.config.toml", Path("heading.config.toml"))]
+    agent_files = sorted((RUNTIME_ROOT / "agents").glob("heading-*.toml"))
     require(len(agent_files) == 4, "expected four agent files")
     for source in agent_files:
         items.append(source_item("codex", source, Path("agents") / source.name))
 
-    for skill in SKILLS:
-        base = ROOT / "skills" / skill
-        for source in source_files(base):
-            items.append(source_item("skills", source, Path(skill) / source.relative_to(base)))
+    if include_legacy_skills:
+        for skill in SKILLS:
+            base = PLUGIN_ROOT / "skills" / skill
+            for source in source_files(base):
+                items.append(source_item("skills", source, Path(skill) / source.relative_to(base)))
 
     keys = [(item.root, item.relative.as_posix()) for item in items]
     require(len(keys) == len(set(keys)), "duplicate install destination")
@@ -271,7 +275,7 @@ def assert_directory_or_missing(path: Path, label: str) -> None:
 def heading_namespace_entries(roots: dict[str, Path]) -> list[Path]:
     values: set[Path] = set()
     codex = roots["codex"]
-    skills = roots["skills"]
+    skills = roots.get("skills")
 
     assert_directory_or_missing(codex, "codex root")
     if path_kind(codex) == "directory":
@@ -282,8 +286,9 @@ def heading_namespace_entries(roots: dict[str, Path]) -> list[Path]:
     if path_kind(agents) == "directory":
         values.update(entry for entry in agents.iterdir() if entry.name.casefold().startswith(f"{PRODUCT}-"))
 
-    assert_directory_or_missing(skills, "skills root")
-    if path_kind(skills) == "directory":
+    if skills is not None:
+        assert_directory_or_missing(skills, "skills root")
+    if skills is not None and path_kind(skills) == "directory":
         values.update(entry for entry in skills.iterdir() if entry.name.casefold().startswith(f"{PRODUCT}-"))
 
     historical = codex / "skills"
@@ -299,7 +304,8 @@ def expected_namespace_paths(roots: dict[str, Path], items: list[Item]) -> set[P
 
 
 def expected_skill_roots(roots: dict[str, Path]) -> set[Path]:
-    return {roots["skills"] / skill for skill in SKILLS}
+    skills = roots.get("skills")
+    return set() if skills is None else {skills / skill for skill in SKILLS}
 
 
 def validate_heading_namespace(roots: dict[str, Path], items: list[Item]) -> None:
@@ -389,7 +395,8 @@ def preflight(
         require(kind in {"missing", "directory"}, f"{label} root is {kind}: {root}")
 
     validate_heading_namespace(roots, items)
-    validate_skill_namespaces(roots["skills"], items)
+    if "skills" in roots:
+        validate_skill_namespaces(roots["skills"], items)
     allowed = {"current"} if check else {"missing", "current", "mode-drift"}
     plan: list[tuple[Item, str]] = []
     destinations: set[Path] = set()
@@ -495,7 +502,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true", help="print the non-destructive install plan without changing files")
     parser.add_argument("--check", action="store_true", help="verify the current Heading installation")
     parser.add_argument("--codex-home", type=Path, default=Path(os.environ.get("CODEX_HOME", "~/.codex")))
-    parser.add_argument("--skills-root", type=Path, default=Path("~/.agents/skills"))
+    parser.add_argument("--skills-root", type=Path, default=Path("~/.agents/skills"), help="legacy skill destination; used only with --install-legacy-skills")
+    parser.add_argument("--install-legacy-skills", action="store_true", help="also copy skill folders to --skills-root; this can shadow the plugin and is not the default")
     args = parser.parse_args()
     require(not (args.check and args.dry_run), "--check and --dry-run are mutually exclusive")
     return args
@@ -507,29 +515,28 @@ def main() -> int:
     committed = False
     try:
         args = parse_args()
-        roots = {
-            "codex": normalize_root(args.codex_home),
-            "skills": normalize_root(args.skills_root),
-        }
-        assert_disjoint_roots(roots["codex"], roots["skills"])
+        roots = {"codex": normalize_root(args.codex_home)}
+        if args.install_legacy_skills:
+            roots["skills"] = normalize_root(args.skills_root)
+            assert_disjoint_roots(roots["codex"], roots["skills"])
         for label, root in roots.items():
             assert_safe_root(root, label)
 
-        items = inventory()
+        items = inventory(include_legacy_skills=args.install_legacy_skills)
         if args.dry_run:
             print(json.dumps(plan_payload(roots, items), ensure_ascii=False, sort_keys=True))
             return 0
 
         if args.check:
-            require(path_kind(roots["codex"]) == "directory", f"codex root is not installed: {roots['codex']}")
-            require(path_kind(roots["skills"]) == "directory", f"skills root is not installed: {roots['skills']}")
+            for label, root in roots.items():
+                require(path_kind(root) == "directory", f"{label} root is not installed: {root}")
             with DeploymentLocks(roots, create=False):
                 plan = preflight(roots, items, check=True)
             print(json.dumps({"status": "PASS", "mode": "check", "files": len(plan), "namespaceClean": True}, sort_keys=True))
             return 0
 
-        ensure_directory_chain(roots["codex"], created_dirs)
-        ensure_directory_chain(roots["skills"], created_dirs)
+        for root in roots.values():
+            ensure_directory_chain(root, created_dirs)
         with DeploymentLocks(roots, create=True):
             for label, root in roots.items():
                 assert_safe_root(root, label)

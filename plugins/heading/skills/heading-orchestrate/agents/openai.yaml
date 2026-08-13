@@ -1,0 +1,6 @@
+interface:
+  display_name: "Heading Orchestrate"
+  short_description: "Coordinate a locked Heading outcome with observable delegation."
+  default_prompt: "Use $heading-orchestrate after a Heading track locks the outcome. Choose only an observable, authorized work lane."
+policy:
+  allow_implicit_invocation: false

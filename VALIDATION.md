@@ -1,30 +1,34 @@
-# Heading 0.1.0 validation
+# Heading 0.3.0 validation
 
 ## Verified
 
 - Source validator: PASS in normal mode and with `PYTHONOPTIMIZE=1`.
-- Behavioral and deployment tests: **38/38 PASS** in 5 isolated batches.
-- Native Codex CLI 0.144.1 representative intake evaluation: five direct-track and five wrong-track cases executed in isolated read-only sessions; the initial 9/10 result exposed one missing route-correction field, and the repaired case passed on re-execution.
+- Behavioral, deployment, and plugin packaging tests: **42/42 PASS** in 6 isolated batches for 0.3.0.
+- Source and plugin validators passed for 0.3.0: 52 source files, five tracks, six plugin skills, four child-role templates, 27 modes, and 182 deterministic evaluation cases.
+- Native Codex CLI 0.144.1 representative intake evaluation: prior five direct-track and five wrong-track cases executed in isolated read-only sessions; the initial 9/10 result exposed one missing route-correction field, and the repaired case passed on re-execution. This is historical 0.2.0 evidence, not native-model proof for 0.3.0.
 - Five track contracts, 27 niche modes, and 5 wrong-track auto-routing boundaries.
 - 125 intake cases: 100 `PROCEED`, 20 `ASK`, 5 `REFUSE`; this is test coverage, not a runtime quota.
 - 25 dialogue cases: one-question completion, no clarification loop, in-place track correction, untrusted instructions, and repeated invalid goals.
 - All 150 intake/dialogue reference results pass the deterministic grader.
 - Invalid methods are repaired while legitimate goals continue; only five essentially deceptive or unauthorized goals are refused.
 - JSON output schema, native command construction, isolated authentication staging, and secret non-disclosure tests pass.
-- Native Executor smoke on Codex CLI 0.144.1: a real `collab spawn failed: no thread with id` was converted to `executorState: SPAWN_FAILED`, `releaseState: BLOCKED`, and `runtimeObserved: NOT_PROVEN`; no smoke file was created.
+- Historical native Executor smoke on Codex CLI 0.144.1: a real `collab spawn failed: no thread with id` was converted to `executorState: SPAWN_FAILED`, `releaseState: BLOCKED`, and `runtimeObserved: NOT_PROVEN`; no smoke file was created. Version 0.3.0 now permits a declared direct writer for bounded work when delegation is unavailable, but requires independent review or `independentReview: NOT_PROVEN` for material results.
 - Native user-facing response smoke on Codex CLI 0.144.1: the final answer used plain Korean, progressive disclosure, and emitted no YAML or JSON.
 - The adversarial deployment matrix covers non-destructive collision handling, symlinks, hard links, special files, rollback, mode drift, locks, deep and Unicode paths, restrictive umask, low file-descriptor limits, and cross-filesystem `TMPDIR`.
+- Plugin packaging validator: portable Agent Plugins manifest, Codex manifest, marketplace source containment, six immediate skill folders, and symlink rejection.
+- Historical Codex CLI plugin smoke: a temporary `CODEX_HOME` registered the repository marketplace, installed `heading@heading` version `0.2.0`, and listed it as enabled from `plugins/heading`. Re-run this against 0.3.0 before publishing.
 
 Run the same checks:
 
 ```bash
 ./verify-source-package.sh
+python3 -B scripts/validate-plugin.py
 python3 -B scripts/run-evals.py --dry-run
 ```
 
 ## native Codex eval
 
-The native runner installs Heading into an isolated home and invokes Codex in an ephemeral read-only evaluation session:
+The native runner copies the packaged skill source into an isolated temporary skill scope and invokes Codex in an ephemeral read-only evaluation session. It validates skill behavior, not interactive plugin activation:
 
 ```bash
 CODEX_API_KEY=<key> python3 -B scripts/run-evals.py --suite all
@@ -41,6 +45,6 @@ The authentication file is copied only into the temporary evaluation home with m
 
 ## Evidence boundary
 
-`[NOT_PROVEN]` Native Codex CLI compatibility and representative model execution must be rechecked for every CLI release. The Executor failure gate is runtime-verified, but successful Sol/Luna/Terra spawning, effective effort, sandbox enforcement, Executor thread continuation, and stochastic model behavior for the full 150 cases remain separate evidence.
+`[NOT_PROVEN]` Authenticated native-model evaluation and interactive plugin installation were not rerun for 0.3.0; `scripts/run-evals.py --dry-run` proves only native command construction. A complete plugin E2E test requires a newly started interactive Codex CLI session or desktop chat with the plugin enabled; `codex exec` does not prove that activation surface. Native Codex CLI compatibility and representative model execution must be rechecked for every CLI release. Successful Sol/Luna/Terra spawning, effective effort, sandbox enforcement, direct-writer review behavior, Executor thread continuation, and stochastic model behavior for the full 150 cases remain separate evidence.
 
 The static behavior suite and adversarial deployment tests prove package contracts and deterministic tooling. Native execution evidence is recorded separately by `scripts/run-evals.py`.

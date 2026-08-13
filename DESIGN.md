@@ -1,8 +1,8 @@
-# Heading 0.1.0 design
+# Heading 0.3.0 design
 
 ## Core model
 
-Heading separates **product direction** from **execution roles**.
+Heading separates **product direction** from **execution roles** and from the **distribution package**.
 
 ```text
 Prototype  decide
@@ -19,6 +19,8 @@ Executor   Luna max, sole writer
 Reviewer   Terra high, read-only
 Architect  Terra xhigh, read-only
 ```
+
+The product tracks are six portable skill folders under `plugins/heading/skills/`. `plugins/heading/plugin.json` is the portable Agent Plugins manifest, while `.codex-plugin/plugin.json` is the Codex host manifest. The separate `runtime/heading/profile/heading.config.toml` file is an optional task-stage profile; it does not define package distribution.
 
 ## Routing before lock
 
@@ -58,16 +60,20 @@ Maintain   TRIAGE -> CONTAIN -> CHANGE -> RECOVER -> WATCH
 
 Each track keeps its own modes, lock, proof, stop rule, and result schema in `references/METHOD.md`. This is progressive disclosure: short routing and authority rules stay in `SKILL.md`; detailed niche method is loaded only after selection.
 
-## Concurrency and review
+## Capability-gated concurrency and review
 
 - One active writable outcome.
 - Read-heavy discovery may run independently; write-heavy work is serialized.
 - One outcome keeps the same Executor thread through accepted repair and re-verification.
-- Lead delegates exactly one `heading_executor` only after locking `outcome_id`, owned surface, done condition, and evidence. A missing child thread ID never enters a wait.
-- Waits are bounded and target one named child. Spawn, role/sandbox observation, or wait failure stops the outcome as `BLOCKED` with runtime proof `NOT_PROVEN`; no second writer is started.
-- The Executor contract refuses a second writer and does not assume a version-sensitive global concurrency setting. Only Lead can integrate or claim `PASS`/`READY`.
+- Lead locks `outcome_id`, owned surface, done condition, and evidence before any writable work. When a native executor is available and allowed, it delegates exactly one `heading_executor`; a missing child thread ID never enters a wait.
+- If delegation is unavailable, disallowed, or disproportionate for a small local change, Lead declares `executionMode: DIRECT`, remains the sole writer, and preserves the same ownership and evidence lock. A requested but unobservable native or user-visible lane remains `NOT_PROVEN` or `BLOCKED`; it is never silently replaced.
+- Waits are bounded and target one named child. A timeout or missing notification is not proof of failure; inspect the same writer's state before deciding recovery or replacement.
+- The Executor contract refuses a second writer and does not assume a version-sensitive global concurrency setting. A direct writer cannot self-certify material work; only Lead makes final claims.
 - Reviewer sees the actual candidate and evidence, reports only to Lead, and never edits or directs Executor.
 - Architect is used only when an ownership, state, security, concurrency, recovery, or public-contract boundary cannot be localized.
+- `$heading-orchestrate` runs only after a track locks an outcome. It selects a direct lane, an observed native lane, or an explicitly authorized user-visible task lane.
+- Native role templates are intent, not runtime proof. Identity, model/effort, write boundary, task ID, and completion must be observed before a delegated result can support acceptance.
+- There is no capability-gated fallback: an unavailable requested lane is `NOT_PROVEN` or `BLOCKED`; direct work is a separately stated lane rather than an invisible replacement.
 
 ## Prompt contract
 

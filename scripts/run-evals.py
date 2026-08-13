@@ -16,6 +16,7 @@ import tempfile
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
+PLUGIN_SKILLS = ROOT / "plugins" / "heading" / "skills"
 
 
 def load_cases(suite: str) -> list[dict[str, Any]]:
@@ -73,8 +74,6 @@ def command_for(codex_bin: str, repo: Path, result: Path, prompt: str) -> list[s
     return [
         codex_bin,
         "exec",
-        "--profile",
-        "heading",
         "--ephemeral",
         "--sandbox",
         "read-only",
@@ -176,17 +175,11 @@ def main() -> int:
         sandbox = Path(temporary)
         home = sandbox / "home"
         codex_home = home / ".codex"
+        codex_home.mkdir(parents=True)
         skills_root = home / ".agents" / "skills"
-        install = subprocess.run(
-            [sys.executable, "-B", str(ROOT / "scripts/install.py"), "--codex-home", str(codex_home), "--skills-root", str(skills_root)],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if install.returncode != 0:
-            print(f"run-evals: isolated install failed: {install.stderr.strip()}", file=sys.stderr)
-            return 2
+        shutil.copytree(PLUGIN_SKILLS, skills_root)
+        env = os.environ.copy()
+        env.update({"HOME": str(home), "CODEX_HOME": str(codex_home), "PYTHONDONTWRITEBYTECODE": "1"})
 
         if auth_bytes is not None:
             auth_target = codex_home / "auth.json"
@@ -200,8 +193,6 @@ def main() -> int:
                 print(f"run-evals: cannot stage isolated auth: {error}", file=sys.stderr)
                 return 2
 
-        env = os.environ.copy()
-        env.update({"HOME": str(home), "CODEX_HOME": str(codex_home), "PYTHONDONTWRITEBYTECODE": "1"})
         failures = 0
         for index, (suite, case) in enumerate(plan):
             case_root = results_root / suite
@@ -241,7 +232,7 @@ def main() -> int:
             if completed.returncode != 0 or not result_path.is_file():
                 failures += 1
 
-    summary = {"status": "PASS" if failures == 0 else "FAIL", "cases": len(plan), "executionFailures": failures, "resultsRoot": str(results_root), "auth": auth_mode}
+    summary = {"status": "PASS" if failures == 0 else "FAIL", "cases": len(plan), "executionFailures": failures, "resultsRoot": str(results_root), "auth": auth_mode, "skillSource": "temporary-plugin-skill-mirror"}
     print(json.dumps(summary, indent=2, sort_keys=True), flush=True)
     if failures:
         return 1

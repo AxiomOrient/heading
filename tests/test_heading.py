@@ -18,8 +18,10 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parent.parent
+PLUGIN_ROOT = ROOT / "plugins" / "heading"
 INSTALLER = ROOT / "scripts/install.py"
 VALIDATOR = ROOT / "scripts/validate.py"
+PLUGIN_VALIDATOR = ROOT / "scripts/validate-plugin.py"
 TRACKS = ("prototype", "build", "sweep", "grow", "maintain")
 
 
@@ -59,6 +61,7 @@ class HeadingTests(unittest.TestCase):
         return self.run_python(
             INSTALLER,
             *extra,
+            "--install-legacy-skills",
             "--codex-home",
             str(codex),
             "--skills-root",
@@ -101,7 +104,7 @@ class HeadingTests(unittest.TestCase):
                 "sys.modules[spec.name] = module",
                 "spec.loader.exec_module(module)",
                 textwrap.dedent(patch).strip(),
-                f'sys.argv = [str(installer), "--codex-home", {str(codex)!r}, "--skills-root", {str(skills)!r}]',
+                f'sys.argv = [str(installer), "--install-legacy-skills", "--codex-home", {str(codex)!r}, "--skills-root", {str(skills)!r}]',
                 "raise SystemExit(module.main())",
             )
         )
@@ -127,11 +130,26 @@ class HeadingTests(unittest.TestCase):
         result = self.run_python(VALIDATOR)
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
-        self.assertEqual(payload, {"status": "PASS", "version": "0.1.0", "files": 44, "tracks": 5, "childRoles": 4, "modes": 27, "evals": 182, "modeEvals": 32, "intakeEvals": 125, "dialogueEvals": 25})
+        self.assertEqual(payload, {"status": "PASS", "version": "0.3.0", "files": 52, "tracks": 5, "skills": 6, "childRoles": 4, "modes": 27, "evals": 182, "modeEvals": 32, "intakeEvals": 125, "dialogueEvals": 25})
 
     def test_bundle_validation_with_python_optimize(self) -> None:
         result = self.run_python(VALIDATOR, env={"PYTHONOPTIMIZE": "1"})
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_profile_only_install_never_copies_plugin_skill_namespaces(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            codex, skills = base / "codex", base / "skills"
+            result = self.run_python(
+                INSTALLER, "--codex-home", str(codex), "--skills-root", str(skills), "--dry-run",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(len(payload["install"]), 5)
+            self.assertFalse(any("heading-build" in path for path in payload["install"]))
+            installed = self.run_python(INSTALLER, "--codex-home", str(codex), "--skills-root", str(skills))
+            self.assertEqual(installed.returncode, 0, installed.stderr)
+            self.assertFalse(skills.exists())
 
     def test_each_track_skill_mutation_is_rejected(self) -> None:
         spec = importlib.util.spec_from_file_location("heading_validate_skill_mutation", VALIDATOR)
@@ -144,9 +162,12 @@ class HeadingTests(unittest.TestCase):
             base = Path(temporary)
             for track in TRACKS:
                 source = self.copy_source(base / track)
-                skill = source / "skills" / f"heading-{track}" / "SKILL.md"
+                skill = source / "plugins/heading/skills" / f"heading-{track}" / "SKILL.md"
                 skill.write_text(skill.read_text(encoding="utf-8") + "\nmutated runtime contract\n", encoding="utf-8")
                 validator.ROOT = source
+                validator.PLUGIN_ROOT = source / "plugins/heading"
+                validator.SKILLS_ROOT = validator.PLUGIN_ROOT / "skills"
+                validator.RUNTIME_ROOT = source / "runtime/heading"
                 with self.subTest(track=track), self.assertRaisesRegex(validator.ValidationError, "skill content mismatch"):
                     validator.validate_skills()
 
@@ -161,9 +182,12 @@ class HeadingTests(unittest.TestCase):
             base = Path(temporary)
             for track in TRACKS:
                 source = self.copy_source(base / track)
-                method = source / "skills" / f"heading-{track}" / "references/METHOD.md"
+                method = source / "plugins/heading/skills" / f"heading-{track}" / "references/METHOD.md"
                 method.write_text(method.read_text(encoding="utf-8") + "\nmutated method\n", encoding="utf-8")
                 validator.ROOT = source
+                validator.PLUGIN_ROOT = source / "plugins/heading"
+                validator.SKILLS_ROOT = validator.PLUGIN_ROOT / "skills"
+                validator.RUNTIME_ROOT = source / "runtime/heading"
                 with self.subTest(track=track), self.assertRaisesRegex(validator.ValidationError, "method content mismatch"):
                     validator.validate_skills()
 
@@ -179,6 +203,9 @@ class HeadingTests(unittest.TestCase):
             cases_path = source / "evals/cases.json"
             original = json.loads(cases_path.read_text(encoding="utf-8"))
             validator.ROOT = source
+            validator.PLUGIN_ROOT = source / "plugins/heading"
+            validator.SKILLS_ROOT = validator.PLUGIN_ROOT / "skills"
+            validator.RUNTIME_ROOT = source / "runtime/heading"
 
             mutations = []
             duplicate_mode = json.loads(json.dumps(original))
@@ -207,16 +234,16 @@ class HeadingTests(unittest.TestCase):
 
     def test_skill_contract_requires_auto_routing_and_three_intake_actions(self) -> None:
         for track in TRACKS:
-            text = (ROOT / "skills" / f"heading-{track}" / "SKILL.md").read_text(encoding="utf-8")
+            text = (PLUGIN_ROOT / "skills" / f"heading-{track}" / "SKILL.md").read_text(encoding="utf-8")
             self.assertIn("The invoked skill is a hint.", text)
             self.assertIn("continue in this conversation", text)
             self.assertIn("`PROCEED`, `ASK`, or `REFUSE`", text)
             self.assertIn("Report a route correction only when the effective track differs from the invoked track: append one concise correction to `adjustments`", text)
-            self.assertIn("Executor delegation gate", text)
+            self.assertIn("Before writable work, lock `outcome_id`, `owned_surface`, `done`, and `evidence`", text)
             self.assertIn("non-empty child thread ID", text)
-            self.assertIn("Never wait with an empty receiver list", text)
-            self.assertIn("releaseState: BLOCKED", text)
-            self.assertIn("Only Lead may integrate, review, or claim `PASS`/`READY`", text)
+            self.assertIn("executionMode: DIRECT", text)
+            self.assertIn("independentReview: NOT_PROVEN", text)
+            self.assertIn("Only Lead makes final claims.", text)
             self.assertIn("User-facing result", text)
             self.assertIn("plain words and a Feynman-style explanation", text)
             self.assertIn("Choose detail by task shape, not by a fixed line or word limit", text)
@@ -225,8 +252,11 @@ class HeadingTests(unittest.TestCase):
             self.assertNotIn("at most six short lines", text)
             self.assertNotIn("no more than four lines", text)
             self.assertNotIn("`HANDOFF`", text)
-        prototype = (ROOT / "skills" / "heading-prototype" / "SKILL.md").read_text(encoding="utf-8")
+        prototype = (PLUGIN_ROOT / "skills" / "heading-prototype" / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("A request to test an otherwise unspecified idea is still a usable desirability decision", prototype)
+        lifecycle = (PLUGIN_ROOT / "skills" / "heading-maintain" / "references" / "PROCESS-LIFECYCLE.md").read_text(encoding="utf-8")
+        self.assertIn("Never reconstruct a kill scope from a late PGID", lifecycle)
+        self.assertIn("no owned descendant", lifecycle)
 
     def test_source_symlink_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -237,6 +267,42 @@ class HeadingTests(unittest.TestCase):
             result = self.run_python(source / "scripts/validate.py", cwd=source)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("source symlink", result.stderr)
+
+    def test_plugin_package_is_valid_and_rejects_portable_manifest_drift(self) -> None:
+        result = self.run_python(PLUGIN_VALIDATOR)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["skills"], 6)
+        with tempfile.TemporaryDirectory() as temporary:
+            source = self.copy_source(Path(temporary))
+            manifest = source / "plugins/heading/plugin.json"
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+            payload["skills"] = "./skills/"
+            manifest.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+            result = self.run_python(source / "scripts/validate-plugin.py", cwd=source)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("unsupported keys", result.stderr)
+
+    def test_plugin_validator_rejects_directory_ineligible_default_prompt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = self.copy_source(Path(temporary))
+            manifest = source / "plugins/heading/.codex-plugin/plugin.json"
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+            payload["interface"]["defaultPrompt"] = "x" * 129
+            manifest.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+            result = self.run_python(source / "scripts/validate-plugin.py", cwd=source)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exceeds 128 characters", result.stderr)
+
+    def test_ignored_workspace_artifacts_do_not_break_source_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = self.copy_source(Path(temporary))
+            (source / ".DS_Store").write_text("finder\n", encoding="utf-8")
+            (source / ".pytest_cache").mkdir()
+            (source / ".pytest_cache" / "state").write_text("cache\n", encoding="utf-8")
+            (source / "eval-results").mkdir()
+            (source / "eval-results" / "result.json").write_text("{}\n", encoding="utf-8")
+            result = self.run_python(source / "scripts/validate.py", cwd=source)
+            self.assertEqual(result.returncode, 0, result.stderr)
 
     @unittest.skipUnless(sys.platform == "darwin", "macOS system aliases only")
     def test_macos_system_aliases_are_canonicalized_but_custom_symlinks_remain_unsafe(self) -> None:
@@ -301,7 +367,7 @@ class HeadingTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertEqual(payload["mode"], "plan")
-            self.assertEqual(len(payload["install"]), 20)
+            self.assertEqual(len(payload["install"]), 24)
             self.assertEqual(payload["remove"], [])
             self.assertFalse((codex / ".heading-deploy.lock").exists())
             self.assertFalse((skills / ".heading-deploy.lock").exists())
@@ -392,6 +458,7 @@ class HeadingTests(unittest.TestCase):
                 lock.chmod(0o777)
             result = self.run_python(
                 INSTALLER,
+                "--install-legacy-skills",
                 "--codex-home",
                 str(codex),
                 "--skills-root",
@@ -411,6 +478,7 @@ class HeadingTests(unittest.TestCase):
             checked = self.run_python(
                 INSTALLER,
                 "--check",
+                "--install-legacy-skills",
                 "--codex-home",
                 str(codex),
                 "--skills-root",

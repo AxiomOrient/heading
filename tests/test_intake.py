@@ -148,6 +148,9 @@ class IntakeContractTests(unittest.TestCase):
             source = Path(temporary) / "source"
             shutil.copytree(ROOT, source, ignore=shutil.ignore_patterns(".git"))
             validator.ROOT = source
+            validator.PLUGIN_ROOT = source / "plugins/heading"
+            validator.SKILLS_ROOT = validator.PLUGIN_ROOT / "skills"
+            validator.RUNTIME_ROOT = source / "runtime/heading"
             path = source / "evals/intake_cases.json"
             original = json.loads(path.read_text(encoding="utf-8"))
 
@@ -254,8 +257,8 @@ class IntakeContractTests(unittest.TestCase):
             self.assertIn("read-only", command)
             self.assertIn("--ephemeral", command)
             self.assertIn("--output-schema", command)
-            self.assertEqual(command.count("--profile"), 1)
-            self.assertIn("heading", command)
+            self.assertNotIn("--profile", command)
+            self.assertEqual(command[0], "codex")
             prompt = command[-1]
             self.assertIn("routing hint", prompt)
             self.assertIn("Default to PROCEED", prompt)
@@ -294,6 +297,8 @@ class IntakeContractTests(unittest.TestCase):
                 "assert auth.is_file()\n"
                 "assert stat.S_IMODE(auth.stat().st_mode) == 0o600\n"
                 "args = sys.argv[1:]\n"
+                "if args[:1] == ['plugin']:\n"
+                "    raise SystemExit(88)\n"
                 "index = args.index('--output-last-message')\n"
                 "target = pathlib.Path(args[index + 1])\n"
                 f"target.write_text({final_json!r} + '\\n', encoding='utf-8')\n"
@@ -315,6 +320,7 @@ class IntakeContractTests(unittest.TestCase):
             summary, _ = json.JSONDecoder().raw_decode(authenticated.stdout.lstrip())
             self.assertEqual(summary["status"], "PASS")
             self.assertEqual(summary["auth"], "auth-file")
+            self.assertEqual(summary["skillSource"], "temporary-plugin-skill-mirror")
             self.assertNotIn("must-not-leak", authenticated.stdout + authenticated.stderr)
 
 

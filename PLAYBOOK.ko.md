@@ -78,6 +78,16 @@ $heading-maintain 간헐적 데이터 유실을 재현하고 복구해. 데이�
 
 최적 흐름: 영향 확인 → 활성 피해 격리 → 원인 경계 수정 → 복구·회귀 검증 → 변경 후 관측.
 
+## Orchestrate
+
+제품 트랙이 outcome, owner, proof 조건 하나를 잠근 뒤에만 사용합니다.
+
+```text
+$heading-orchestrate 잠긴 build outcome을 조율해. 파일 경계마다 writer는 한 명만 두고, 내가 명시적으로 승인하지 않으면 별도 task를 만들지 마.
+```
+
+최적 흐름: task packet 작성 → 관측 가능한 lane 하나 선택 → 실제 worker/task identity 관측 → 독립 review → primary agent가 증거를 수락 또는 거절. Native 역할과 user-visible task는 선택 capability이며 quota나 조용한 fallback이 아닙니다.
+
 피할 것: 로그 삭제, 인증 우회, 백업 없는 데이터 수정, 중단 기준 없는 production chaos.
 
 ## 잘못된 방법을 요청했을 때

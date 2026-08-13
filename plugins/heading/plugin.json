@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "heading",
+  "version": "0.3.0",
+  "description": "Evidence-first product and engineering work tracks with capability-gated orchestration.",
+  "author": {
+    "name": "AxiomOrient",
+    "url": "https://github.com/AxiomOrient"
+  },
+  "homepage": "https://github.com/AxiomOrient/heading",
+  "repository": "https://github.com/AxiomOrient/heading",
+  "license": "MIT",
+  "keywords": ["product", "engineering", "evidence", "orchestration"]
+}
