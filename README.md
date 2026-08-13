@@ -1,4 +1,4 @@
-# Heading 0.3.0
+# Heading 0.3.1
 
 Heading is a portable skills plugin with five product-work tracks and one optional orchestration track.
 
@@ -14,6 +14,8 @@ $heading-orchestrate coordinate an already locked outcome with observable delega
 ## Usage
 
 A one-line request is enough.
+
+The five product tracks (`prototype`, `build`, `sweep`, `grow`, and `maintain`) are eligible for implicit invocation: describe the work naturally and Codex can choose the matching track from its description. Use `$heading-…` to request a starting track; Heading still corrects it when the request and evidence show another track fits. `$heading-orchestrate` is deliberately explicit-only because delegation is valid only after an outcome and its proof are locked.
 
 ```text
 $heading-prototype Test whether this feature is worth building.
@@ -69,6 +71,7 @@ The primary distribution is the plugin at `plugins/heading/`. It has both the po
 
 ```bash
 ./verify-source-package.sh
+python3 -B scripts/smoke-plugin-install.py
 
 codex plugin marketplace add /absolute/path/to/heading
 codex plugin add heading@heading
@@ -81,6 +84,8 @@ For a Git checkout, replace the local path with `AxiomOrient/heading --ref main`
 
 Requirements: POSIX and Python 3.11 or later. The compatibility profile installation contains 5 files and never copies plugin skill folders into a global skill namespace.
 
+Use this section only when you intentionally want the separate local `heading` runtime profile. It is not required to install, discover, or implicitly invoke the plugin skills.
+
 ```bash
 ./scripts/install.sh --dry-run
 ./scripts/install.sh
@@ -89,7 +94,7 @@ Requirements: POSIX and Python 3.11 or later. The compatibility profile installa
 codex --profile heading
 ```
 
-This profile is a task-stage runtime choice, not the plugin distribution mechanism. Its installer is non-destructive: it never removes existing files or namespaces. `--install-legacy-skills` is an explicit compatibility escape hatch only; it can shadow an installed plugin with the same skill name and should not be used for normal plugin deployment.
+This profile is a task-stage runtime choice, not the plugin distribution mechanism. Plugin users do not need to install it: the five product skills work from the installed plugin alone. Its installer is non-destructive: it never removes existing files or namespaces. `--install-legacy-skills` is an explicit compatibility escape hatch only; it can shadow an installed plugin with the same skill name and should not be used for normal plugin deployment.
 
 Heading keeps execution evidence internally, but its response detail follows the task: simple work is brief, while complex or risky work includes the evidence needed to decide. Ask for raw result fields when you need them.
 
@@ -101,9 +106,9 @@ Use `$heading-orchestrate` only after one of the five tracks locks the outcome a
 
 ## Distribution boundary
 
-The distributable source is `plugins/heading/`: the six skills, their references, and the portable/Codex manifests. `runtime/heading/` contains the separate optional profile and role templates. The repository marketplace supports local and team testing; public directory submission remains a separate publisher review step. The optional profile installer writes into the caller's selected Codex profile and does not replace the plugin package.
+The distributable source is `plugins/heading/`: the six skills, their references, and the portable/Codex manifests. `plugin.json` is the portable Agent Plugins manifest; `.codex-plugin/plugin.json` is the Codex manifest; both identify `heading` at the same version and the Codex manifest alone points to `./skills/`. `runtime/heading/` contains the separate optional profile and role templates. The repository marketplace supports local and team testing; public directory submission remains a separate publisher review step. The optional profile installer writes into the caller's selected Codex profile and does not replace the plugin package.
 
-`./verify-source-package.sh` proves the deterministic source package and both manifest contracts. Native Codex execution, model behavior, authenticated evaluation, and public-directory approval remain separate evidence.
+`./verify-source-package.sh` proves the deterministic source package and both manifest contracts. `scripts/smoke-plugin-install.py` separately proves local marketplace registration, installation, enabled state, and cached-manifest equivalence in an isolated Codex home. A fresh interactive chat is still required to observe stochastic implicit selection; native model behavior, authenticated evaluation, and public-directory approval remain separate evidence.
 
 ## Third-party notices
 

@@ -1,11 +1,11 @@
 ---
 name: heading-prototype
-description: Explicit Heading prototype track for deciding whether or what to build with a reversible probe. A wrong explicit track is corrected before work starts.
+description: Use when a product decision needs a reversible, evidence-backed probe before building. A mismatched requested track is corrected before work starts.
 ---
 
 # Heading Prototype
 
-Use the `heading` profile. Runtime model, effort, sandbox, and permissions remain `NOT_PROVEN` unless observed. Before workspace, artifact, external-work, or completion actions, bind the canonical workspace, classify inputs and proof artifacts, and invalidate evidence made stale by a changed input.
+Use the installed Heading plugin. The optional `heading` profile is a separate local runtime setting and is not required for this skill. Runtime model, effort, sandbox, and permissions remain `NOT_PROVEN` unless observed. Before workspace, artifact, external-work, or completion actions, bind the canonical workspace, classify inputs and proof artifacts, and invalidate evidence made stale by a changed input.
 
 ## Intake
 

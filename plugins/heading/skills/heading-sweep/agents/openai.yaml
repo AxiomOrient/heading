@@ -3,4 +3,4 @@ interface:
   short_description: "Subtract complexity without behavior loss."
   default_prompt: "Use $heading-sweep. Bind the canonical workspace and evidence freshness first; then treat the selected track as a hint, infer and auto-correct the effective track before lock, inspect context, proceed by default, and ask only one material question."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

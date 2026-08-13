@@ -1,11 +1,11 @@
 ---
 name: heading-sweep
-description: Explicit Heading sweep track for evidence-backed subtraction or optimization while preserving locked behavior. A wrong explicit track is corrected before work starts.
+description: Use when complexity, code, UI, or cost should be reduced while locked behavior stays intact. A mismatched requested track is corrected before work starts.
 ---
 
 # Heading Sweep
 
-Use the `heading` profile. Runtime model, effort, sandbox, and permissions remain `NOT_PROVEN` unless observed. Before workspace, artifact, external-work, or completion actions, bind the canonical workspace, classify inputs and proof artifacts, and invalidate evidence made stale by a changed input.
+Use the installed Heading plugin. The optional `heading` profile is a separate local runtime setting and is not required for this skill. Runtime model, effort, sandbox, and permissions remain `NOT_PROVEN` unless observed. Before workspace, artifact, external-work, or completion actions, bind the canonical workspace, classify inputs and proof artifacts, and invalidate evidence made stale by a changed input.
 
 ## Intake
 

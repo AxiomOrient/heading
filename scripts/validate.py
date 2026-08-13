@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_ROOT = ROOT / "plugins" / "heading"
 SKILLS_ROOT = PLUGIN_ROOT / "skills"
 RUNTIME_ROOT = ROOT / "runtime" / "heading"
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 TRACK_ORDER = ("prototype", "build", "sweep", "grow", "maintain")
 # Version-control metadata is not part of the package and never installed.
 IGNORED_ROOT_ENTRIES = (".git", ".DS_Store", ".coverage", ".pytest_cache", "eval-results")
@@ -82,7 +82,7 @@ AGENTS = {
 TRACKS = {
     "prototype": TrackSpec(
         "Prototype",
-        "Explicit Heading prototype track for deciding whether or what to build with a reversible probe. A wrong explicit track is corrected before work starts.",
+        "Use when a product decision needs a reversible, evidence-backed probe before building. A mismatched requested track is corrected before work starts.",
         "Resolve one product decision by testing the riskiest assumption with the cheapest faithful reversible probe.",
         "The primary uncertainty is desirability, workflow, feasibility, viability, or generative quality.",
         "The behavior is already accepted and the primary outcome is production delivery, simplification, measured growth, or mature-system control.",
@@ -91,13 +91,13 @@ TRACKS = {
         "Actual observations cross the locked threshold and support `ADOPT`, `REJECT`, `ITERATE`, or `INCONCLUSIVE`; only transferable learning survives.",
         "FRAME -> SELECT -> PROBE -> OBSERVE -> DECIDE",
         ("desirability", "workflow", "feasibility", "viability", "generative-quality"),
-        "e76632f613793f4330ffe3463c477398cfe75f2bb037a0ab8965dc37bb798121",
+        "411ad19dd567bc5df17e3b949fe96364a771e7a8ca6f60e31a2b2a06b9aac186",
         "ea9a14d20d3cf0bc742d896e5fd9e0a65f15fddab25fa1e2299d57f885e295de",
         ("Repair the method instead of rejecting a valid goal", "Wizard-of-Oz or concierge run", "locked corpus, rubric, holdout cases", "Refuse only when deception"),
     ),
     "build": TrackSpec(
         "Build",
-        "Explicit Heading build track for turning accepted behavior into one complete production outcome. A wrong explicit track is corrected before work starts.",
+        "Use when accepted behavior needs one complete, evidence-backed production outcome. A mismatched requested track is corrected before work starts.",
         "Turn accepted behavior into one integrated, deployable, operable outcome.",
         "Product meaning is decided and the remaining uncertainty is implementation, integration, or delivery.",
         "The main question is whether to build it, whether it improves a product metric, or how to simplify existing behavior.",
@@ -106,13 +106,13 @@ TRACKS = {
         "The entry-to-effect-to-durable-output path and every applicable failure, recovery, release, and operational proof pack pass.",
         "CLASSIFY -> CONTRACT -> SLICE -> PROVE -> RELEASE",
         ("product-slice", "library-api", "service", "adapter", "data-change", "delivery-infra"),
-        "6df27d8bd4264739083b53561341b76a37575e1be28b97c4dc573379cf563bb2",
+        "2e02783b0e825dda1c1ccfa9c1a017bf2bda289a95a755080aea04a6472ea311",
         "780e44b75f2f8a96fe38b482568cbec4f4a0e5f71c90d155b2d9754a97430988",
         ("Repair invalid methods while preserving the build goal", "native or authoritative fixture", "versioned model, prompt, tool", "Refuse only when bypass"),
     ),
     "sweep": TrackSpec(
         "Sweep",
-        "Explicit Heading sweep track for evidence-backed subtraction or optimization while preserving locked behavior. A wrong explicit track is corrected before work starts.",
+        "Use when complexity, code, UI, or cost should be reduced while locked behavior stays intact. A mismatched requested track is corrected before work starts.",
         "Reduce code, UI, state, interfaces, dependencies, or resource cost while preserving locked product meaning.",
         "The primary outcome is deletion, collapse, behavior-preserving refactor, UI simplification, or measured performance improvement.",
         "The change adds product behavior, repairs an active reliability risk, or tests a market hypothesis.",
@@ -121,13 +121,13 @@ TRACKS = {
         "The same oracle passes before and after, and evidence shows net deletion, simpler ownership, clearer interaction, or measured resource gain.",
         "ORACLE -> CUT -> COMPARE -> KEEP_OR_REVERT",
         ("delete", "collapse", "refactor", "ui", "performance"),
-        "5f9907856e9264339d1938a0c150ee771a0ff2e41eadd2ca0dfd7e8eb0b9e6fa",
+        "dcae883c8943885fbdbca33fc7f5f7c295ba3469a041c4b4b88d5a77fc707653",
         "44b804d9788efacd3cc880e0e7f72439517be614a131454c42b3ea773a544cd7",
         ("Repair invalid methods while preserving the goal", "same outputs and failures", "warmup and repeated samples", "Refuse only when concealment"),
     ),
     "grow": TrackSpec(
         "Grow",
-        "Explicit Heading grow track for improving one shipped-product outcome with decision-grade evidence. A wrong explicit track is corrected before work starts.",
+        "Use when a shipped product outcome needs a decision-grade growth experiment and measurement. A mismatched requested track is corrected before work starts.",
         "Improve one shipped-product outcome with a precommitted measurement and decision design.",
         "A usable product exists and behavior can be measured through randomized, sequential, switchback, holdout, or observational evidence.",
         "The need is qualitative discovery, initial product construction, elective simplification, or operational repair.",
@@ -136,13 +136,13 @@ TRACKS = {
         "Implementation and data quality are separately proven; completed evidence supports `KEEP`, `ROLLBACK`, `ITERATE`, or `NOT_PROVEN` with an explicit evidence grade.",
         "DESIGN -> INSTRUMENT -> SHIP -> ANALYZE -> DECIDE",
         ("randomized", "sequential", "switchback", "holdout-rollout", "observational"),
-        "1d6bed95f3785f47acbb7c37e19c6df99e4b755bfaa1951b94de484dc0e68da9",
+        "3c7e4364b625874c3aae5dc20917ff7bd0adf77263a6c3aca21bd54a664d1687",
         "556451dba4dbd12537e9295e94d6316b7c42c62f4711e5203ecae701a9955174",
         ("Repair invalid methods while preserving the growth goal", "sample-ratio check", "precommitted sequential method", "Refuse only when fabricated reporting"),
     ),
     "maintain": TrackSpec(
         "Maintain",
-        "Explicit Heading maintain track for existing-system risk, repair, or operational change; require evidence-based recovery and bounded no-survivor custody for external work. Correct a wrong explicit track before work starts.",
+        "Use when an existing system needs risk control, repair, incident response, or safe operational change. A mismatched requested track is corrected before work starts.",
         "Restore, protect, or safely change a mature system while preserving explicit invariants and recovery control.",
         "The primary outcome is incident response, defect repair, security remediation, reliability or capacity work, planned operational change, or data repair.",
         "The primary outcome is a new product slice, discovery experiment, growth experiment, or elective simplification.",
@@ -151,7 +151,7 @@ TRACKS = {
         "Impact is controlled; cause or rationale is evidenced; change, recovery, regression, and post-change observations support `RESTORED`, `STABILIZED`, `CHANGED`, `PARTIAL`, or `BLOCKED`.",
         "TRIAGE -> CONTAIN -> CHANGE -> RECOVER -> WATCH",
         ("incident", "defect", "security", "reliability-capacity", "planned-change", "data-repair"),
-        "7c146f304ab46a65e85156554a8400b32c290042c74c57c6211e73ee4b76c322",
+        "5323889d83e396935f34eb2dadf11e52b90b89d17dbf6ab13896403a6a135395",
         "f4f2734c8770d092f3018c78667186d926043ad931686ab8484c4e378d8b0318",
         ("Repair invalid methods while preserving the operational goal", "Contain harm before", "immutable backup or snapshot", "Refuse only when concealment"),
     ),
@@ -178,7 +178,7 @@ def expected_files() -> set[Path]:
         Path(".agents/plugins/marketplace.json"), Path("verify-source-package.sh"),
         Path("evals/cases.json"), Path("evals/dialogue_cases.json"), Path("evals/intake-output.schema.json"), Path("evals/intake_cases.json"),
         Path("scripts/grade-evals.py"), Path("scripts/install.py"), Path("scripts/install.sh"), Path("scripts/run-evals.py"),
-        Path("scripts/run-tests.py"), Path("scripts/validate.py"), Path("scripts/validate-plugin.py"), Path("scripts/validate.sh"),
+        Path("scripts/run-tests.py"), Path("scripts/smoke-plugin-install.py"), Path("scripts/validate.py"), Path("scripts/validate-plugin.py"), Path("scripts/validate.sh"),
         Path("tests/__init__.py"), Path("tests/test_heading.py"), Path("tests/test_intake.py"),
     }
     files.update({
@@ -261,6 +261,7 @@ def parse_frontmatter(text: str, path: Path) -> dict[str, str]:
 def validate_skills() -> None:
     common = (
         "A one-line request is enough.",
+        "The optional `heading` profile is a separate local runtime setting and is not required for this skill.",
         "The invoked skill is a hint.",
         "continue in this conversation",
         "Never ask the user to invoke another skill.",
@@ -321,7 +322,7 @@ def validate_skills() -> None:
         require(f'display_name: "Heading {spec.title}"' in metadata, f"skill display name mismatch: {track}")
         require(f'default_prompt: "Use $heading-{track}. Bind the canonical workspace and evidence freshness first;' in metadata, f"skill default prompt mismatch: {track}")
         require("auto-correct the effective track before lock" in metadata, f"skill auto-route prompt missing: {track}")
-        require("allow_implicit_invocation: false" in metadata, f"skill must be explicit-only: {track}")
+        require("allow_implicit_invocation: true" in metadata, f"skill must allow implicit invocation: {track}")
 
     prototype = (SKILLS_ROOT / "heading-prototype" / "SKILL.md").read_text(encoding="utf-8")
     require(

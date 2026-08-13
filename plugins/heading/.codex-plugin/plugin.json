@@ -1,6 +1,6 @@
 {
   "name": "heading",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Evidence-first product work tracks with capability-gated delegation.",
   "author": {
     "name": "AxiomOrient",
@@ -18,6 +18,6 @@
     "developerName": "AxiomOrient",
     "category": "Productivity",
     "capabilities": [],
-    "defaultPrompt": "Use $heading-build to turn accepted behavior into one evidence-backed production outcome."
+    "defaultPrompt": "Turn accepted behavior into one complete, evidence-backed production outcome."
   }
 }

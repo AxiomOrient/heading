@@ -1,4 +1,4 @@
-# Heading 0.3.0
+# Heading 0.3.1
 
 Heading은 다섯 제품 작업 트랙과 선택적 오케스트레이션 트랙을 제공하는 이식 가능한 skills 플러그인입니다.
 
@@ -14,6 +14,8 @@ $heading-orchestrate 잠긴 outcome을 관측 가능한 위임으로 조율
 ## 사용법
 
 한 줄이면 충분합니다.
+
+다섯 제품 트랙(`prototype`, `build`, `sweep`, `grow`, `maintain`)은 암시 호출 대상입니다. 자연어로 작업을 설명하면 Codex가 설명문을 바탕으로 맞는 트랙을 선택할 수 있습니다. `$heading-…`로 시작 트랙을 명시할 수 있지만, 요청과 증거가 다른 트랙을 가리키면 Heading이 계속 자동 보정합니다. `$heading-orchestrate`는 outcome과 증명이 잠긴 뒤에만 유효한 위임이므로 의도적으로 명시 호출 전용입니다.
 
 ```text
 $heading-prototype 이 기능이 필요한지 검증해
@@ -69,6 +71,7 @@ Architect  GPT-5.6 Terra xhigh 비국소 경계 자문
 
 ```bash
 ./verify-source-package.sh
+python3 -B scripts/smoke-plugin-install.py
 
 codex plugin marketplace add /absolute/path/to/heading
 codex plugin add heading@heading
@@ -81,6 +84,8 @@ Git 저장소에서는 로컬 경로 대신 `AxiomOrient/heading --ref main`을 
 
 지원 조건: POSIX, Python 3.11 이상. 호환용 프로파일 설치 결과는 5 files이며, 플러그인 skill 폴더를 전역 skill namespace에 복사하지 않습니다.
 
+이 절은 별도의 로컬 `heading` 런타임 프로파일을 의도적으로 사용할 때만 적용합니다. 플러그인 스킬 설치·검색·암시 호출에는 필요하지 않습니다.
+
 ```bash
 ./scripts/install.sh --dry-run
 ./scripts/install.sh
@@ -89,7 +94,7 @@ Git 저장소에서는 로컬 경로 대신 `AxiomOrient/heading --ref main`을 
 codex --profile heading
 ```
 
-이 프로파일은 작업 단계의 런타임 선택지이며 플러그인 배포 방식이 아닙니다. 설치기는 비파괴 방식입니다. 기존 파일이나 네임스페이스를 삭제하지 않습니다. `--install-legacy-skills`는 명시적인 호환용 탈출구일 뿐이며, 같은 이름의 설치된 플러그인을 가릴 수 있으므로 일반 플러그인 배포에는 사용하지 않습니다.
+이 프로파일은 작업 단계의 런타임 선택지이며 플러그인 배포 방식이 아닙니다. 플러그인 사용자는 설치할 필요가 없습니다. 다섯 제품 스킬은 설치된 플러그인만으로 동작합니다. 설치기는 비파괴 방식입니다. 기존 파일이나 네임스페이스를 삭제하지 않습니다. `--install-legacy-skills`는 명시적인 호환용 탈출구일 뿐이며, 같은 이름의 설치된 플러그인을 가릴 수 있으므로 일반 플러그인 배포에는 사용하지 않습니다.
 
 Heading은 실행 증거를 내부 판단에 사용하지만, 답변 길이는 작업에 맞춥니다. 단순한 일은 짧게, 복잡하거나 위험한 일은 판단에 필요한 증거까지 설명합니다. 원시 결과 필드가 필요하면 요청하면 됩니다.
 
@@ -101,6 +106,6 @@ Heading은 실행 증거를 내부 판단에 사용하지만, 답변 길이는 �
 
 ## 배포 경계
 
-배포 가능한 source는 `plugins/heading/`입니다. 여섯 skill, reference, portable manifest, Codex manifest만 포함합니다. 별도 `runtime/heading/`에는 선택적 profile과 role template이 있습니다. repository marketplace는 로컬·팀 테스트용이고, public directory 제출은 별도의 게시자 심사 단계입니다. 선택적 profile 설치기는 사용자가 선택한 Codex profile에만 쓰며 플러그인을 대체하지 않습니다.
+배포 가능한 source는 `plugins/heading/`입니다. 여섯 skill, reference, portable manifest, Codex manifest만 포함합니다. `plugin.json`은 portable Agent Plugins manifest이고 `.codex-plugin/plugin.json`은 Codex manifest입니다. 둘은 같은 `heading` 이름과 버전을 가지며, skill 경로 `./skills/`는 Codex manifest에만 있습니다. 별도 `runtime/heading/`에는 선택적 profile과 role template이 있습니다. repository marketplace는 로컬·팀 테스트용이고, public directory 제출은 별도의 게시자 심사 단계입니다. 선택적 profile 설치기는 사용자가 선택한 Codex profile에만 쓰며 플러그인을 대체하지 않습니다.
 
-`./verify-source-package.sh`는 결정적인 source package와 두 manifest 계약을 검증합니다. Native Codex 실행, 모델 동작, 인증이 필요한 evaluation, public directory 승인 여부는 별도 증거입니다.
+`./verify-source-package.sh`는 결정적인 source package와 두 manifest 계약을 검증합니다. `scripts/smoke-plugin-install.py`는 격리된 Codex home에서 로컬 marketplace 등록, 설치, enabled 상태, cache manifest 동등성을 별도로 검증합니다. 확률적인 암시 선택은 새 interactive chat에서만 관측할 수 있습니다. Native Codex 실행, 모델 동작, 인증이 필요한 evaluation, public directory 승인 여부는 별도 증거입니다.

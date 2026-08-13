@@ -66,7 +66,7 @@ def validate_portable() -> None:
     require(set(payload).issubset(PORTABLE_KEYS), f"portable manifest has unsupported keys: {sorted(set(payload) - PORTABLE_KEYS)}")
     require(payload.get("$schema") == PORTABLE_SCHEMA, "portable schema URL mismatch")
     require(payload.get("name") == "heading", "portable plugin name mismatch")
-    require(payload.get("version") == "0.3.0", "portable plugin version mismatch")
+    require(payload.get("version") == "0.3.1", "portable plugin version mismatch")
     require(isinstance(payload.get("description"), str) and payload["description"], "portable description missing")
     require(re.fullmatch(r"[a-z][a-z0-9-]{0,63}", str(payload["name"])) is not None, "portable name format mismatch")
     require(re.fullmatch(r"\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?", str(payload["version"])) is not None, "portable version format mismatch")
@@ -76,7 +76,7 @@ def validate_portable() -> None:
 
 def validate_codex() -> None:
     payload = load_json(PLUGIN_ROOT / ".codex-plugin" / "plugin.json")
-    require(payload.get("name") == "heading" and payload.get("version") == "0.3.0", "Codex manifest identity mismatch")
+    require(payload.get("name") == "heading" and payload.get("version") == "0.3.1", "Codex manifest identity mismatch")
     skills = relative_inside_plugin(payload.get("skills"), "Codex skills", directory=True)
     interface = payload.get("interface")
     require(isinstance(interface, dict), "Codex interface missing")
@@ -91,6 +91,7 @@ def validate_codex() -> None:
         require(isinstance(prompt, str) and prompt.strip(), "Codex default prompt must be non-empty text")
         require("\n" not in prompt and "\r" not in prompt, "Codex default prompt must be one line")
         require(len(prompt) <= 128, "Codex default prompt exceeds 128 characters")
+        require("$heading-" not in prompt, "plugin default prompt must not require explicit skill invocation")
         key = " ".join(unicodedata.normalize("NFC", prompt).split())
         require(key not in normalized, "Codex default prompts must be unique after normalization")
         normalized.add(key)
@@ -98,6 +99,15 @@ def validate_codex() -> None:
     require(len(skill_dirs) == 6, f"expected six bundled skills, found {len(skill_dirs)}")
     for skill in skill_dirs:
         require((skill / "SKILL.md").is_file(), f"skill entry missing SKILL.md: {skill.name}")
+
+
+def validate_invocation_policy() -> None:
+    implicit_tracks = ("prototype", "build", "sweep", "grow", "maintain")
+    for track in implicit_tracks:
+        metadata = (PLUGIN_ROOT / "skills" / f"heading-{track}" / "agents" / "openai.yaml").read_text(encoding="utf-8")
+        require("allow_implicit_invocation: true" in metadata, f"core skill must allow implicit invocation: heading-{track}")
+    metadata = (PLUGIN_ROOT / "skills" / "heading-orchestrate" / "agents" / "openai.yaml").read_text(encoding="utf-8")
+    require("allow_implicit_invocation: false" in metadata, "orchestration skill must remain explicit-only")
 
 
 def validate_marketplace() -> None:
@@ -119,11 +129,11 @@ def validate_marketplace() -> None:
 
 def main() -> int:
     try:
-        validate_tree(); validate_portable(); validate_codex(); validate_marketplace()
+        validate_tree(); validate_portable(); validate_codex(); validate_invocation_policy(); validate_marketplace()
     except (OSError, json.JSONDecodeError, ValidationError) as error:
         print(f"validate-plugin: {error}", file=sys.stderr)
         return 1
-    print(json.dumps({"status": "PASS", "plugin": "heading", "version": "0.3.0", "skills": 6, "portable": True, "codex": True}, sort_keys=True))
+    print(json.dumps({"status": "PASS", "plugin": "heading", "version": "0.3.1", "skills": 6, "portable": True, "codex": True}, sort_keys=True))
     return 0
 
 

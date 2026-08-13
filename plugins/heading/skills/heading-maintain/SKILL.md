@@ -1,11 +1,11 @@
 ---
 name: heading-maintain
-description: Explicit Heading maintain track for existing-system risk, repair, or operational change; require evidence-based recovery and bounded no-survivor custody for external work. Correct a wrong explicit track before work starts.
+description: Use when an existing system needs risk control, repair, incident response, or safe operational change. A mismatched requested track is corrected before work starts.
 ---
 
 # Heading Maintain
 
-Use the `heading` profile. Runtime model, effort, sandbox, and permissions remain `NOT_PROVEN` unless observed. Before workspace, artifact, external-work, or completion actions, bind the canonical workspace, classify inputs and proof artifacts, and invalidate evidence made stale by a changed input.
+Use the installed Heading plugin. The optional `heading` profile is a separate local runtime setting and is not required for this skill. Runtime model, effort, sandbox, and permissions remain `NOT_PROVEN` unless observed. Before workspace, artifact, external-work, or completion actions, bind the canonical workspace, classify inputs and proof artifacts, and invalidate evidence made stale by a changed input.
 For an external command, session, worker, kernel, or process, read
 [`references/PROCESS-LIFECYCLE.md`](references/PROCESS-LIFECYCLE.md); runtime custody is
 part of the proof, not an implementation detail.

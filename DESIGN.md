@@ -1,4 +1,4 @@
-# Heading 0.3.0 design
+# Heading 0.3.1 design
 
 ## Core model
 

@@ -22,6 +22,7 @@ PLUGIN_ROOT = ROOT / "plugins" / "heading"
 INSTALLER = ROOT / "scripts/install.py"
 VALIDATOR = ROOT / "scripts/validate.py"
 PLUGIN_VALIDATOR = ROOT / "scripts/validate-plugin.py"
+PLUGIN_SMOKE = ROOT / "scripts/smoke-plugin-install.py"
 TRACKS = ("prototype", "build", "sweep", "grow", "maintain")
 
 
@@ -130,7 +131,7 @@ class HeadingTests(unittest.TestCase):
         result = self.run_python(VALIDATOR)
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
-        self.assertEqual(payload, {"status": "PASS", "version": "0.3.0", "files": 52, "tracks": 5, "skills": 6, "childRoles": 4, "modes": 27, "evals": 182, "modeEvals": 32, "intakeEvals": 125, "dialogueEvals": 25})
+        self.assertEqual(payload, {"status": "PASS", "version": "0.3.1", "files": 53, "tracks": 5, "skills": 6, "childRoles": 4, "modes": 27, "evals": 182, "modeEvals": 32, "intakeEvals": 125, "dialogueEvals": 25})
 
     def test_bundle_validation_with_python_optimize(self) -> None:
         result = self.run_python(VALIDATOR, env={"PYTHONOPTIMIZE": "1"})
@@ -292,6 +293,52 @@ class HeadingTests(unittest.TestCase):
             result = self.run_python(source / "scripts/validate-plugin.py", cwd=source)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("exceeds 128 characters", result.stderr)
+
+            payload["interface"]["defaultPrompt"] = "Use $heading-build for this request."
+            manifest.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+            result = self.run_python(source / "scripts/validate-plugin.py", cwd=source)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("must not require explicit skill invocation", result.stderr)
+
+    def test_plugin_validator_rejects_invocation_policy_drift_and_smoke_verifies_enabled_install(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = self.copy_source(Path(temporary))
+            metadata = source / "plugins/heading/skills/heading-build/agents/openai.yaml"
+            metadata.write_text(metadata.read_text(encoding="utf-8").replace("allow_implicit_invocation: true", "allow_implicit_invocation: false"), encoding="utf-8")
+            rejected = self.run_python(source / "scripts/validate-plugin.py", cwd=source)
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("core skill must allow implicit invocation", rejected.stderr)
+
+            fake = Path(temporary) / "codex"
+            fake.write_text(
+                "#!/usr/bin/env python3\n"
+                "import json, os, pathlib, shutil, sys\n"
+                "args = sys.argv[1:]\n"
+                "root = pathlib.Path(os.environ['HEADING_TEST_PLUGIN_ROOT'])\n"
+                "version = (root / 'VERSION').read_text(encoding='utf-8').strip()\n"
+                "plugin = root / 'plugins/heading'\n"
+                "entry = {'pluginId': 'heading@heading', 'name': 'heading', 'marketplaceName': 'heading', 'version': version, 'source': {'source': 'local', 'path': str(plugin)}}\n"
+                "if args[:3] == ['plugin', 'marketplace', 'add']:\n"
+                "    print('marketplace added')\n"
+                "elif args[:2] == ['plugin', 'list'] and '--available' in args:\n"
+                "    entry.update({'installed': False, 'enabled': False})\n"
+                "    print(json.dumps({'installed': [], 'available': [entry]}))\n"
+                "elif args[:2] == ['plugin', 'add']:\n"
+                "    cache = pathlib.Path(os.environ['CODEX_HOME']) / 'plugins/cache/heading/heading' / version\n"
+                "    cache.parent.mkdir(parents=True, exist_ok=True)\n"
+                "    shutil.copytree(plugin, cache)\n"
+                "    print(json.dumps({'pluginId': 'heading@heading'}))\n"
+                "elif args[:2] == ['plugin', 'list']:\n"
+                "    entry.update({'installed': True, 'enabled': True})\n"
+                "    print(json.dumps({'installed': [entry], 'available': []}))\n"
+                "else:\n"
+                "    raise SystemExit(91)\n",
+                encoding="utf-8",
+            )
+            fake.chmod(0o755)
+            smoke = self.run_python(PLUGIN_SMOKE, "--codex-bin", str(fake), env={"HEADING_TEST_PLUGIN_ROOT": str(ROOT)})
+            self.assertEqual(smoke.returncode, 0, smoke.stderr)
+            self.assertEqual(json.loads(smoke.stdout)["enabled"], True)
 
     def test_ignored_workspace_artifacts_do_not_break_source_validation(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
