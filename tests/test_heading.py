@@ -131,7 +131,7 @@ class HeadingTests(unittest.TestCase):
         result = self.run_python(VALIDATOR)
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
-        self.assertEqual(payload, {"status": "PASS", "version": "0.3.1", "files": 53, "tracks": 5, "skills": 6, "childRoles": 4, "modes": 27, "evals": 182, "modeEvals": 32, "intakeEvals": 125, "dialogueEvals": 25})
+        self.assertEqual(payload, {"status": "PASS", "version": "0.3.3", "files": 53, "tracks": 5, "skills": 6, "childRoles": 4, "modes": 27, "evals": 182, "modeEvals": 32, "intakeEvals": 125, "dialogueEvals": 25})
 
     def test_bundle_validation_with_python_optimize(self) -> None:
         result = self.run_python(VALIDATOR, env={"PYTHONOPTIMIZE": "1"})
@@ -405,6 +405,17 @@ class HeadingTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("unexpected file in managed skill namespace", result.stderr)
             self.assertEqual(foreign.read_text(encoding="utf-8"), "keep\n")
+
+    def test_unrelated_heading_note_does_not_block_install(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            codex, skills = base / "codex", base / "skills"
+            note = codex / "heading-skill-runtime-audit.md"
+            codex.mkdir()
+            note.write_text("keep\n", encoding="utf-8")
+            result = self.install(codex, skills)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(note.read_text(encoding="utf-8"), "keep\n")
 
     def test_dry_run_reports_plan_without_writes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

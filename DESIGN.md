@@ -1,4 +1,4 @@
-# Heading 0.3.1 design
+# Heading 0.3.3 design
 
 ## Core model
 
@@ -13,11 +13,11 @@ Maintain   control existing-system risk
 ```
 
 ```text
-Lead       Sol high
-Planner    Luna max, read-only
-Executor   Luna max, sole writer
-Reviewer   Terra high, read-only
-Architect  Terra xhigh, read-only
+Lead       Sol medium by default; high for material decisions
+Planner    Luna xhigh by default; max for material risk when available, read-only
+Executor   Luna xhigh by default; max for material risk when available, sole writer
+Reviewer   Terra high by default; Sol for material risk, read-only
+Architect  Terra xhigh by default; Sol for material risk, read-only
 ```
 
 The product tracks are six portable skill folders under `plugins/heading/skills/`. `plugins/heading/plugin.json` is the portable Agent Plugins manifest, while `.codex-plugin/plugin.json` is the Codex host manifest. The separate `runtime/heading/profile/heading.config.toml` file is an optional task-stage profile; it does not define package distribution.
@@ -73,6 +73,7 @@ Each track keeps its own modes, lock, proof, stop rule, and result schema in `re
 - Architect is used only when an ownership, state, security, concurrency, recovery, or public-contract boundary cannot be localized.
 - `$heading-orchestrate` runs only after a track locks an outcome. It selects a direct lane, an observed native lane, or an explicitly authorized user-visible task lane.
 - Native role templates are intent, not runtime proof. Identity, model/effort, write boundary, task ID, and completion must be observed before a delegated result can support acceptance.
+- For material risk, Lead may explicitly escalate the model tier from Luna to Terra or Terra to Sol; critical or irreversible risk may request Sol directly. When the task surface supports it, dispatch passes the requested model and effort overrides. Escalation preserves role, sandbox, owned surface, writer count, and reviewer independence, and records requested/effective model and effort plus the reason. Lead is already Sol, so it escalates reasoning effort instead.
 - There is no capability-gated fallback: an unavailable requested lane is `NOT_PROVEN` or `BLOCKED`; direct work is a separately stated lane rather than an invisible replacement.
 
 ## Prompt contract

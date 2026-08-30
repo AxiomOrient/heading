@@ -273,28 +273,46 @@ def assert_directory_or_missing(path: Path, label: str) -> None:
 
 
 def heading_namespace_entries(roots: dict[str, Path]) -> list[Path]:
+    """Return only filesystem entries that can be Heading-managed paths.
+
+    Unrelated notes in the Codex home (for example, a report whose filename
+    starts with ``heading-``) are not part of the Heading namespace and must
+    not block a non-destructive deployment.
+    """
     values: set[Path] = set()
     codex = roots["codex"]
     skills = roots.get("skills")
 
     assert_directory_or_missing(codex, "codex root")
     if path_kind(codex) == "directory":
-        values.update(entry for entry in codex.iterdir() if entry.name.casefold().startswith(PRODUCT))
+        values.update(entry for entry in codex.iterdir() if entry.name.casefold() == f"{PRODUCT}.config.toml")
 
     agents = codex / "agents"
     assert_directory_or_missing(agents, "agents namespace")
     if path_kind(agents) == "directory":
-        values.update(entry for entry in agents.iterdir() if entry.name.casefold().startswith(f"{PRODUCT}-"))
+        values.update(
+            entry
+            for entry in agents.iterdir()
+            if entry.name.casefold().startswith(f"{PRODUCT}-") and entry.suffix.casefold() == ".toml"
+        )
 
     if skills is not None:
         assert_directory_or_missing(skills, "skills root")
     if skills is not None and path_kind(skills) == "directory":
-        values.update(entry for entry in skills.iterdir() if entry.name.casefold().startswith(f"{PRODUCT}-"))
+        values.update(
+            entry
+            for entry in skills.iterdir()
+            if entry.name.casefold().startswith(f"{PRODUCT}-") and path_kind(entry) in {"directory", "symlink"}
+        )
 
     historical = codex / "skills"
     assert_directory_or_missing(historical, "historical skills root")
     if path_kind(historical) == "directory":
-        values.update(entry for entry in historical.iterdir() if entry.name.casefold().startswith(f"{PRODUCT}-"))
+        values.update(
+            entry
+            for entry in historical.iterdir()
+            if entry.name.casefold().startswith(f"{PRODUCT}-") and path_kind(entry) in {"directory", "symlink"}
+        )
 
     return sorted(values, key=os.fspath)
 

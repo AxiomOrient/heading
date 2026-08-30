@@ -1,4 +1,4 @@
-# Heading 0.3.1
+# Heading 0.3.3
 
 Heading은 다섯 제품 작업 트랙과 선택적 오케스트레이션 트랙을 제공하는 이식 가능한 skills 플러그인입니다.
 
@@ -53,17 +53,18 @@ $heading-build 이 아이디어를 사람들이 원하는지 검증해
 ## 역할
 
 ```text
-Lead       GPT-5.6 Sol high    라우팅·범위·통합·최종 판정
-Planner    GPT-5.6 Luna max    읽기 전용 탐색·리서치·계획
-Executor   GPT-5.6 Luna max    유일한 제품 writer
-Reviewer   GPT-5.6 Terra high/xhigh  독립 read-only 리뷰; 중요한 위험은 xhigh
-Architect  GPT-5.6 Terra xhigh 비국소 경계 자문
+Lead       GPT-5.6 Sol medium 기본; 중요한 판정은 high
+Planner    GPT-5.6 Luna xhigh 기본; 중요한 위험은 지원 시 max
+Executor   GPT-5.6 Luna xhigh 기본; 중요한 위험은 지원 시 max
+Reviewer   GPT-5.6 Terra high 기본; 중요한 위험은 지원 시 GPT-5.6 Sol
+Architect  GPT-5.6 Terra xhigh; 중요한 위험은 지원 시 GPT-5.6 Sol
 ```
 
 - writable outcome은 한 번에 하나입니다.
 - 동일 outcome의 구현·수리·재검증은 같은 Executor thread를 사용합니다. 위임을 사용할 수 없거나, 허용되지 않거나, 작은 로컬 변경에는 과도하면 Lead가 같은 소유권·증거 잠금 아래 선언된 `executionMode: DIRECT`로 직접 수행할 수 있습니다.
 - Reviewer는 수정하거나 Executor를 직접 지휘하지 않고 Lead에게만 보고합니다.
 - Luna/Terra 사용 비율은 고정하지 않습니다.
+- 중요한 위험에서는 Lead가 role·sandbox·소유 표면·writer 수·Reviewer 독립성을 바꾸지 않고 더 높은 모델 tier를 명시적으로 요청할 수 있습니다: Luna -> Terra, Terra -> Sol. 치명적·비가역 위험은 지원 시 Sol을 직접 요청할 수 있습니다. task surface가 지원하면 모델·추론 강도 override를 dispatch에 전달합니다. `requestedModel`, `effectiveModel`, `requestedReasoningEffort`, `effectiveReasoningEffort`, `modelEscalationReason`을 기록하고, 불가하면 기본 모델을 유지하며 `modelEscalation: NOT_PROVEN`을 남깁니다.
 
 ## 플러그인 설치
 

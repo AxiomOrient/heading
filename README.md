@@ -1,4 +1,4 @@
-# Heading 0.3.1
+# Heading 0.3.3
 
 Heading is a portable skills plugin with five product-work tracks and one optional orchestration track.
 
@@ -53,17 +53,18 @@ This request is corrected to `prototype` and continues in the same conversation.
 ## Roles
 
 ```text
-Lead       GPT-5.6 Sol high    routing, scope, integration, final judgment
-Planner    GPT-5.6 Luna max    read-only discovery, research, planning
-Executor   GPT-5.6 Luna max    sole product writer
-Reviewer   GPT-5.6 Terra high/xhigh  independent read-only review; xhigh for material risk
-Architect  GPT-5.6 Terra xhigh irreducible boundary advice
+Lead       GPT-5.6 Sol medium by default; high for material decisions
+Planner    GPT-5.6 Luna xhigh by default; max for material risk when available
+Executor   GPT-5.6 Luna xhigh by default; max for material risk when available
+Reviewer   GPT-5.6 Terra high by default; GPT-5.6 Sol for material risk when available
+Architect  GPT-5.6 Terra xhigh; GPT-5.6 Sol for material risk when available
 ```
 
 - Only one writable outcome is active at a time.
 - Implementation, accepted repair, and re-verification for one outcome stay in the same Executor thread. If delegation is unavailable, disallowed, or disproportionate for a small local change, the Lead may use declared `executionMode: DIRECT` with the same ownership and evidence lock.
 - Reviewer never edits or directs Executor; it reports to Lead only.
 - There is no fixed Luna/Terra quota.
+- For material risk, Lead may explicitly request a higher model tier without changing role, sandbox, owned surface, writer count, or reviewer independence: Luna -> Terra, Terra -> Sol. Critical or irreversible risk may request Sol directly. Pass model/effort overrides when the task surface supports them. Record `requestedModel`, `effectiveModel`, `requestedReasoningEffort`, `effectiveReasoningEffort`, and `modelEscalationReason`; if unavailable, keep the base model and record `modelEscalation: NOT_PROVEN`.
 
 ## Install as a plugin
 

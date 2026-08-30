@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_ROOT = ROOT / "plugins" / "heading"
 SKILLS_ROOT = PLUGIN_ROOT / "skills"
 RUNTIME_ROOT = ROOT / "runtime" / "heading"
-VERSION = "0.3.1"
+VERSION = "0.3.3"
 TRACK_ORDER = ("prototype", "build", "sweep", "grow", "maintain")
 # Version-control metadata is not part of the package and never installed.
 IGNORED_ROOT_ENTRIES = (".git", ".DS_Store", ".coverage", ".pytest_cache", "eval-results")
@@ -61,20 +61,20 @@ class TrackSpec:
 
 AGENTS = {
     "heading-planner": AgentSpec(
-        "heading_planner", "gpt-5.6-luna", "max", "read-only",
-        ("actual repository evidence", "primary sources", "report the mismatch to Lead", "Do not edit files", "spawn agents", "direct another agent"),
+        "heading_planner", "gpt-5.6-luna", "xhigh", "read-only",
+        ("actual repository evidence", "primary sources", "report the mismatch to Lead", "Use `xhigh` as the default reasoning effort.", "request `max` when the host offers it", "model-escalation request", "`gpt-5.6-terra`", "`gpt-5.6-sol`", "`requestedModel`", "`effectiveModel`", "`requestedReasoningEffort`", "`effectiveReasoningEffort`", "`modelEscalationReason`", "`modelEscalation: NOT_PROVEN`", "Do not edit files", "spawn agents", "direct another agent"),
     ),
     "heading-executor": AgentSpec(
-        "heading_executor", "gpt-5.6-luna", "max", "workspace-write",
-        ("delegated outcome", "complete change", "strongest faithful verification", "safe in-scope method", "Preserve unrelated behavior", "report the mismatch to Lead", "EXECUTOR_ACCEPTED", "EXECUTOR_RESULT", "Do not wait", "Never claim `PASS` or `READY`"),
+        "heading_executor", "gpt-5.6-luna", "xhigh", "workspace-write",
+        ("delegated outcome", "complete change", "strongest faithful verification", "safe in-scope method", "Preserve unrelated behavior", "Use `xhigh` as the default reasoning effort.", "request `max` when the host offers it", "model-escalation request", "`gpt-5.6-terra`", "`gpt-5.6-sol`", "`requestedModel`", "`effectiveModel`", "`requestedReasoningEffort`", "`effectiveReasoningEffort`", "`modelEscalationReason`", "`modelEscalation: NOT_PROVEN`", "report the mismatch to Lead", "EXECUTOR_ACCEPTED", "EXECUTOR_RESULT", "Do not wait", "Never claim `PASS` or `READY`"),
     ),
     "heading-reviewer": AgentSpec(
         "heading_reviewer", "gpt-5.6-terra", "high", "read-only",
-        ("actual candidate", "severity-ranked findings", "Lead only", "Do not edit files", "contact the Executor", "direct another agent"),
+        ("actual candidate", "severity-ranked findings", "Use `high` as the default reasoning effort.", "request `xhigh` when the host offers it", "model-escalation request", "`gpt-5.6-sol`", "`requestedModel`", "`effectiveModel`", "`requestedReasoningEffort`", "`effectiveReasoningEffort`", "`modelEscalationReason`", "`modelEscalation: NOT_PROVEN`", "Lead only", "Do not edit files", "contact the Executor", "direct another agent"),
     ),
     "heading-architect": AgentSpec(
         "heading_architect", "gpt-5.6-terra", "xhigh", "read-only",
-        ("bounded architecture question", "failure modes", "implementation constraints", "track or outcome mismatch", "Do not edit files", "spawn agents"),
+        ("bounded architecture question", "failure modes", "implementation constraints", "track or outcome mismatch", "model-escalation request", "`gpt-5.6-sol`", "`requestedModel`", "`effectiveModel`", "`requestedReasoningEffort`", "`effectiveReasoningEffort`", "`modelEscalationReason`", "`modelEscalation: NOT_PROVEN`", "Do not edit files", "spawn agents"),
     ),
 }
 
@@ -91,7 +91,7 @@ TRACKS = {
         "Actual observations cross the locked threshold and support `ADOPT`, `REJECT`, `ITERATE`, or `INCONCLUSIVE`; only transferable learning survives.",
         "FRAME -> SELECT -> PROBE -> OBSERVE -> DECIDE",
         ("desirability", "workflow", "feasibility", "viability", "generative-quality"),
-        "411ad19dd567bc5df17e3b949fe96364a771e7a8ca6f60e31a2b2a06b9aac186",
+        "b64bd54b607bba1a002129999dc206e12830b06efaba50cc353e079623c2d444",
         "ea9a14d20d3cf0bc742d896e5fd9e0a65f15fddab25fa1e2299d57f885e295de",
         ("Repair the method instead of rejecting a valid goal", "Wizard-of-Oz or concierge run", "locked corpus, rubric, holdout cases", "Refuse only when deception"),
     ),
@@ -106,7 +106,7 @@ TRACKS = {
         "The entry-to-effect-to-durable-output path and every applicable failure, recovery, release, and operational proof pack pass.",
         "CLASSIFY -> CONTRACT -> SLICE -> PROVE -> RELEASE",
         ("product-slice", "library-api", "service", "adapter", "data-change", "delivery-infra"),
-        "2e02783b0e825dda1c1ccfa9c1a017bf2bda289a95a755080aea04a6472ea311",
+        "9cd70e2958b7dbd57f9cb7126a8701ad0709106760e9ffa6c10156d2592feb85",
         "780e44b75f2f8a96fe38b482568cbec4f4a0e5f71c90d155b2d9754a97430988",
         ("Repair invalid methods while preserving the build goal", "native or authoritative fixture", "versioned model, prompt, tool", "Refuse only when bypass"),
     ),
@@ -121,7 +121,7 @@ TRACKS = {
         "The same oracle passes before and after, and evidence shows net deletion, simpler ownership, clearer interaction, or measured resource gain.",
         "ORACLE -> CUT -> COMPARE -> KEEP_OR_REVERT",
         ("delete", "collapse", "refactor", "ui", "performance"),
-        "dcae883c8943885fbdbca33fc7f5f7c295ba3469a041c4b4b88d5a77fc707653",
+        "072354ec3bd5560a08424a7eb7b8d8d6b17ded498ceed6408d8fcde2d9c5b032",
         "44b804d9788efacd3cc880e0e7f72439517be614a131454c42b3ea773a544cd7",
         ("Repair invalid methods while preserving the goal", "same outputs and failures", "warmup and repeated samples", "Refuse only when concealment"),
     ),
@@ -136,7 +136,7 @@ TRACKS = {
         "Implementation and data quality are separately proven; completed evidence supports `KEEP`, `ROLLBACK`, `ITERATE`, or `NOT_PROVEN` with an explicit evidence grade.",
         "DESIGN -> INSTRUMENT -> SHIP -> ANALYZE -> DECIDE",
         ("randomized", "sequential", "switchback", "holdout-rollout", "observational"),
-        "3c7e4364b625874c3aae5dc20917ff7bd0adf77263a6c3aca21bd54a664d1687",
+        "3e251d792e060fef15b3c55ada06a39384b296fb0f8e9e4b0c3c311f51177ff7",
         "556451dba4dbd12537e9295e94d6316b7c42c62f4711e5203ecae701a9955174",
         ("Repair invalid methods while preserving the growth goal", "sample-ratio check", "precommitted sequential method", "Refuse only when fabricated reporting"),
     ),
@@ -151,7 +151,7 @@ TRACKS = {
         "Impact is controlled; cause or rationale is evidenced; change, recovery, regression, and post-change observations support `RESTORED`, `STABILIZED`, `CHANGED`, `PARTIAL`, or `BLOCKED`.",
         "TRIAGE -> CONTAIN -> CHANGE -> RECOVER -> WATCH",
         ("incident", "defect", "security", "reliability-capacity", "planned-change", "data-repair"),
-        "5323889d83e396935f34eb2dadf11e52b90b89d17dbf6ab13896403a6a135395",
+        "2bb75a908df6629375c6a6f3ee860feee4211054efec374c89d6c314e3683d9d",
         "f4f2734c8770d092f3018c78667186d926043ad931686ab8484c4e378d8b0318",
         ("Repair invalid methods while preserving the operational goal", "Contain harm before", "immutable backup or snapshot", "Refuse only when concealment"),
     ),
@@ -224,7 +224,7 @@ def validate_layout() -> None:
 def validate_profile() -> None:
     payload = tomllib.loads((RUNTIME_ROOT / "profile/heading.config.toml").read_text(encoding="utf-8"))
     require(payload == {
-        "model": "gpt-5.6-sol", "model_reasoning_effort": "high", "sandbox_mode": "workspace-write", "approval_policy": "on-request",
+        "model": "gpt-5.6-sol", "model_reasoning_effort": "medium", "sandbox_mode": "workspace-write", "approval_policy": "on-request",
     }, "profile contract mismatch")
 
 
@@ -270,11 +270,23 @@ def validate_skills() -> None:
         "reject only that method",
         "REFUSE` only when the essential goal itself",
         "Missing tools or platforms reduce only the affected proof to `NOT_PROVEN`",
-        "Lead: Sol `high`",
-        "Planner: Luna `max`",
-        "Executor: Luna `max`",
-        "Reviewer: Terra `xhigh`",
+        "Lead: Sol `medium` by default",
+        "Planner: Luna `xhigh` by default",
+        "Executor: Luna `xhigh` by default",
+        "Reviewer: Terra `high` by default",
         "Architect: Terra `xhigh`",
+        "material risk may request `max` or escalate to Terra",
+        "material risk may request `xhigh` or escalate to Sol",
+        "Model escalation:",
+        "Luna -> Terra",
+        "Terra -> Sol",
+        "requestedModel",
+        "effectiveModel",
+        "requestedReasoningEffort",
+        "effectiveReasoningEffort",
+        "modelEscalationReason",
+        "modelEscalation: NOT_PROVEN",
+        "without changing role or sandbox",
         "same Executor thread",
         "There is no Luna/Terra quota.",
         "Report a route correction only when the effective track differs from the invoked track: append one concise correction to `adjustments`",
@@ -337,12 +349,12 @@ def validate_skills() -> None:
     orchestrate_skill = (orchestrate / "SKILL.md").read_text(encoding="utf-8")
     frontmatter = parse_frontmatter(orchestrate_skill, orchestrate.relative_to(ROOT) / "SKILL.md")
     require(frontmatter["name"] == "heading-orchestrate", "orchestration skill name mismatch")
-    for phrase in ("task packet", "Direct lane", "Native lane", "User-visible task lane", "Never silently substitute", "non-empty task ID", "primary reviewer", "NOT_PROVEN", "BLOCKED"):
+    for phrase in ("task packet", "Direct lane", "Native lane", "User-visible task lane", "Never silently substitute", "higher model tier", "Model tier escalation", "Luna -> Terra", "Terra -> Sol", "requestedModel", "effectiveModel", "requestedReasoningEffort", "effectiveReasoningEffort", "modelEscalationReason", "modelEscalation: NOT_PROVEN", "non-empty task ID", "primary reviewer", "NOT_PROVEN", "BLOCKED"):
         require(phrase in orchestrate_skill, f"orchestration contract missing: {phrase}")
     metadata = (orchestrate / "agents/openai.yaml").read_text(encoding="utf-8")
     require('display_name: "Heading Orchestrate"' in metadata and "allow_implicit_invocation: false" in metadata, "orchestration metadata mismatch")
     reference = (orchestrate / "references/ORCHESTRATION.md").read_text(encoding="utf-8")
-    for phrase in ("exactly one writer", "observed facts", "Task packet schema", "PASS", "PARTIAL", "NOT_PROVEN", "BLOCKED"):
+    for phrase in ("exactly one writer", "observed facts", "Task packet schema", "higher model tier", "gpt-5.6-luna", "gpt-5.6-terra", "gpt-5.6-sol", "requestedModel", "effectiveModel", "requestedReasoningEffort", "effectiveReasoningEffort", "modelEscalationReason", "modelEscalation: NOT_PROVEN", "PASS", "PARTIAL", "NOT_PROVEN", "BLOCKED"):
         require(phrase in reference, f"orchestration reference missing: {phrase}")
 
 
