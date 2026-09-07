@@ -29,10 +29,10 @@
 - `NOT_PROVEN`: a required environment, tool, or observation was unavailable.
 - `BLOCKED`: a material decision or safety condition prevents responsible continuation.
 
-## Model tier escalation
+## Task-based model routing
 
-- The default model ladder is `gpt-5.6-luna` -> `gpt-5.6-terra` -> `gpt-5.6-sol`; escalation is permitted only by an explicit Lead decision for material risk.
-- Planner and Executor may request Luna `max` or move from Luna to Terra with `high`/`xhigh`; critical or irreversible risk may request Sol `high` directly. Reviewer (`high`) and Architect (`xhigh`) may move from Terra to Sol `high`. Lead is already Sol and escalates reasoning effort instead.
-- When the native task surface exposes model and effort overrides, pass the requested values in the dispatch call; a role template's `model` field is only the default and never proof of the effective runtime.
-- Model escalation does not change role, sandbox, owned surface, writer count, or review independence.
-- Record `requestedModel`, `effectiveModel`, `requestedReasoningEffort`, `effectiveReasoningEffort`, and `modelEscalationReason`. If the host cannot provide the requested tier, keep the base model and record `modelEscalation: NOT_PROVEN`; never silently substitute an unrecorded model.
+`MODEL-ROUTING.md` owns the routing protocol; `model-policy.json` owns model IDs, supported efforts, defaults and bounded escalation constants. Reading them is not invoking the orchestration skill.
+
+Task class selects capability. The role selects authority. Native dispatch explicitly supplies both settings; role templates do not override them. Preserve role, sandbox, owned surface, writer count and review independence through every route change.
+
+Requested/effective model and effort are distinct. Missing observation is `modelEscalation: NOT_PROVEN`, never inferred success. Environment failures are not model-quality failures. The same outcome normally stays in the same Executor thread; a required model change that the host cannot apply in place needs an observed stop, exact-candidate checkpoint and single-writer handover.

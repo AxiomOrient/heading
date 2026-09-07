@@ -7,6 +7,7 @@ import argparse
 import ast
 from dataclasses import dataclass
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -19,13 +20,15 @@ ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_ROOT = ROOT / "plugins" / "heading"
 SKILLS_ROOT = PLUGIN_ROOT / "skills"
 RUNTIME_ROOT = ROOT / "runtime" / "heading"
-VERSION = "0.3.3"
+VERSION = "0.4.0"
 TRACK_ORDER = ("prototype", "build", "sweep", "grow", "maintain")
 # Version-control metadata is not part of the package and never installed.
 IGNORED_ROOT_ENTRIES = (".git", ".DS_Store", ".coverage", ".pytest_cache", "eval-results")
 EVALS_DIGEST = "dcf9a9b55f9ea8869fd24029bb33cdf64af0ace3b4a919e88674fb3ea53ea376"
 INTAKE_EVALS_DIGEST = "87ca287ac7df3ce686b098042adeaa4c3c3ea42e8518468bd47d0eaae01e9967"
 DIALOGUE_EVALS_DIGEST = "d050367a4004a7f541a88bd7bce50476c1c728c49e5a715d37d308bc80dc5442"
+MODEL_POLICY_DIGEST = "638c2833ee7e331ae3525ad095d76492f73684b36e41394b052049f9e1c61e13"
+MODEL_ROUTING_EVALS_DIGEST = "f4ef99f3489c8de48ac554a5aece246ad9475b66a0fbf7af9efc3ff42be434cb"
 INTAKE_SCHEMA_DIGEST = "c200842fdd1249962194354110c1b8fcb992d68df24a80ca16b4f105909ce5dd"
 
 
@@ -36,8 +39,6 @@ class ValidationError(RuntimeError):
 @dataclass(frozen=True)
 class AgentSpec:
     name: str
-    model: str
-    effort: str
     sandbox: str
     required: tuple[str, ...]
 
@@ -59,23 +60,27 @@ class TrackSpec:
     method_required: tuple[str, ...]
 
 
+ROUTING_AGENT_REQUIRED = (
+    "requestedModel", "requestedReasoningEffort", "taskClass", "modelEscalationReason",
+    "effectiveModel", "effectiveReasoningEffort", "modelEscalation: NOT_PROVEN",
+    "missing routing input permits read-only inspection only", "observable host metadata",
+    "Do not change model, sandbox, owned surface, or writer ownership yourself",
+)
+
 AGENTS = {
-    "heading-planner": AgentSpec(
-        "heading_planner", "gpt-5.6-luna", "xhigh", "read-only",
-        ("actual repository evidence", "primary sources", "report the mismatch to Lead", "Use `xhigh` as the default reasoning effort.", "request `max` when the host offers it", "model-escalation request", "`gpt-5.6-terra`", "`gpt-5.6-sol`", "`requestedModel`", "`effectiveModel`", "`requestedReasoningEffort`", "`effectiveReasoningEffort`", "`modelEscalationReason`", "`modelEscalation: NOT_PROVEN`", "Do not edit files", "spawn agents", "direct another agent"),
-    ),
-    "heading-executor": AgentSpec(
-        "heading_executor", "gpt-5.6-luna", "xhigh", "workspace-write",
-        ("delegated outcome", "complete change", "strongest faithful verification", "safe in-scope method", "Preserve unrelated behavior", "Use `xhigh` as the default reasoning effort.", "request `max` when the host offers it", "model-escalation request", "`gpt-5.6-terra`", "`gpt-5.6-sol`", "`requestedModel`", "`effectiveModel`", "`requestedReasoningEffort`", "`effectiveReasoningEffort`", "`modelEscalationReason`", "`modelEscalation: NOT_PROVEN`", "report the mismatch to Lead", "EXECUTOR_ACCEPTED", "EXECUTOR_RESULT", "Do not wait", "Never claim `PASS` or `READY`"),
-    ),
-    "heading-reviewer": AgentSpec(
-        "heading_reviewer", "gpt-5.6-terra", "high", "read-only",
-        ("actual candidate", "severity-ranked findings", "Use `high` as the default reasoning effort.", "request `xhigh` when the host offers it", "model-escalation request", "`gpt-5.6-sol`", "`requestedModel`", "`effectiveModel`", "`requestedReasoningEffort`", "`effectiveReasoningEffort`", "`modelEscalationReason`", "`modelEscalation: NOT_PROVEN`", "Lead only", "Do not edit files", "contact the Executor", "direct another agent"),
-    ),
-    "heading-architect": AgentSpec(
-        "heading_architect", "gpt-5.6-terra", "xhigh", "read-only",
-        ("bounded architecture question", "failure modes", "implementation constraints", "track or outcome mismatch", "model-escalation request", "`gpt-5.6-sol`", "`requestedModel`", "`effectiveModel`", "`requestedReasoningEffort`", "`effectiveReasoningEffort`", "`modelEscalationReason`", "`modelEscalation: NOT_PROVEN`", "Do not edit files", "spawn agents"),
-    ),
+    "heading-planner": AgentSpec("heading_planner", "read-only", ROUTING_AGENT_REQUIRED + (
+        "actual repository evidence", "primary sources", "report the mismatch to Lead",
+        "Do not edit files", "spawn agents", "direct another agent")),
+    "heading-executor": AgentSpec("heading_executor", "workspace-write", ROUTING_AGENT_REQUIRED + (
+        "delegated outcome", "complete change", "strongest faithful verification", "safe in-scope method",
+        "Preserve unrelated behavior", "report the mismatch to Lead", "EXECUTOR_ACCEPTED", "EXECUTOR_RESULT",
+        "Do not wait", "Never claim `PASS` or `READY`")),
+    "heading-reviewer": AgentSpec("heading_reviewer", "read-only", ROUTING_AGENT_REQUIRED + (
+        "actual candidate", "severity-ranked findings", "Lead only", "Do not edit files",
+        "contact the Executor", "direct another agent")),
+    "heading-architect": AgentSpec("heading_architect", "read-only", ROUTING_AGENT_REQUIRED + (
+        "bounded architecture question", "failure modes", "implementation constraints",
+        "track or outcome mismatch", "Do not edit files", "spawn agents")),
 }
 
 
@@ -91,7 +96,7 @@ TRACKS = {
         "Actual observations cross the locked threshold and support `ADOPT`, `REJECT`, `ITERATE`, or `INCONCLUSIVE`; only transferable learning survives.",
         "FRAME -> SELECT -> PROBE -> OBSERVE -> DECIDE",
         ("desirability", "workflow", "feasibility", "viability", "generative-quality"),
-        "b64bd54b607bba1a002129999dc206e12830b06efaba50cc353e079623c2d444",
+        "821d63dff9f7d458712ccf5b3d1b900bef5206ee7290fb02de2d0d07b1fbd82e",
         "ea9a14d20d3cf0bc742d896e5fd9e0a65f15fddab25fa1e2299d57f885e295de",
         ("Repair the method instead of rejecting a valid goal", "Wizard-of-Oz or concierge run", "locked corpus, rubric, holdout cases", "Refuse only when deception"),
     ),
@@ -106,7 +111,7 @@ TRACKS = {
         "The entry-to-effect-to-durable-output path and every applicable failure, recovery, release, and operational proof pack pass.",
         "CLASSIFY -> CONTRACT -> SLICE -> PROVE -> RELEASE",
         ("product-slice", "library-api", "service", "adapter", "data-change", "delivery-infra"),
-        "9cd70e2958b7dbd57f9cb7126a8701ad0709106760e9ffa6c10156d2592feb85",
+        "da53a9091ff6cac45fea8cd977d6ff9b12f891b9b7307e5d201647deb0c31628",
         "780e44b75f2f8a96fe38b482568cbec4f4a0e5f71c90d155b2d9754a97430988",
         ("Repair invalid methods while preserving the build goal", "native or authoritative fixture", "versioned model, prompt, tool", "Refuse only when bypass"),
     ),
@@ -121,7 +126,7 @@ TRACKS = {
         "The same oracle passes before and after, and evidence shows net deletion, simpler ownership, clearer interaction, or measured resource gain.",
         "ORACLE -> CUT -> COMPARE -> KEEP_OR_REVERT",
         ("delete", "collapse", "refactor", "ui", "performance"),
-        "072354ec3bd5560a08424a7eb7b8d8d6b17ded498ceed6408d8fcde2d9c5b032",
+        "17f0ee1af0b66678f344bf85b711b5e5c0800b27638d69f28e561fa938a2cb3c",
         "44b804d9788efacd3cc880e0e7f72439517be614a131454c42b3ea773a544cd7",
         ("Repair invalid methods while preserving the goal", "same outputs and failures", "warmup and repeated samples", "Refuse only when concealment"),
     ),
@@ -136,7 +141,7 @@ TRACKS = {
         "Implementation and data quality are separately proven; completed evidence supports `KEEP`, `ROLLBACK`, `ITERATE`, or `NOT_PROVEN` with an explicit evidence grade.",
         "DESIGN -> INSTRUMENT -> SHIP -> ANALYZE -> DECIDE",
         ("randomized", "sequential", "switchback", "holdout-rollout", "observational"),
-        "3e251d792e060fef15b3c55ada06a39384b296fb0f8e9e4b0c3c311f51177ff7",
+        "68a9052aa3bcf5d265a192f537c69fa5a58be88f30c4ddd0cb926eb9278529e6",
         "556451dba4dbd12537e9295e94d6316b7c42c62f4711e5203ecae701a9955174",
         ("Repair invalid methods while preserving the growth goal", "sample-ratio check", "precommitted sequential method", "Refuse only when fabricated reporting"),
     ),
@@ -151,7 +156,7 @@ TRACKS = {
         "Impact is controlled; cause or rationale is evidenced; change, recovery, regression, and post-change observations support `RESTORED`, `STABILIZED`, `CHANGED`, `PARTIAL`, or `BLOCKED`.",
         "TRIAGE -> CONTAIN -> CHANGE -> RECOVER -> WATCH",
         ("incident", "defect", "security", "reliability-capacity", "planned-change", "data-repair"),
-        "2bb75a908df6629375c6a6f3ee860feee4211054efec374c89d6c314e3683d9d",
+        "a902763363279d28413428fb75776ac2cf7f22a42ff439c9a2f752982e3cbd5b",
         "f4f2734c8770d092f3018c78667186d926043ad931686ab8484c4e378d8b0318",
         ("Repair invalid methods while preserving the operational goal", "Contain harm before", "immutable backup or snapshot", "Refuse only when concealment"),
     ),
@@ -194,6 +199,15 @@ def expected_files() -> set[Path]:
     files.add(Path("plugins/heading/skills/heading-maintain/references/PROCESS-LIFECYCLE.md"))
     orchestrate = Path("plugins/heading/skills/heading-orchestrate")
     files.update({orchestrate / "SKILL.md", orchestrate / "agents/openai.yaml", orchestrate / "references/ORCHESTRATION.md"})
+    files.update(Path(name) for name in (
+        "IDENTITY_AND_EVOLUTION.md", "SPEC.md", "ARCHITECTURE.md", "ANALYSIS.md",
+        "IMPLEMENTATION_STATUS.md", "PLAN.md", "docs/adr/0001-task-based-model-routing.md",
+        "evals/model-routing-cases.json", "tests/test_model_routing.py",
+    ))
+    files.update(orchestrate / name for name in (
+        "references/MODEL-ROUTING.md", "references/RESEARCH-2026-09-07.md",
+        "references/model-policy.json", "scripts/model_routing.py",
+    ))
     return files
 
 
@@ -215,7 +229,7 @@ def validate_layout() -> None:
     require(actual == expected, f"source layout mismatch: missing={sorted(map(str, expected-actual))} extra={sorted(map(str, actual-expected))}")
     for relative in expected:
         path = ROOT / relative
-        executable = relative == Path("verify-source-package.sh") or relative.parts[0] == "scripts" and relative.suffix in {".py", ".sh"}
+        executable = relative == Path("verify-source-package.sh") or "scripts" in relative.parts and relative.suffix in {".py", ".sh"}
         expected_mode = 0o755 if executable else 0o644
         actual_mode = stat.S_IMODE(path.stat().st_mode)
         require(actual_mode == expected_mode, f"source mode mismatch: {relative}: {oct(actual_mode)} != {oct(expected_mode)}")
@@ -224,7 +238,7 @@ def validate_layout() -> None:
 def validate_profile() -> None:
     payload = tomllib.loads((RUNTIME_ROOT / "profile/heading.config.toml").read_text(encoding="utf-8"))
     require(payload == {
-        "model": "gpt-5.6-sol", "model_reasoning_effort": "medium", "sandbox_mode": "workspace-write", "approval_policy": "on-request",
+        "model": "gpt-6-astra", "model_reasoning_effort": "low", "sandbox_mode": "workspace-write", "approval_policy": "on-request",
     }, "profile contract mismatch")
 
 
@@ -233,10 +247,8 @@ def validate_agents() -> None:
     for key, spec in AGENTS.items():
         path = RUNTIME_ROOT / "agents" / f"{key}.toml"
         payload = tomllib.loads(path.read_text(encoding="utf-8"))
-        require(set(payload) == {"name", "description", "model", "model_reasoning_effort", "sandbox_mode", "developer_instructions"}, f"agent fields mismatch: {key}")
+        require(set(payload) == {"name", "description", "sandbox_mode", "developer_instructions"}, f"agent fields mismatch: {key}")
         require(payload["name"] == spec.name, f"agent name mismatch: {key}")
-        require(payload["model"] == spec.model, f"agent model mismatch: {key}")
-        require(payload["model_reasoning_effort"] == spec.effort, f"agent effort mismatch: {key}")
         require(payload["sandbox_mode"] == spec.sandbox, f"agent sandbox mismatch: {key}")
         instructions = payload["developer_instructions"]
         require(isinstance(instructions, str), f"agent instructions missing: {key}")
@@ -270,16 +282,14 @@ def validate_skills() -> None:
         "reject only that method",
         "REFUSE` only when the essential goal itself",
         "Missing tools or platforms reduce only the affected proof to `NOT_PROVEN`",
-        "Lead: Sol `medium` by default",
-        "Planner: Luna `xhigh` by default",
-        "Executor: Luna `xhigh` by default",
-        "Reviewer: Terra `high` by default",
-        "Architect: Terra `xhigh`",
-        "material risk may request `max` or escalate to Terra",
-        "material risk may request `xhigh` or escalate to Sol",
-        "Model escalation:",
-        "Luna -> Terra",
-        "Terra -> Sol",
+        "MODEL-ROUTING.md",
+        "model-policy.json",
+        "Choose by task, not role",
+        "Astra `low`",
+        "Luna `xhigh`",
+        "Role files intentionally omit model and effort; dispatch must supply both",
+        "observe the old writer and its processes stopped",
+        "## Verification scope",
         "requestedModel",
         "effectiveModel",
         "requestedReasoningEffort",
@@ -288,7 +298,7 @@ def validate_skills() -> None:
         "modelEscalation: NOT_PROVEN",
         "without changing role or sandbox",
         "same Executor thread",
-        "There is no Luna/Terra quota.",
+        "There is no fixed model quota.",
         "Report a route correction only when the effective track differs from the invoked track: append one concise correction to `adjustments`",
         "Before writable work, lock `outcome_id`, `owned_surface`, `done`, and `evidence`",
         "non-empty child thread ID",
@@ -349,12 +359,12 @@ def validate_skills() -> None:
     orchestrate_skill = (orchestrate / "SKILL.md").read_text(encoding="utf-8")
     frontmatter = parse_frontmatter(orchestrate_skill, orchestrate.relative_to(ROOT) / "SKILL.md")
     require(frontmatter["name"] == "heading-orchestrate", "orchestration skill name mismatch")
-    for phrase in ("task packet", "Direct lane", "Native lane", "User-visible task lane", "Never silently substitute", "higher model tier", "Model tier escalation", "Luna -> Terra", "Terra -> Sol", "requestedModel", "effectiveModel", "requestedReasoningEffort", "effectiveReasoningEffort", "modelEscalationReason", "modelEscalation: NOT_PROVEN", "non-empty task ID", "primary reviewer", "NOT_PROVEN", "BLOCKED"):
+    for phrase in ("task packet", "Direct lane", "Native lane", "User-visible task lane", "Never silently substitute", "higher model tier", "Task-based model routing", "MODEL-ROUTING.md", "model-policy.json", "requestedModel", "effectiveModel", "requestedReasoningEffort", "effectiveReasoningEffort", "modelEscalationReason", "modelEscalation: NOT_PROVEN", "non-empty task ID", "primary reviewer", "NOT_PROVEN", "BLOCKED"):
         require(phrase in orchestrate_skill, f"orchestration contract missing: {phrase}")
     metadata = (orchestrate / "agents/openai.yaml").read_text(encoding="utf-8")
     require('display_name: "Heading Orchestrate"' in metadata and "allow_implicit_invocation: false" in metadata, "orchestration metadata mismatch")
     reference = (orchestrate / "references/ORCHESTRATION.md").read_text(encoding="utf-8")
-    for phrase in ("exactly one writer", "observed facts", "Task packet schema", "higher model tier", "gpt-5.6-luna", "gpt-5.6-terra", "gpt-5.6-sol", "requestedModel", "effectiveModel", "requestedReasoningEffort", "effectiveReasoningEffort", "modelEscalationReason", "modelEscalation: NOT_PROVEN", "PASS", "PARTIAL", "NOT_PROVEN", "BLOCKED"):
+    for phrase in ("exactly one writer", "observed facts", "Task packet schema", "higher model tier", "Task-based model routing", "model-policy.json", "MODEL-ROUTING.md", "modelEscalation: NOT_PROVEN", "PASS", "PARTIAL", "NOT_PROVEN", "BLOCKED"):
         require(phrase in reference, f"orchestration reference missing: {phrase}")
 
 
@@ -586,6 +596,29 @@ def validate_evals() -> tuple[int, int, int]:
     return mode, intake, dialogue
 
 
+
+def validate_model_routing() -> int:
+    base = SKILLS_ROOT / "heading-orchestrate"
+    load_pinned_json("plugins/heading/skills/heading-orchestrate/references/model-policy.json", MODEL_POLICY_DIGEST)
+    corpus = load_pinned_json("evals/model-routing-cases.json", MODEL_ROUTING_EVALS_DIGEST)
+    require(set(corpus) == {"schemaVersion", "cases"} and corpus["schemaVersion"] == 1, "routing eval schema mismatch")
+    spec = importlib.util.spec_from_file_location("heading_model_routing", base / "scripts/model_routing.py")
+    require(spec is not None and spec.loader is not None, "routing helper loader unavailable")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    policy = module.load_policy()
+    require(policy["status"] == "CANDIDATE_NOT_BENCHMARKED", "routing policy cannot imply measured optimality")
+    ids: set[str] = set()
+    for case in corpus["cases"]:
+        require(set(case) == {"id", "input", "expected"} and case["id"] not in ids, "routing case fields or ID mismatch")
+        ids.add(case["id"])
+        actual = module.select(case["input"], policy)
+        require(all(actual.get(key) == value for key, value in case["expected"].items()), f"routing result mismatch: {case['id']}")
+        require(actual["effectiveModel"] is None and actual["effectiveReasoningEffort"] is None
+                and actual["modelEscalation"] == "NOT_PROVEN", "selection must not fabricate model execution")
+    return len(ids)
+
+
 def validate_docs() -> None:
     docs = {name: (ROOT / name).read_text(encoding="utf-8") for name in ("README.md", "README.ko.md", "PLAYBOOK.md", "PLAYBOOK.ko.md", "DESIGN.md", "VALIDATION.md")}
     for track, spec in TRACKS.items():
@@ -623,7 +656,7 @@ def validate_identity_boundary() -> None:
 
 
 def validate_scripts() -> None:
-    for path in sorted((ROOT / "scripts").glob("*.py")):
+    for path in sorted({*(ROOT / "scripts").glob("*.py"), *(SKILLS_ROOT / "heading-orchestrate/scripts").glob("*.py")}):
         source = path.read_text(encoding="utf-8")
         try:
             tree = ast.parse(source, filename=str(path))
@@ -664,6 +697,7 @@ def main() -> int:
     try:
         validate_layout(); validate_profile(); validate_agents(); validate_skills()
         mode_evals, intake_evals, dialogue_evals = validate_evals()
+        routing_evals = validate_model_routing()
         validate_docs(); validate_identity_boundary(); validate_scripts(); validate_plugin_package()
         if args.installed:
             require(args.codex_home is not None and args.skills_root is not None, "--installed requires both target roots")
@@ -674,7 +708,7 @@ def main() -> int:
     print(json.dumps({
         "status": "PASS", "version": VERSION, "files": len(expected_files()), "tracks": len(TRACK_ORDER), "skills": len(TRACK_ORDER) + 1, "childRoles": len(AGENTS),
         "modes": sum(len(spec.modes) for spec in TRACKS.values()), "evals": mode_evals + intake_evals + dialogue_evals,
-        "modeEvals": mode_evals, "intakeEvals": intake_evals, "dialogueEvals": dialogue_evals,
+        "modeEvals": mode_evals, "intakeEvals": intake_evals, "dialogueEvals": dialogue_evals, "modelRoutingEvals": routing_evals,
     }, sort_keys=True))
     return 0
 

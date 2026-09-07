@@ -323,6 +323,25 @@ class IntakeContractTests(unittest.TestCase):
             self.assertEqual(summary["skillSource"], "temporary-plugin-skill-mirror")
             self.assertNotIn("must-not-leak", authenticated.stdout + authenticated.stderr)
 
+            metadata = json.loads((results / "intake/prototype-short-desirability.meta.json").read_text())
+            self.assertIsNone(metadata["effectiveModel"])
+            self.assertEqual(metadata["modelEscalation"], "NOT_PROVEN")
+            self.assertEqual(metadata["exitCode"], 0)
+            # This simulated CLI tests adapter failure reporting, not real model quality.
+            bad_json = json.dumps(dict(reference_result(case), track="build"), ensure_ascii=False)
+            fake.write_text(fake.read_text().replace(repr(final_json), repr(bad_json)), encoding="utf-8")
+            rejected = self.run_python(
+                RUNNER, "--suite", "intake", "--case", "prototype-short-desirability",
+                "--codex-bin", str(fake), "--auth-file", str(auth),
+                "--results-root", str(Path(temporary) / "failed-results"),
+                env={"CODEX_API_KEY": ""},
+            )
+            self.assertEqual(rejected.returncode, 1, rejected.stderr + rejected.stdout)
+            failed_summary, _ = json.JSONDecoder().raw_decode(rejected.stdout.lstrip())
+            self.assertEqual(failed_summary["status"], "FAIL")
+            self.assertEqual(failed_summary["gradingStatus"], "FAIL")
+
+
 
 if __name__ == "__main__":
     unittest.main()

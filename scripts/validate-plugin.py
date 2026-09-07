@@ -66,7 +66,7 @@ def validate_portable() -> None:
     require(set(payload).issubset(PORTABLE_KEYS), f"portable manifest has unsupported keys: {sorted(set(payload) - PORTABLE_KEYS)}")
     require(payload.get("$schema") == PORTABLE_SCHEMA, "portable schema URL mismatch")
     require(payload.get("name") == "heading", "portable plugin name mismatch")
-    require(payload.get("version") == "0.3.3", "portable plugin version mismatch")
+    require(payload.get("version") == "0.4.0", "portable plugin version mismatch")
     require(isinstance(payload.get("description"), str) and payload["description"], "portable description missing")
     require(re.fullmatch(r"[a-z][a-z0-9-]{0,63}", str(payload["name"])) is not None, "portable name format mismatch")
     require(re.fullmatch(r"\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?", str(payload["version"])) is not None, "portable version format mismatch")
@@ -76,7 +76,7 @@ def validate_portable() -> None:
 
 def validate_codex() -> None:
     payload = load_json(PLUGIN_ROOT / ".codex-plugin" / "plugin.json")
-    require(payload.get("name") == "heading" and payload.get("version") == "0.3.3", "Codex manifest identity mismatch")
+    require(payload.get("name") == "heading" and payload.get("version") == "0.4.0", "Codex manifest identity mismatch")
     skills = relative_inside_plugin(payload.get("skills"), "Codex skills", directory=True)
     interface = payload.get("interface")
     require(isinstance(interface, dict), "Codex interface missing")
@@ -133,7 +133,7 @@ def main() -> int:
     except (OSError, json.JSONDecodeError, ValidationError) as error:
         print(f"validate-plugin: {error}", file=sys.stderr)
         return 1
-    print(json.dumps({"status": "PASS", "plugin": "heading", "version": "0.3.3", "skills": 6, "portable": True, "codex": True}, sort_keys=True))
+    print(json.dumps({"status": "PASS", "plugin": "heading", "version": "0.4.0", "skills": 6, "portable": True, "codex": True}, sort_keys=True))
     return 0
 
 

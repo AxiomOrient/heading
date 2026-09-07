@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import json
+import importlib.util
 import os
 from pathlib import Path
 import shutil
@@ -13,6 +14,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -70,10 +72,13 @@ def render_prompt(case: dict[str, Any], suite: str) -> str:
     )
 
 
-def command_for(codex_bin: str, repo: Path, result: Path, prompt: str) -> list[str]:
+def command_for(codex_bin: str, repo: Path, result: Path, prompt: str,
+                route: dict[str, str] | None = None) -> list[str]:
+    overrides = [] if route is None else ["--model", route["model"], "-c", f'model_reasoning_effort="{route["effort"]}"']
     return [
         codex_bin,
         "exec",
+        *overrides,
         "--ephemeral",
         "--sandbox",
         "read-only",
@@ -88,6 +93,41 @@ def command_for(codex_bin: str, repo: Path, result: Path, prompt: str) -> list[s
     ]
 
 
+
+def model_policy() -> dict[str, Any]:
+    path = PLUGIN_SKILLS / "heading-orchestrate/scripts/model_routing.py"
+    spec = importlib.util.spec_from_file_location("heading_eval_routing", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("routing helper unavailable")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.load_policy()
+
+
+def decoded(value: str | bytes | None) -> str:
+    # TimeoutExpired streams can be bytes even with subprocess text=True.
+    return value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value or ""
+
+
+def execute_case(command: list[str], repo: Path, env: dict[str, str], timeout: int) -> tuple[str, str, dict[str, Any]]:
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(command, cwd=repo, env=env, capture_output=True,
+                                   text=True, check=False, timeout=timeout)
+        return completed.stdout, completed.stderr, {
+            "exitCode": completed.returncode,
+            "executionStatus": "EXITED", "durationSeconds": time.monotonic() - started,
+        }
+    except subprocess.TimeoutExpired as error:
+        return decoded(error.stdout), decoded(error.stderr) + "\nTIMEOUT\n", {
+            "exitCode": None, "executionStatus": "TIMEOUT", "durationSeconds": time.monotonic() - started,
+        }
+    except OSError as error:
+        return "", str(error) + "\n", {
+            "exitCode": None, "executionStatus": "SPAWN_FAILED", "durationSeconds": time.monotonic() - started,
+        }
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=("intake", "dialogue", "all"), default="all")
@@ -95,6 +135,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--limit", type=int)
     parser.add_argument("--codex-bin", default="codex")
     parser.add_argument("--auth-file", type=Path, help="Copy an explicit Codex auth.json into the isolated evaluation home; alternatively set CODEX_API_KEY.")
+    parser.add_argument("--route", choices=tuple(model_policy()["routes"]),
+                        help="Explicit model+effort candidate for intake evaluation; not runtime proof.")
     parser.add_argument("--timeout", type=int, default=240)
     parser.add_argument("--results-root", type=Path)
     parser.add_argument("--dry-run", action="store_true")
@@ -103,6 +145,10 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    route = model_policy()["routes"][args.route] if args.route else None
+    if args.timeout < 1:
+        print("run-evals: --timeout must be positive", file=sys.stderr)
+        return 2
     suites = ("intake", "dialogue") if args.suite == "all" else (args.suite,)
     selected_ids = set(args.case)
     plan: list[tuple[str, dict[str, Any]]] = []
@@ -131,7 +177,7 @@ def main() -> int:
                 "suite": suite,
                 "id": case["id"],
                 "track": case["track"],
-                "command": command_for(args.codex_bin, Path("<repo>"), Path("<result>"), prompt),
+                "command": command_for(args.codex_bin, Path("<repo>"), Path("<result>"), prompt, route),
                 "contextFiles": sorted(case.get("context", {}).get("files", {})),
             })
         print(json.dumps({"status": "DRY_RUN", "cases": len(preview), "plan": preview}, ensure_ascii=False, indent=2))
@@ -204,38 +250,29 @@ def main() -> int:
             trace_path = case_root / f"{case['id']}.trace.jsonl"
             stderr_path = case_root / f"{case['id']}.stderr.txt"
             prompt = render_prompt(case, suite)
-            command = command_for(codex_path, repo, result_path, prompt)
-            try:
-                completed = subprocess.run(
-                    command,
-                    cwd=repo,
-                    env=env,
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                    timeout=args.timeout,
-                )
-            except subprocess.TimeoutExpired as error:
-                trace_path.write_text(error.stdout or "", encoding="utf-8")
-                stderr_path.write_text((error.stderr or "") + "\nTIMEOUT\n", encoding="utf-8")
-                failures += 1
-                continue
-            trace_path.write_text(completed.stdout, encoding="utf-8")
-            stderr_path.write_text(completed.stderr, encoding="utf-8")
+            command = command_for(codex_path, repo, result_path, prompt, route)
+            stdout, stderr, observed = execute_case(command, repo, env, args.timeout)
+            trace_path.write_text(stdout, encoding="utf-8")
+            stderr_path.write_text(stderr, encoding="utf-8")
             metadata = {
-                "id": case["id"],
-                "suite": suite,
-                "command": command[:-1] + ["<prompt>"],
-                "exitCode": completed.returncode,
+                "id": case["id"], "suite": suite, "command": command[:-1] + ["<prompt>"],
+                **observed,
+                "requestedModel": route["model"] if route else None,
+                "requestedReasoningEffort": route["effort"] if route else None,
+                "effectiveModel": None, "effectiveReasoningEffort": None,
+                "modelEscalation": "NOT_PROVEN",
             }
             (case_root / f"{case['id']}.meta.json").write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            if completed.returncode != 0 or not result_path.is_file():
+            if observed["exitCode"] != 0 or not result_path.is_file():
                 failures += 1
 
     summary = {"status": "PASS" if failures == 0 else "FAIL", "cases": len(plan), "executionFailures": failures, "resultsRoot": str(results_root), "auth": auth_mode, "skillSource": "temporary-plugin-skill-mirror"}
-    print(json.dumps(summary, indent=2, sort_keys=True), flush=True)
+    summary["modelEscalation"] = "NOT_PROVEN"
     if failures:
+        print(json.dumps(summary, indent=2, sort_keys=True), flush=True)
         return 1
+    grade_outputs: list[tuple[str, str]] = []
+    summary["gradingStatus"] = "PASS"
     for suite in suites:
         identifiers = [case["id"] for planned_suite, case in plan if planned_suite == suite]
         if not identifiers:
@@ -244,10 +281,18 @@ def main() -> int:
         grade_command = [sys.executable, "-B", str(ROOT / "scripts/grade-evals.py"), "--suite", suite, "--results-dir", str(suite_dir)]
         for identifier in identifiers:
             grade_command.extend(["--case", identifier])
-        grade = subprocess.run(grade_command, cwd=ROOT, check=False)
+        grade = subprocess.run(grade_command, cwd=ROOT, check=False, capture_output=True, text=True)
+        grade_outputs.append((grade.stdout, grade.stderr))
         if grade.returncode != 0:
-            return 1
-    return 0
+            summary["status"] = "FAIL"
+            summary["gradingStatus"] = "FAIL"
+            break
+    # Preserve the public first-summary ordering without printing PASS before grading.
+    print(json.dumps(summary, indent=2, sort_keys=True), flush=True)
+    for stdout, stderr in grade_outputs:
+        print(stdout, end="", flush=True)
+        print(stderr, end="", file=sys.stderr, flush=True)
+    return 0 if summary["gradingStatus"] == "PASS" else 1
 
 
 if __name__ == "__main__":

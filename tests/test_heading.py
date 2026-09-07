@@ -131,7 +131,7 @@ class HeadingTests(unittest.TestCase):
         result = self.run_python(VALIDATOR)
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
-        self.assertEqual(payload, {"status": "PASS", "version": "0.3.3", "files": 53, "tracks": 5, "skills": 6, "childRoles": 4, "modes": 27, "evals": 182, "modeEvals": 32, "intakeEvals": 125, "dialogueEvals": 25})
+        self.assertEqual(payload, {"status": "PASS", "version": "0.4.0", "files": 66, "tracks": 5, "skills": 6, "childRoles": 4, "modes": 27, "evals": 182, "modeEvals": 32, "intakeEvals": 125, "dialogueEvals": 25, "modelRoutingEvals": 33})
 
     def test_bundle_validation_with_python_optimize(self) -> None:
         result = self.run_python(VALIDATOR, env={"PYTHONOPTIMIZE": "1"})
@@ -425,7 +425,7 @@ class HeadingTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
             self.assertEqual(payload["mode"], "plan")
-            self.assertEqual(len(payload["install"]), 24)
+            self.assertEqual(len(payload["install"]), 28)
             self.assertEqual(payload["remove"], [])
             self.assertFalse((codex / ".heading-deploy.lock").exists())
             self.assertFalse((skills / ".heading-deploy.lock").exists())

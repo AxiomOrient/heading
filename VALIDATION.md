@@ -1,53 +1,44 @@
-# Heading 0.3.3 validation
+# Heading 0.4.0 — validation record
 
-## Verified
+Date: 2026-09-07. Scope: source package and deterministic behavior in this Linux/Python environment. Model quality and actual host routing are separate.
 
-- Source validator: PASS in normal mode and with `PYTHONOPTIMIZE=1`.
-- Behavioral, deployment, and plugin packaging tests: **44/44 PASS** in 6 isolated batches for 0.3.3.
-- Source and plugin validators passed for 0.3.3: 53 source files, five implicit product tracks, one explicit-only orchestration skill, four child-role templates, 27 modes, and 182 deterministic evaluation cases.
-- Native Codex CLI 0.144.1 representative intake evaluation: prior five direct-track and five wrong-track cases executed in isolated read-only sessions; the initial 9/10 result exposed one missing route-correction field, and the repaired case passed on re-execution. This is historical 0.2.0 evidence, not native-model proof for 0.3.3.
-- Five track contracts, 27 niche modes, and 5 wrong-track auto-routing boundaries.
-- 125 intake cases: 100 `PROCEED`, 20 `ASK`, 5 `REFUSE`; this is test coverage, not a runtime quota.
-- 25 dialogue cases: one-question completion, no clarification loop, in-place track correction, untrusted instructions, and repeated invalid goals.
-- All 150 intake/dialogue reference results pass the deterministic grader.
-- Invalid methods are repaired while legitimate goals continue; only five essentially deceptive or unauthorized goals are refused.
-- JSON output schema, native command construction, isolated authentication staging, and secret non-disclosure tests pass.
-- Historical native Executor smoke on Codex CLI 0.144.1: a real `collab spawn failed: no thread with id` was converted to `executorState: SPAWN_FAILED`, `releaseState: BLOCKED`, and `runtimeObserved: NOT_PROVEN`; no smoke file was created. Version 0.3.3 permits a declared direct writer for bounded work when delegation is unavailable, but requires independent review or `independentReview: NOT_PROVEN` for material results.
-- Native user-facing response smoke on Codex CLI 0.144.1: the final answer used plain Korean, progressive disclosure, and emitted no YAML or JSON.
-- The adversarial deployment matrix covers non-destructive collision handling, symlinks, hard links, special files, rollback, mode drift, locks, deep and Unicode paths, restrictive umask, low file-descriptor limits, and cross-filesystem `TMPDIR`.
-- Namespace preflight recognizes only Heading-managed profile/role TOMLs and skill directories; unrelated `heading-`-prefixed notes remain untouched, covered by a regression test.
-- Plugin packaging validator: portable Agent Plugins manifest, Codex manifest, marketplace source containment, six immediate skill folders, and symlink rejection.
-- Codex CLI plugin smoke: `scripts/smoke-plugin-install.py` uses a temporary `HOME` and `CODEX_HOME`, registers the repository marketplace, installs `heading@heading`, confirms `enabled: true`, and compares the two cached manifests with source. It does not claim model selection in a chat.
-- Role defaults: Lead Sol `medium`, Planner/Executor Luna `xhigh`, Reviewer Terra `high`, and Architect Terra `xhigh`. For material risk, Lead may request Planner/Executor Luna -> Terra or direct Sol for critical/irreversible risk, and Reviewer/Architect Terra -> Sol; Lead itself uses Sol effort escalation. Pass supported model/effort overrides to dispatch and record requested/effective model, requested/effective effort, and reason, or `modelEscalation: NOT_PROVEN` when unavailable.
+## Executed source checks
 
-Run the same checks:
+| Check | Observed result |
+| --- | --- |
+| Source validator, Python normal | PASS: 66 files, 6 skills, 4 child roles |
+| Source validator, PYTHONOPTIMIZE=1 | PASS |
+| Portable/Codex plugin manifest validator | PASS |
+| Python syntax / shell syntax / production assert prohibition | PASS through source validator |
+| Unittest suite | 62 discovered; 61 passed; 1 macOS-only skip; 0 failures/errors |
+| Routing vectors | 33/33 passed |
+| Exhaustive supported task facts | 216/216 passed |
+| Non-destructive fresh install / check / drift rejection | PASS in isolated temporary roots |
+| Actual local subprocess exit / timeout evidence | PASS; not a model execution |
+| Native smoke / native model eval | NOT_PROVEN: both exit 2, Codex CLI not found |
+| Working-tree whitespace validation | git diff --check passed |
+
+The convenience full-suite command exceeded this tool's execution window. All 62 tests were then observed in four bounded slices (0–16, 16–24, 24–44, 44–62); no test was omitted. This is not a claim that the uninterrupted convenience command completed here. Linux skipped only `test_macos_system_aliases_are_canonicalized_but_custom_symlinks_remain_unsafe`.
+
+
+The retained adversarial deployment matrix covers non-destructive install, symlink/hardlink rejection, managed-content drift, namespace conflicts, permissions, locks, rollback, hostile paths and explicit roots. Tests that use simulated plugin commands verify adapter contracts only; they do not prove a real Codex plugin installation.
+
+The original corpus remains 32 mode cases, 125 intake cases and 25 dialogue cases: 182 contract cases. The intake distribution is 100 `PROCEED`, 20 `ASK`, 5 `REFUSE`. These corpora are structurally/semantically validated, not 182 successful LLM runs.
+
+New routing verification: 33 reviewed request/transition vectors, all 216 supported fact combinations, malformed-input rejection, max authorization, critical-risk floor, failed-route history preservation, environmental-failure handling, requested/observed separation and locked task/role/sandbox matching. The helper runs locally without calling a model.
+
+## Native Codex CLI compatibility
+
+NOT_PROVEN. No Codex CLI is installed in this execution environment. Official-source compatibility is documented, but no authenticated model execution, live role dispatch, account availability, in-place effort switch or stopped-writer handover is claimed. The macOS-specific filesystem-alias test requires macOS and is separately skipped on Linux.
+
+`scripts/run-evals.py --route ... --dry-run` proves command construction, not invocation or model adherence. A native Codex eval requires an actual CLI and explicit credentials. The runner evaluates intake only, retains raw trace and records requested model/effort separately from unobserved effective values. Real execution failures must remain failures, even if a partial result JSON exists.
+
+## Reproduction
 
 ```bash
 ./verify-source-package.sh
 python3 -B scripts/validate-plugin.py
-python3 -B scripts/smoke-plugin-install.py --codex-bin /absolute/path/to/codex
-python3 -B scripts/run-evals.py --dry-run
+python3 -B scripts/run-evals.py --dry-run --limit 1 --route astra-low
 ```
 
-## native Codex eval
-
-The native runner copies the packaged skill source into an isolated temporary skill scope and invokes Codex in an ephemeral read-only evaluation session. It validates skill behavior, not interactive plugin activation:
-
-```bash
-CODEX_API_KEY=<key> python3 -B scripts/run-evals.py --suite all
-```
-
-or:
-
-```bash
-python3 -B scripts/run-evals.py --suite all \
-  --auth-file "${CODEX_HOME:-$HOME/.codex}/auth.json"
-```
-
-The authentication file is copied only into the temporary evaluation home with mode `0600` and is never printed.
-
-## Evidence boundary
-
-`[NOT_PROVEN]` Authenticated native-model evaluation and interactive implicit-selection E2E are not established by the deterministic suite or installation smoke. `scripts/run-evals.py --dry-run` proves only native command construction. A complete implicit-selection E2E requires a newly started interactive Codex CLI session or desktop chat with the plugin enabled; `codex exec` does not prove that activation surface. Native Codex CLI compatibility and representative model execution must be rechecked for every CLI release. Successful Sol/Luna/Terra spawning, effective effort, sandbox enforcement, direct-writer review behavior, Executor thread continuation, and stochastic model behavior for the full 150 cases remain separate evidence.
-
-The static behavior suite and adversarial deployment tests prove package contracts and deterministic tooling. Native execution evidence is recorded separately by `scripts/run-evals.py`.
+A successful source check is not proof that Astra low and Luna xhigh/max are the fastest, cheapest or most accurate settings. The policy remains CANDIDATE_NOT_BENCHMARKED until the outcome comparisons in PLAN.md are observed.

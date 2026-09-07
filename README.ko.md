@@ -1,4 +1,4 @@
-# Heading 0.3.3
+# Heading 0.4.0
 
 Heading은 다섯 제품 작업 트랙과 선택적 오케스트레이션 트랙을 제공하는 이식 가능한 skills 플러그인입니다.
 
@@ -50,21 +50,24 @@ $heading-build 이 아이디어를 사람들이 원하는지 검증해
 - `REFUSE`는 목표 자체에 안전하고 승인된 정직한 형태가 없을 때만 사용합니다.
 - 도구·플랫폼이 없으면 가능한 작업은 계속하고 해당 증거만 `NOT_PROVEN`으로 남깁니다. 모든 유용한 작업이 불가능할 때만 실행 결과가 `BLOCKED`가 될 수 있습니다.
 
-## 역할
+## 역할과 작업별 모델
 
-```text
-Lead       GPT-5.6 Sol medium 기본; 중요한 판정은 high
-Planner    GPT-5.6 Luna xhigh 기본; 중요한 위험은 지원 시 max
-Executor   GPT-5.6 Luna xhigh 기본; 중요한 위험은 지원 시 max
-Reviewer   GPT-5.6 Terra high 기본; 중요한 위험은 지원 시 GPT-5.6 Sol
-Architect  GPT-5.6 Terra xhigh; 중요한 위험은 지원 시 GPT-5.6 Sol
-```
+**역할은 권한을, 작업의 증거는 모델을 결정합니다.** 선택적 Lead 프로파일은 **GPT-6 Astra low**를 요청합니다. 스킬을 읽는 것만으로 현재 채팅의 모델이 바뀌지는 않습니다.
 
-- writable outcome은 한 번에 하나입니다.
-- 동일 outcome의 구현·수리·재검증은 같은 Executor thread를 사용합니다. 위임을 사용할 수 없거나, 허용되지 않거나, 작은 로컬 변경에는 과도하면 Lead가 같은 소유권·증거 잠금 아래 선언된 `executionMode: DIRECT`로 직접 수행할 수 있습니다.
-- Reviewer는 수정하거나 Executor를 직접 지휘하지 않고 Lead에게만 보고합니다.
-- Luna/Terra 사용 비율은 고정하지 않습니다.
-- 중요한 위험에서는 Lead가 role·sandbox·소유 표면·writer 수·Reviewer 독립성을 바꾸지 않고 더 높은 모델 tier를 명시적으로 요청할 수 있습니다: Luna -> Terra, Terra -> Sol. 치명적·비가역 위험은 지원 시 Sol을 직접 요청할 수 있습니다. task surface가 지원하면 모델·추론 강도 override를 dispatch에 전달합니다. `requestedModel`, `effectiveModel`, `requestedReasoningEffort`, `effectiveReasoningEffort`, `modelEscalationReason`을 기록하고, 불가하면 기본 모델을 유지하며 `modelEscalation: NOT_PROVEN`을 남깁니다.
+| 작업 조건 | 시작 요청 |
+| --- | --- |
+| 명확한 요구·국소 범위·가역성·강한 검증 기준·일상적 위험을 모두 충족 | GPT-5.6 Luna `xhigh` |
+| 같은 쉬운 작업에서 추론 실패가 관찰되고 제한된 탐색과 예산이 승인됨 | Luna `max` 1회 |
+| 어려움·모호성·여러 경계·난도 불확실 | GPT-6 Astra `low` |
+| 치명적 위험 또는 비가역·고영향 작업 | Astra `high` |
+
+이 설정은 **후보 기본 정책**입니다. 실측된 최적값이나 서로 다른 모델의 성능 동등성을 주장하지 않습니다. UI의 `Light`는 `low`에 대응합니다. 정확한 API 모델 ID와 추론 값은 [버전 정책](plugins/heading/skills/heading-orchestrate/references/model-policy.json)을 사용합니다.
+
+Lead는 승인과 최종 판단, Planner·Reviewer·Architect는 읽기 전용, Executor는 유일한 위임 작성자를 맡습니다. Reviewer는 실제 변경을 독립적으로 검토하고 Lead에게만 보고합니다. 역할 파일에서는 모델·추론 강도를 제거했습니다. 최신 Codex에서 이 값이 호출 시 설정보다 우선하기 때문입니다. dispatch는 두 값을 함께 전달하고 요청값과 실제 호스트 관찰값을 분리합니다. 미관찰은 `modelEscalation: NOT_PROVEN`이며 전환 성공이 아닙니다.
+
+같은 outcome의 수리는 가능한 한 같은 Executor를 유지합니다. 필수 모델 변경을 같은 thread에 적용할 수 없다면 변경본·증거를 보존하고, 기존 작성자와 소유 프로세스의 종료를 관찰한 뒤 작성자 하나에게 인계합니다. 선택적 위임이 없으면 별도로 선언한 direct 경로를 사용할 수 있지만, 필수 모델·권한·검토를 조용히 대체하지 않습니다.
+
+[라우팅·작업 패킷](plugins/heading/skills/heading-orchestrate/references/MODEL-ROUTING.md)과 [2026-09-07 공식 자료 분석](plugins/heading/skills/heading-orchestrate/references/RESEARCH-2026-09-07.md)을 참고합니다.
 
 ## 플러그인 설치
 
@@ -107,6 +110,27 @@ Heading은 실행 증거를 내부 판단에 사용하지만, 답변 길이는 �
 
 ## 배포 경계
 
-배포 가능한 source는 `plugins/heading/`입니다. 여섯 skill, reference, portable manifest, Codex manifest만 포함합니다. `plugin.json`은 portable Agent Plugins manifest이고 `.codex-plugin/plugin.json`은 Codex manifest입니다. 둘은 같은 `heading` 이름과 버전을 가지며, skill 경로 `./skills/`는 Codex manifest에만 있습니다. 별도 `runtime/heading/`에는 선택적 profile과 role template이 있습니다. repository marketplace는 로컬·팀 테스트용이고, public directory 제출은 별도의 게시자 심사 단계입니다. 선택적 profile 설치기는 사용자가 선택한 Codex profile에만 쓰며 플러그인을 대체하지 않습니다.
+배포 가능한 source는 `plugins/heading/`입니다. 여섯 skill, reference, 결정적 라우팅 helper, portable manifest, Codex manifest를 포함합니다. `plugin.json`은 portable Agent Plugins manifest이고 `.codex-plugin/plugin.json`은 Codex manifest입니다. 둘은 같은 `heading` 이름과 버전을 가지며, skill 경로 `./skills/`는 Codex manifest에만 있습니다. 별도 `runtime/heading/`에는 선택적 profile과 role template이 있습니다. repository marketplace는 로컬·팀 테스트용이고, public directory 제출은 별도의 게시자 심사 단계입니다. 선택적 profile 설치기는 사용자가 선택한 Codex profile에만 쓰며 플러그인을 대체하지 않습니다.
 
 `./verify-source-package.sh`는 결정적인 source package와 두 manifest 계약을 검증합니다. `scripts/smoke-plugin-install.py`는 격리된 Codex home에서 로컬 marketplace 등록, 설치, enabled 상태, cache manifest 동등성을 별도로 검증합니다. 확률적인 암시 선택은 새 interactive chat에서만 관측할 수 있습니다. Native Codex 실행, 모델 동작, 인증이 필요한 evaluation, public directory 승인 여부는 별도 증거입니다.
+
+## 기존 설치의 업데이트
+
+이 ZIP은 소스를 고도화한 결과입니다. 사용자 계정이나 실제 설치를 변경하지 않았습니다. 비파괴 설치기는 내용이 다른 기존 관리 파일을 덮어쓰지 않고 거부합니다. 기존 profile과 role 파일을 백업하고 새 경로에 staging한 뒤 비교하십시오. 실행 중인 작성자를 종료하고 사용자 수정사항을 보존하면서 검토한 관리 파일만 교체해야 합니다. Codex home 전체를 삭제하지 않습니다. 이전 role 파일의 모델 키가 남으면 작업별 라우팅을 방해합니다.
+
+```bash
+# STAGE는 소스 폴더 밖의 새 경로로 지정합니다.
+STAGE="$(mktemp -d)"
+./scripts/install.sh --dry-run --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
+./scripts/install.sh --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
+./scripts/install.sh --check --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
+```
+
+staging 경로를 실제 사용자 경로로 자동 승격하지 않습니다. 플러그인 설치와 선택적 profile 설치는 별개입니다.
+
+## Canonical documents
+
+- [Identity and evolution](IDENTITY_AND_EVOLUTION.md): identity, invariants and permitted change.
+- [Specification](SPEC.md) · [Architecture](ARCHITECTURE.md): contracts and authoritative owners.
+- [Analysis](ANALYSIS.md) · [Implementation status](IMPLEMENTATION_STATUS.md): observed defects, changes and remaining proof.
+- [Validation](VALIDATION.md) · [Plan](PLAN.md) · [Routing decision](docs/adr/0001-task-based-model-routing.md).

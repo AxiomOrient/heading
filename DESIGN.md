@@ -1,4 +1,4 @@
-# Heading 0.3.3 design
+# Heading 0.4.0 design
 
 ## Core model
 
@@ -13,12 +13,14 @@ Maintain   control existing-system risk
 ```
 
 ```text
-Lead       Sol medium by default; high for material decisions
-Planner    Luna xhigh by default; max for material risk when available, read-only
-Executor   Luna xhigh by default; max for material risk when available, sole writer
-Reviewer   Terra high by default; Sol for material risk, read-only
-Architect  Terra xhigh by default; Sol for material risk, read-only
+Lead       routing, lock, integration and final acceptance
+Planner    bounded read-only discovery
+Executor   sole delegated writer
+Reviewer   independent read-only candidate review
+Architect  irreducible read-only boundary analysis
 ```
+
+Task capability is orthogonal: easy -> Luna xhigh; hard/uncertain -> Astra low; critical -> Astra high. Luna max is an evidenced bounded retry. The versioned `model-policy.json` is the routing-value owner; `MODEL-ROUTING.md` owns meaning. These defaults are candidates, not measured quality equivalence.
 
 The product tracks are six portable skill folders under `plugins/heading/skills/`. `plugins/heading/plugin.json` is the portable Agent Plugins manifest, while `.codex-plugin/plugin.json` is the Codex host manifest. The separate `runtime/heading/profile/heading.config.toml` file is an optional task-stage profile; it does not define package distribution.
 
@@ -34,7 +36,7 @@ INFER effective track
 
 A clear mismatch is auto-routed in the same conversation. For a multi-stage request, Heading starts with the earliest unresolved decision or risk gate and queues later outcomes. A question is reserved for one unresolved choice that materially changes the outcome. One outcome never changes tracks after writing begins.
 
-This follows GPT-5.6 guidance to state domain context, hard constraints, approval boundaries, and success criteria while relying on stronger intent inference rather than prescribing every internal step. It also follows clarification research that favors selective questions over either always asking or never asking.
+The dated official-source analysis is in `RESEARCH-2026-09-07.md`. Astra-specific guidance is translated into authorized reversible completion, material questions only, concise evidence and selective delegation—not weaker authority boundaries or hidden reasoning requirements.
 
 ## Bias for useful action
 
@@ -64,7 +66,7 @@ Each track keeps its own modes, lock, proof, stop rule, and result schema in `re
 
 - One active writable outcome.
 - Read-heavy discovery may run independently; write-heavy work is serialized.
-- One outcome keeps the same Executor thread through accepted repair and re-verification.
+- One outcome keeps the same Executor thread where the route can be honored; otherwise an observed stopped-writer handover preserves the exact candidate and evidence.
 - Lead locks `outcome_id`, owned surface, done condition, and evidence before any writable work. When a native executor is available and allowed, it delegates exactly one `heading_executor`; a missing child thread ID never enters a wait.
 - If delegation is unavailable, disallowed, or disproportionate for a small local change, Lead declares `executionMode: DIRECT`, remains the sole writer, and preserves the same ownership and evidence lock. A requested but unobservable native or user-visible lane remains `NOT_PROVEN` or `BLOCKED`; it is never silently replaced.
 - Waits are bounded and target one named child. A timeout or missing notification is not proof of failure; inspect the same writer's state before deciding recovery or replacement.
@@ -73,7 +75,7 @@ Each track keeps its own modes, lock, proof, stop rule, and result schema in `re
 - Architect is used only when an ownership, state, security, concurrency, recovery, or public-contract boundary cannot be localized.
 - `$heading-orchestrate` runs only after a track locks an outcome. It selects a direct lane, an observed native lane, or an explicitly authorized user-visible task lane.
 - Native role templates are intent, not runtime proof. Identity, model/effort, write boundary, task ID, and completion must be observed before a delegated result can support acceptance.
-- For material risk, Lead may explicitly escalate the model tier from Luna to Terra or Terra to Sol; critical or irreversible risk may request Sol directly. When the task surface supports it, dispatch passes the requested model and effort overrides. Escalation preserves role, sandbox, owned surface, writer count, and reviewer independence, and records requested/effective model and effort plus the reason. Lead is already Sol, so it escalates reasoning effort instead.
+- Task facts, not role names, select model capability. Explicit dispatch supplies model and effort together. Custom role files omit both values to avoid overriding the requested route. Host observations alone establish effective values. Missing proof does not authorize an unverified weaker route for material work. A model change preserves the locked outcome, role, permissions and reviewer independence.
 - There is no capability-gated fallback: an unavailable requested lane is `NOT_PROVEN` or `BLOCKED`; direct work is a separately stated lane rather than an invisible replacement.
 
 ## Prompt contract
@@ -103,3 +105,9 @@ Method schemas and proof fields are decision inputs, not the default user interf
 - 25 dialogue cases covering one-question completion, no clarification loop, mid-conversation rerouting, untrusted instructions, and repeated invalid goals.
 
 The static corpus verifies the contract and runner. Native Codex model behavior remains separate evidence and must be measured with `scripts/run-evals.py`.
+
+## Deterministic route selection versus runtime proof
+
+`model_routing.py` is a pure transition behind a small JSON CLI, not a dispatcher. Missing facts cannot qualify for the easy route. Critical or irreversible material-risk work has a higher effort floor. Environment and permission failures enter `REPAIR_REQUIRED`; they are not reasons to spend more reasoning. Failed higher-capability history cannot silently downgrade to a lower route.
+
+The native intake runner accepts `--route` and emits both CLI settings. It records duration, exit/timeout/spawn status and retained output without copying requested values into effective values. A successful intake evaluation is not a complex implementation benchmark. Production routing needs actual host metadata and independent final-state evidence.

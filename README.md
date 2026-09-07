@@ -1,4 +1,4 @@
-# Heading 0.3.3
+# Heading 0.4.0
 
 Heading is a portable skills plugin with five product-work tracks and one optional orchestration track.
 
@@ -50,21 +50,24 @@ This request is corrected to `prototype` and continues in the same conversation.
 - `REFUSE` is reserved for an essential goal with no safe, authorized, honest, useful form.
 - Missing tools or platforms downgrade only the affected proof to `NOT_PROVEN`. Execution becomes `BLOCKED` only when inspection finds no faithful useful work.
 
-## Roles
+## Roles and task-based models
 
-```text
-Lead       GPT-5.6 Sol medium by default; high for material decisions
-Planner    GPT-5.6 Luna xhigh by default; max for material risk when available
-Executor   GPT-5.6 Luna xhigh by default; max for material risk when available
-Reviewer   GPT-5.6 Terra high by default; GPT-5.6 Sol for material risk when available
-Architect  GPT-5.6 Terra xhigh; GPT-5.6 Sol for material risk when available
-```
+Role controls authority; task evidence selects the model. The optional Lead profile requests **GPT-6 Astra low**. A skill alone does not switch the current chat model.
 
-- Only one writable outcome is active at a time.
-- Implementation, accepted repair, and re-verification for one outcome stay in the same Executor thread. If delegation is unavailable, disallowed, or disproportionate for a small local change, the Lead may use declared `executionMode: DIRECT` with the same ownership and evidence lock.
-- Reviewer never edits or directs Executor; it reports to Lead only.
-- There is no fixed Luna/Terra quota.
-- For material risk, Lead may explicitly request a higher model tier without changing role, sandbox, owned surface, writer count, or reviewer independence: Luna -> Terra, Terra -> Sol. Critical or irreversible risk may request Sol directly. Pass model/effort overrides when the task surface supports them. Record `requestedModel`, `effectiveModel`, `requestedReasoningEffort`, `effectiveReasoningEffort`, and `modelEscalationReason`; if unavailable, keep the base model and record `modelEscalation: NOT_PROVEN`.
+| Task | Starting request |
+| --- | --- |
+| Clear, local, reversible, strongly testable routine task—all conditions | GPT-5.6 Luna `xhigh` |
+| Same easy task with an evidenced reasoning failure and authorized bounded search | Luna `max` once |
+| Hard, ambiguous, cross-boundary or uncertain task | GPT-6 Astra `low` |
+| Critical risk, including irreversible high-impact work | Astra `high` |
+
+These are candidate defaults, not a benchmark-proven optimum. `Light` is the UI label for `low`; use exact model IDs and supported effort values from the [versioned policy](plugins/heading/skills/heading-orchestrate/references/model-policy.json).
+
+Lead owns acceptance; Planner, Reviewer and Architect are read-only; Executor is the sole delegated writer. A fresh Reviewer checks material changes and reports only to Lead. Role files intentionally omit model and effort: current Codex custom-role values would otherwise override dispatch. Supply both settings per task and separate requested settings from actual host metadata. Missing evidence is `modelEscalation: NOT_PROVEN`, not successful model switching.
+
+Preserve the same Executor for one outcome while the requested route can be honored. A required route change that cannot happen in place needs an exact-candidate checkpoint, an observed stop of the old writer and its processes, then one replacement writer. Missing optional delegation does not block a separately declared direct lane; never silently substitute a required route or weaken permissions.
+
+See [routing and task packets](plugins/heading/skills/heading-orchestrate/references/MODEL-ROUTING.md) and [dated official research](plugins/heading/skills/heading-orchestrate/references/RESEARCH-2026-09-07.md).
 
 ## Install as a plugin
 
@@ -124,3 +127,23 @@ availability.
 The source-only publication contains the plugin, references, tests, optional
 profile installer, and validation scripts. No third-party package or generated
 runtime artifact is bundled here.
+
+## Upgrading an existing installation
+
+The source is upgraded; your account and local installation are not modified by this ZIP. The non-destructive installer rejects differing existing managed files rather than overwriting them. Stage into fresh explicit roots, inspect the five profile/role files, preserve your local edits, stop active writers, and deliberately replace only the reviewed managed files. Do not delete the entire Codex home. Old role files with model keys defeat task-level routing.
+
+```bash
+STAGE="$(mktemp -d)"
+./scripts/install.sh --dry-run --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
+./scripts/install.sh --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
+./scripts/install.sh --check --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
+```
+
+Keep staging outside the verified source tree and inspect it before touching the live installation. No automatic migration or destructive force option is introduced.
+
+## Canonical documents
+
+- [Identity and evolution](IDENTITY_AND_EVOLUTION.md): identity, invariants and permitted change.
+- [Specification](SPEC.md) · [Architecture](ARCHITECTURE.md): contracts and authoritative owners.
+- [Analysis](ANALYSIS.md) · [Implementation status](IMPLEMENTATION_STATUS.md): observed defects, changes and remaining proof.
+- [Validation](VALIDATION.md) · [Plan](PLAN.md) · [Routing decision](docs/adr/0001-task-based-model-routing.md).

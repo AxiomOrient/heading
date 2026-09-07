@@ -23,23 +23,22 @@ If any missing field would let two workers edit the same boundary or make an unv
 2. **Native lane.** Use a configured native implementer only after observing its exact identity, model/reasoning setting, write boundary, and task identity from the live runtime. Do not infer those facts from a template or documentation.
 3. **User-visible task lane.** Create a separate task only when the user explicitly authorizes it and the exposed task tools can provide a non-empty task identity, bounded ownership, and observable completion.
 
-A higher model tier is allowed for material risk only when Lead explicitly records the escalation. Never silently substitute a different model, role, task surface, write boundary, or reviewer. If the requested lane or model is unavailable or cannot be observed, mark that lane or escalation `NOT_PROVEN` or `BLOCKED`; offer the direct lane only as a separately stated option.
+A higher model tier or effort is allowed only when Lead records a task-based routing reason. Never silently substitute a different model, role, task surface, write boundary, or reviewer. If the requested lane or model is unavailable or cannot be observed, mark that lane or escalation `NOT_PROVEN` or `BLOCKED`; offer the direct lane only as a separately stated option.
 
-## Model tier escalation
+## Task-based model routing
 
-- The default ladder is `gpt-5.6-luna` -> `gpt-5.6-terra` -> `gpt-5.6-sol`; model escalation is permitted, not mandatory.
-- Planner and Executor use Luna `xhigh` by default. Material risk may request Luna `max`; if a higher model is warranted, escalate Luna -> Terra with `high` or `xhigh` as appropriate. Critical or irreversible risk may request Sol `high` directly when the host offers it.
-- Reviewer uses Terra `high` and Architect uses Terra `xhigh` by default. Material risk may escalate Terra -> Sol with `high` when the host offers it.
-- Lead already uses Sol, so its model tier does not escalate; use the configured effort escalation instead.
-- When the native task surface exposes model and effort overrides, pass the requested values in the dispatch call; a role template's `model` field is only the default and never proof of the effective runtime.
-- Escalation never changes the role, sandbox, owned surface, writer count, or reviewer independence. Record `requestedModel`, `effectiveModel`, `requestedReasoningEffort`, `effectiveReasoningEffort`, and `modelEscalationReason`; if unavailable, retain the base model and record `modelEscalation: NOT_PROVEN`.
+Read `references/MODEL-ROUTING.md` and `references/model-policy.json`. Classify the bounded task before dispatch, independently of the role. Hard or uncertain work uses Astra `low`; easy, local, reversible work with a strong oracle uses Luna `xhigh`. Luna `max` requires a bounded reasoning failure and explicit max budget. Critical risk uses Astra `high`. These are candidate defaults, not measured optimality claims.
+
+Use `scripts/model_routing.py` for deterministic selection when available. It never calls a model or changes the host. Native dispatch must pass both `requestedModel` and `requestedReasoningEffort`. The four Heading role files contain no model/effort overrides because custom-file values take precedence over explicit spawn settings in current Codex.
+
+Observe `effectiveModel` and `effectiveReasoningEffort` from host metadata; record `modelEscalationReason` and `modelEscalation: NOT_PROVEN` when the request is not observed. Never silently substitute a lower tier or claim model execution from a prompt, UI label, template, or self-report. If a material task needs an unavailable route, continue safe inspection and preserve its candidate without claiming the gated proof.
 
 ## Native lane protocol
 
 1. Confirm the task packet, requested/effective model fields, and designate exactly one writer.
 2. Give the implementer the packet and require: changed files, commands actually run, results, unresolved risk, model escalation evidence, and `EXECUTOR_RESULT`.
 3. Observe completion using the concrete task identity. Never wait with an empty target list; do not claim completion from a timeout or missing report.
-4. Keep correction in the same implementer task unless the packet's ownership changes materially.
+4. Keep correction in the same implementer task. If the host cannot change a required route in place, checkpoint the candidate, observe the old writer stopped, and hand the same bounded outcome to exactly one replacement. Ownership changes require a new outcome.
 5. A primary reviewer independently inspects the actual candidate and reports severity-ranked findings. The implementer does not self-accept.
 6. The primary agent alone integrates, decides whether the proof meets the locked rule, and reports `PASS`, `PARTIAL`, `NOT_PROVEN`, or `BLOCKED`.
 
