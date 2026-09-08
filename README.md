@@ -1,4 +1,4 @@
-# Heading 0.4.0
+# Heading 0.4.1
 
 Heading is a portable skills plugin with five product-work tracks and one optional orchestration track.
 
@@ -59,7 +59,9 @@ Role controls authority; task evidence selects the model. The optional Lead prof
 | Clear, local, reversible, strongly testable routine task—all conditions | GPT-5.6 Luna `xhigh` |
 | Same easy task with an evidenced reasoning failure and authorized bounded search | Luna `max` once |
 | Hard, ambiguous, cross-boundary or uncertain task | GPT-6 Astra `low` |
-| Critical risk, including irreversible high-impact work | Astra `high` |
+| Critical risk, including irreversible high-impact work | Astra `medium` |
+
+Astra normally uses only `low` (Light) and `medium`. Reserve `ultra` for exceptionally difficult work with a concrete task reason and authorized budget; never select Astra `high`, `xhigh`, or `max`. Native Ultra support must be checked on the host; it is not an API effort alias.
 
 These are candidate defaults, not a benchmark-proven optimum. `Light` is the UI label for `low`; use exact model IDs and supported effort values from the [versioned policy](plugins/heading/skills/heading-orchestrate/references/model-policy.json).
 

@@ -27,7 +27,7 @@ A higher model tier or effort is allowed only when Lead records a task-based rou
 
 ## Task-based model routing
 
-Read `references/MODEL-ROUTING.md` and `references/model-policy.json`. Classify the bounded task before dispatch, independently of the role. Hard or uncertain work uses Astra `low`; easy, local, reversible work with a strong oracle uses Luna `xhigh`. Luna `max` requires a bounded reasoning failure and explicit max budget. Critical risk uses Astra `high`. These are candidate defaults, not measured optimality claims.
+Read `references/MODEL-ROUTING.md` and `references/model-policy.json`. Classify the bounded task before dispatch, independently of the role. Hard or uncertain work uses Astra `low`; easy, local, reversible work with a strong oracle uses Luna `xhigh`. Luna `max` requires a bounded reasoning failure and explicit max budget. Critical risk uses Astra `medium`. Astra uses only `low` (Light) or `medium` normally; `ultra` requires an exceptionally difficult task, a concrete reason and authorized budget. Do not route Astra through `high`, `xhigh`, or `max`. These are candidate defaults, not measured optimality claims.
 
 Use `scripts/model_routing.py` for deterministic selection when available. It never calls a model or changes the host. Native dispatch must pass both `requestedModel` and `requestedReasoningEffort`. The four Heading role files contain no model/effort overrides because custom-file values take precedence over explicit spawn settings in current Codex.
 

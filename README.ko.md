@@ -1,4 +1,4 @@
-# Heading 0.4.0
+# Heading 0.4.1
 
 Heading은 다섯 제품 작업 트랙과 선택적 오케스트레이션 트랙을 제공하는 이식 가능한 skills 플러그인입니다.
 
@@ -59,7 +59,9 @@ $heading-build 이 아이디어를 사람들이 원하는지 검증해
 | 명확한 요구·국소 범위·가역성·강한 검증 기준·일상적 위험을 모두 충족 | GPT-5.6 Luna `xhigh` |
 | 같은 쉬운 작업에서 추론 실패가 관찰되고 제한된 탐색과 예산이 승인됨 | Luna `max` 1회 |
 | 어려움·모호성·여러 경계·난도 불확실 | GPT-6 Astra `low` |
-| 치명적 위험 또는 비가역·고영향 작업 | Astra `high` |
+| 치명적 위험 또는 비가역·고영향 작업 | Astra `medium` |
+
+Astra는 평소 `low`(Light)와 `medium`만 사용한다. `ultra`는 구체적인 난도 근거와 허용된 예산이 있는 매우 어려운 작업에만 사용한다. Astra `high`·`xhigh`·`max` 경로는 사용하지 않는다. Ultra는 실제 native 호스트의 지원을 확인하며 API effort 별칭으로 취급하지 않는다.
 
 이 설정은 **후보 기본 정책**입니다. 실측된 최적값이나 서로 다른 모델의 성능 동등성을 주장하지 않습니다. UI의 `Light`는 `low`에 대응합니다. 정확한 API 모델 ID와 추론 값은 [버전 정책](plugins/heading/skills/heading-orchestrate/references/model-policy.json)을 사용합니다.
 

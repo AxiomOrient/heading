@@ -1,4 +1,4 @@
-# Heading 0.4.0 — 규격
+# Heading 0.4.1 — 규격
 
 ## 유지 계약
 
@@ -8,7 +8,7 @@
 
 정본은 `plugins/heading/skills/heading-orchestrate/references/model-policy.json`이다. 입력 fact는 clarity, scope, reversible, oracle, risk다. 다섯 긍정 조건을 모두 충족할 때만 easy다. risk=critical 또는 risk=material이면서 reversible=false이면 critical, 나머지는 hard다. 모델 선택과 도구 권한은 독립이다.
 
-history에는 현재 outcome의 실패 route·실패 유형·실제 증거 참조를 유지한다. 환경·권한·일시 장애는 `REPAIR_REQUIRED`; 추론 실패는 한 단계 승급 또는 제한된 Luna max; 소진·예산 미승인은 `NEEDS_NEW_EVIDENCE`다. `REQUESTED`만 호스트 확인 단계로 진행한다. max는 명시 예산이 필요하며, 실패 이력을 지워 반복하지 않는다.
+history에는 현재 outcome의 실패 route·실패 유형·실제 증거 참조를 유지한다. 환경·권한·일시 장애는 `REPAIR_REQUIRED`; 추론 실패는 정책 ladder를 따르며, Luna max와 Astra ultra는 각각의 예산·근거 조건이 필요하다. 소진·예산 미승인은 `NEEDS_NEW_EVIDENCE`다. `REQUESTED`만 호스트 확인 단계로 진행하며, 실패 이력을 지워 반복하지 않는다.
 
 helper는 요청값만 반환한다. effective 값은 null, modelEscalation은 NOT_PROVEN이다. 관찰 비교 함수는 별도로 고정한 taskId·role·sandbox와 model·effort를 비교하지만 출처 인증이나 결과 승인을 하지 않는다. 실제 도구 schema로 모델과 effort를 함께 전달해야 한다.
 

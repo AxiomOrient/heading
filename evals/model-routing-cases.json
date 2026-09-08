@@ -258,11 +258,11 @@
         "boundedSearch": false
       },
       "expected": {
-        "routeKey": "astra-high",
+        "routeKey": "astra-medium",
         "taskClass": "CRITICAL",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "high"
+        "requestedReasoningEffort": "medium"
       }
     },
     {
@@ -280,11 +280,11 @@
         "boundedSearch": false
       },
       "expected": {
-        "routeKey": "astra-high",
+        "routeKey": "astra-medium",
         "taskClass": "CRITICAL",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "high"
+        "requestedReasoningEffort": "medium"
       }
     },
     {
@@ -481,11 +481,11 @@
         "boundedSearch": false
       },
       "expected": {
-        "routeKey": "astra-high",
+        "routeKey": "astra-medium",
         "taskClass": "CRITICAL",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "high"
+        "requestedReasoningEffort": "medium"
       }
     },
     {
@@ -537,15 +537,15 @@
         "boundedSearch": false
       },
       "expected": {
-        "routeKey": "astra-high",
+        "routeKey": "astra-ultra",
         "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
+        "routingStatus": "NEEDS_NEW_EVIDENCE",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "high"
+        "requestedReasoningEffort": "ultra"
       }
     },
     {
-      "id": "astra-high-failure",
+      "id": "exceptional-task-direct-ultra",
       "input": {
         "task": {
           "clarity": "uncertain",
@@ -554,22 +554,18 @@
           "oracle": "strong",
           "risk": "routine"
         },
-        "history": [
-          {
-            "route": "astra-high",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
+        "history": [],
         "allowMax": false,
-        "boundedSearch": false
+        "boundedSearch": false,
+        "allowUltra": true,
+        "ultraReason": "Coupled recovery proof exceeds the normal medium workload; bounded ultra budget accepted."
       },
       "expected": {
-        "routeKey": "astra-xhigh",
+        "routeKey": "astra-ultra",
         "taskClass": "HARD",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "xhigh"
+        "requestedReasoningEffort": "ultra"
       }
     },
     {
@@ -593,15 +589,15 @@
         "boundedSearch": false
       },
       "expected": {
-        "routeKey": "astra-high",
+        "routeKey": "astra-medium",
         "taskClass": "CRITICAL",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "high"
+        "requestedReasoningEffort": "medium"
       }
     },
     {
-      "id": "astra-max-not-authorized",
+      "id": "luna-max-budget-does-not-authorize-ultra",
       "input": {
         "task": {
           "clarity": "clear",
@@ -612,35 +608,7 @@
         },
         "history": [
           {
-            "route": "astra-xhigh",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-max",
-        "taskClass": "HARD",
-        "routingStatus": "NEEDS_NEW_EVIDENCE",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "max"
-      }
-    },
-    {
-      "id": "astra-max-authorized",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "cross-boundary",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "astra-xhigh",
+            "route": "astra-medium",
             "failure": "reasoning",
             "evidence": "observed/test.log:1"
           }
@@ -649,11 +617,41 @@
         "boundedSearch": false
       },
       "expected": {
-        "routeKey": "astra-max",
+        "routeKey": "astra-ultra",
+        "taskClass": "HARD",
+        "routingStatus": "NEEDS_NEW_EVIDENCE",
+        "requestedModel": "gpt-6-astra",
+        "requestedReasoningEffort": "ultra"
+      }
+    },
+    {
+      "id": "astra-ultra-authorized",
+      "input": {
+        "task": {
+          "clarity": "clear",
+          "scope": "cross-boundary",
+          "reversible": true,
+          "oracle": "strong",
+          "risk": "routine"
+        },
+        "history": [
+          {
+            "route": "astra-medium",
+            "failure": "reasoning",
+            "evidence": "observed/test.log:1"
+          }
+        ],
+        "allowMax": true,
+        "boundedSearch": false,
+        "allowUltra": true,
+        "ultraReason": "Medium failed the recovery invariant; deepest reasoning is justified for this outcome."
+      },
+      "expected": {
+        "routeKey": "astra-ultra",
         "taskClass": "HARD",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "max"
+        "requestedReasoningEffort": "ultra"
       }
     },
     {
@@ -668,7 +666,7 @@
         },
         "history": [
           {
-            "route": "astra-max",
+            "route": "astra-ultra",
             "failure": "reasoning",
             "evidence": "observed/test.log:1"
           }
@@ -677,11 +675,11 @@
         "boundedSearch": false
       },
       "expected": {
-        "routeKey": "astra-max",
+        "routeKey": "astra-ultra",
         "taskClass": "HARD",
         "routingStatus": "NEEDS_NEW_EVIDENCE",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "max"
+        "requestedReasoningEffort": "ultra"
       }
     },
     {
@@ -813,7 +811,7 @@
         },
         "history": [
           {
-            "route": "astra-high",
+            "route": "astra-medium",
             "failure": "reasoning",
             "evidence": "observed/test.log:1"
           },
@@ -827,11 +825,11 @@
         "boundedSearch": false
       },
       "expected": {
-        "routeKey": "astra-xhigh",
+        "routeKey": "astra-ultra",
         "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
+        "routingStatus": "NEEDS_NEW_EVIDENCE",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "xhigh"
+        "requestedReasoningEffort": "ultra"
       }
     },
     {
@@ -846,7 +844,7 @@
         },
         "history": [
           {
-            "route": "astra-max",
+            "route": "astra-ultra",
             "failure": "reasoning",
             "evidence": "observed/test.log:1"
           },
@@ -860,11 +858,11 @@
         "boundedSearch": false
       },
       "expected": {
-        "routeKey": "astra-max",
+        "routeKey": "astra-ultra",
         "taskClass": "EASY",
         "routingStatus": "NEEDS_NEW_EVIDENCE",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "max"
+        "requestedReasoningEffort": "ultra"
       }
     }
   ]

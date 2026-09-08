@@ -1,21 +1,20 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "2026-09-07.1",
-  "verifiedOn": "2026-09-07",
+  "policyVersion": "2026-09-08.1",
+  "verifiedOn": "2026-09-08",
   "status": "CANDIDATE_NOT_BENCHMARKED",
   "sources": {
     "astra": "https://developers.openai.com/api/docs/models/gpt-6-astra",
     "luna": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
     "selection": "https://developers.openai.com/codex/models",
-    "precedence": "https://developers.openai.com/codex/subagents"
+    "precedence": "https://developers.openai.com/codex/subagents",
+    "nativeEfforts": "https://learn.chatgpt.com/docs/agent-configuration/subagents#choosing-models-and-reasoning"
   },
   "models": {
     "gpt-6-astra": [
       "low",
       "medium",
-      "high",
-      "xhigh",
-      "max"
+      "ultra"
     ],
     "gpt-5.6-luna": [
       "none",
@@ -35,18 +34,6 @@
       "model": "gpt-6-astra",
       "effort": "medium"
     },
-    "astra-high": {
-      "model": "gpt-6-astra",
-      "effort": "high"
-    },
-    "astra-xhigh": {
-      "model": "gpt-6-astra",
-      "effort": "xhigh"
-    },
-    "astra-max": {
-      "model": "gpt-6-astra",
-      "effort": "max"
-    },
     "luna-xhigh": {
       "model": "gpt-5.6-luna",
       "effort": "xhigh"
@@ -54,20 +41,22 @@
     "luna-max": {
       "model": "gpt-5.6-luna",
       "effort": "max"
+    },
+    "astra-ultra": {
+      "model": "gpt-6-astra",
+      "effort": "ultra"
     }
   },
   "defaults": {
     "lead": "astra-low",
     "easy": "luna-xhigh",
     "hard": "astra-low",
-    "critical": "astra-high"
+    "critical": "astra-medium"
   },
   "astraLadder": [
     "astra-low",
     "astra-medium",
-    "astra-high",
-    "astra-xhigh",
-    "astra-max"
+    "astra-ultra"
   ],
   "lunaRetry": "luna-max",
   "uiEffortAliases": {

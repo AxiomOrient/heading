@@ -1,6 +1,12 @@
-# Heading 0.4.0 — validation record
+# Heading 0.4.1 — validation record
 
 Date: 2026-09-07. Scope: source package and deterministic behavior in this Linux/Python environment. Model quality and actual host routing are separate.
+
+## 2026-09-08 policy revision verification
+
+On macOS, policy `2026-09-08.1` was verified with the uninterrupted `./verify-source-package.sh`: both normal and optimized source validators passed, and all 65 tests passed in 9 batches with no skips. The separate plugin manifest validator and `git diff --check` passed. The 33 revised routing vectors and 216 task-fact combinations passed.
+
+New regression checks cover exceptional ultra justification, separation from Luna max authorization, environment/permission/transient repair precedence, exhaustion preservation, and rejection of retired Astra high/xhigh/max routes in history and native eval arguments. Astra normally requests low/medium; ultra is a reasoned, budgeted native-host exception. No authenticated model execution, live ultra support, benchmark optimality or installed-cache refresh was verified in this revision. The earlier record below describes the September 7 run.
 
 ## Executed source checks
 

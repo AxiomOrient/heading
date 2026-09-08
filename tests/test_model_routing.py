@@ -57,7 +57,7 @@ class ModelRoutingTests(unittest.TestCase):
             task = dict(zip(facts, values))
             result = ROUTER.select({'task': task}, POLICY)
             critical = task['risk'] == 'critical' or task['risk'] == 'material' and task['reversible'] is False
-            expected = 'astra-high' if critical else 'luna-xhigh' if task == EASY else 'astra-low'
+            expected = 'astra-medium' if critical else 'luna-xhigh' if task == EASY else 'astra-low'
             self.assertEqual(result['routeKey'], expected, task)
             count += 1
         self.assertEqual(count, 216)
@@ -76,7 +76,7 @@ class ModelRoutingTests(unittest.TestCase):
         for key, value in [('reversible', 1), ('reversible', 'true'), ('risk', []), ('scope', 'small')]:
             task = deepcopy(EASY); task[key] = value
             invalid.append({'task': task})
-        for option in ('allowMax', 'boundedSearch'):
+        for option in ('allowMax', 'boundedSearch', 'allowUltra'):
             invalid.append({'task': EASY, option: 1})
         for payload in invalid:
             with self.subTest(payload=payload), self.assertRaises(ROUTER.RoutingError):
@@ -96,7 +96,7 @@ class ModelRoutingTests(unittest.TestCase):
             ROUTER.select({'task': EASY, 'history': [entry, entry]}, POLICY)
 
     def test_effort_and_model_ids_are_not_ui_aliases(self):
-        for model, effort in [('gpt-6-astra','none'),('gpt-6-astra','light'),('astra-low','low'),
+        for model, effort in [('gpt-6-astra','high'),('gpt-6-astra','xhigh'),('gpt-6-astra','max'),('gpt-6-astra','none'),('gpt-6-astra','light'),('astra-low','low'),
                               ('gpt-6-astra-pro','low'),('gpt-5.6-luna','ultra')]:
             with self.subTest(model=model, effort=effort), self.assertRaises(ROUTER.RoutingError):
                 ROUTER.validate_pair(model, effort, POLICY)
@@ -208,3 +208,44 @@ class ModelRoutingTests(unittest.TestCase):
         result=subprocess.run([sys.executable,'-B',str(ROOT/'scripts/run-evals.py'),'--timeout','0','--dry-run'],capture_output=True,text=True)
         self.assertEqual(result.returncode,2)
         self.assertIn('positive',result.stderr)
+
+
+    def test_ultra_requires_explicit_exception_and_does_not_reuse_luna_budget(self):
+        task = dict(EASY, scope='cross-boundary')
+        failed = {'route': 'astra-medium', 'failure': 'reasoning', 'evidence': 'recovery.log:4'}
+        for extra in ({}, {'allowMax': True}, {'ultraReason': 'Very difficult recovery proof'}):
+            result = ROUTER.select({'task': task, 'history': [failed], **extra}, POLICY)
+            self.assertEqual(result['routingStatus'], 'NEEDS_NEW_EVIDENCE')
+        for reason in ('', '  ', None, 1):
+            with self.subTest(reason=reason), self.assertRaises(ROUTER.RoutingError):
+                ROUTER.select({'task': task, 'allowUltra': True, 'ultraReason': reason}, POLICY)
+        for history in ([], [failed]):
+            result = ROUTER.select({'task': task, 'history': history, 'allowUltra': True,
+                                   'ultraReason': 'Coupled recovery proof; session budget authorized'}, POLICY)
+            self.assertEqual((result['routeKey'], result['routingStatus']), ('astra-ultra', 'REQUESTED'))
+            self.assertEqual(result['requestedReasoningEffort'], 'ultra')
+            self.assertIsNone(result['effectiveReasoningEffort'])
+
+    def test_ultra_exception_cannot_bypass_environment_or_exhaustion(self):
+        payload = {'task': dict(EASY, scope='cross-boundary'), 'allowUltra': True,
+                   'ultraReason': 'Coupled recovery proof; session budget authorized'}
+        for failure in ('environment', 'permission', 'transient'):
+            result = ROUTER.select({**payload, 'history': [
+                {'route': 'astra-medium', 'failure': failure, 'evidence': 'host.log:2'}]}, POLICY)
+            self.assertEqual((result['routeKey'], result['routingStatus']), ('astra-medium', 'REPAIR_REQUIRED'))
+        for suffix in ([], [{'route': 'luna-max', 'failure': 'reasoning', 'evidence': 'tests.log:5'}]):
+            result = ROUTER.select({**payload, 'history': [
+                {'route': 'astra-ultra', 'failure': 'reasoning', 'evidence': 'tests.log:4'}, *suffix]}, POLICY)
+            self.assertEqual(result['routingStatus'], 'NEEDS_NEW_EVIDENCE')
+
+    def test_retired_astra_routes_fail_in_history_and_native_eval(self):
+        self.assertEqual(POLICY['models']['gpt-6-astra'], ['low', 'medium', 'ultra'])
+        self.assertEqual(POLICY['astraLadder'], ['astra-low', 'astra-medium', 'astra-ultra'])
+        for route in ('astra-high', 'astra-xhigh', 'astra-max'):
+            with self.subTest(route=route), self.assertRaises(ROUTER.RoutingError):
+                ROUTER.select({'task': EASY, 'history': [
+                    {'route': route, 'failure': 'reasoning', 'evidence': 'old-policy.log:1'}]}, POLICY)
+            result = subprocess.run([sys.executable, '-B', str(ROOT/'scripts/run-evals.py'),
+                                     '--dry-run', '--limit', '1', '--route', route], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('invalid choice', result.stderr)

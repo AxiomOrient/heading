@@ -20,15 +20,15 @@ ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_ROOT = ROOT / "plugins" / "heading"
 SKILLS_ROOT = PLUGIN_ROOT / "skills"
 RUNTIME_ROOT = ROOT / "runtime" / "heading"
-VERSION = "0.4.0"
+VERSION = "0.4.1"
 TRACK_ORDER = ("prototype", "build", "sweep", "grow", "maintain")
 # Version-control metadata is not part of the package and never installed.
 IGNORED_ROOT_ENTRIES = (".git", ".DS_Store", ".coverage", ".pytest_cache", "eval-results")
 EVALS_DIGEST = "dcf9a9b55f9ea8869fd24029bb33cdf64af0ace3b4a919e88674fb3ea53ea376"
 INTAKE_EVALS_DIGEST = "87ca287ac7df3ce686b098042adeaa4c3c3ea42e8518468bd47d0eaae01e9967"
 DIALOGUE_EVALS_DIGEST = "d050367a4004a7f541a88bd7bce50476c1c728c49e5a715d37d308bc80dc5442"
-MODEL_POLICY_DIGEST = "638c2833ee7e331ae3525ad095d76492f73684b36e41394b052049f9e1c61e13"
-MODEL_ROUTING_EVALS_DIGEST = "f4ef99f3489c8de48ac554a5aece246ad9475b66a0fbf7af9efc3ff42be434cb"
+MODEL_POLICY_DIGEST = "9f81ee8fc8265c589315f95ba473be78a167348fff3e0b68fa6fe6c3ce34ea21"
+MODEL_ROUTING_EVALS_DIGEST = "57c696c1999851bd7e0cde240d3c435a81a9d37b30ad76367bef5a40cd082a00"
 INTAKE_SCHEMA_DIGEST = "c200842fdd1249962194354110c1b8fcb992d68df24a80ca16b4f105909ce5dd"
 
 
@@ -96,7 +96,7 @@ TRACKS = {
         "Actual observations cross the locked threshold and support `ADOPT`, `REJECT`, `ITERATE`, or `INCONCLUSIVE`; only transferable learning survives.",
         "FRAME -> SELECT -> PROBE -> OBSERVE -> DECIDE",
         ("desirability", "workflow", "feasibility", "viability", "generative-quality"),
-        "821d63dff9f7d458712ccf5b3d1b900bef5206ee7290fb02de2d0d07b1fbd82e",
+        "9456aecc396780badc1741c98a571a0f692f90bbe9c7adc04211668f7802befb",
         "ea9a14d20d3cf0bc742d896e5fd9e0a65f15fddab25fa1e2299d57f885e295de",
         ("Repair the method instead of rejecting a valid goal", "Wizard-of-Oz or concierge run", "locked corpus, rubric, holdout cases", "Refuse only when deception"),
     ),
@@ -111,7 +111,7 @@ TRACKS = {
         "The entry-to-effect-to-durable-output path and every applicable failure, recovery, release, and operational proof pack pass.",
         "CLASSIFY -> CONTRACT -> SLICE -> PROVE -> RELEASE",
         ("product-slice", "library-api", "service", "adapter", "data-change", "delivery-infra"),
-        "da53a9091ff6cac45fea8cd977d6ff9b12f891b9b7307e5d201647deb0c31628",
+        "45b136eaf3f5f3b2477dd70fea6df672378217f6baf9517438aea9c7234b8bdb",
         "780e44b75f2f8a96fe38b482568cbec4f4a0e5f71c90d155b2d9754a97430988",
         ("Repair invalid methods while preserving the build goal", "native or authoritative fixture", "versioned model, prompt, tool", "Refuse only when bypass"),
     ),
@@ -126,7 +126,7 @@ TRACKS = {
         "The same oracle passes before and after, and evidence shows net deletion, simpler ownership, clearer interaction, or measured resource gain.",
         "ORACLE -> CUT -> COMPARE -> KEEP_OR_REVERT",
         ("delete", "collapse", "refactor", "ui", "performance"),
-        "17f0ee1af0b66678f344bf85b711b5e5c0800b27638d69f28e561fa938a2cb3c",
+        "c613749fa8eedf9023041cdceab10aff234249b7411fef66b8f400e855670063",
         "44b804d9788efacd3cc880e0e7f72439517be614a131454c42b3ea773a544cd7",
         ("Repair invalid methods while preserving the goal", "same outputs and failures", "warmup and repeated samples", "Refuse only when concealment"),
     ),
@@ -141,7 +141,7 @@ TRACKS = {
         "Implementation and data quality are separately proven; completed evidence supports `KEEP`, `ROLLBACK`, `ITERATE`, or `NOT_PROVEN` with an explicit evidence grade.",
         "DESIGN -> INSTRUMENT -> SHIP -> ANALYZE -> DECIDE",
         ("randomized", "sequential", "switchback", "holdout-rollout", "observational"),
-        "68a9052aa3bcf5d265a192f537c69fa5a58be88f30c4ddd0cb926eb9278529e6",
+        "62b279a2f3b433181dbd17f9434df541acf20c846532c0bec893aad9237e7fe3",
         "556451dba4dbd12537e9295e94d6316b7c42c62f4711e5203ecae701a9955174",
         ("Repair invalid methods while preserving the growth goal", "sample-ratio check", "precommitted sequential method", "Refuse only when fabricated reporting"),
     ),
@@ -156,7 +156,7 @@ TRACKS = {
         "Impact is controlled; cause or rationale is evidenced; change, recovery, regression, and post-change observations support `RESTORED`, `STABILIZED`, `CHANGED`, `PARTIAL`, or `BLOCKED`.",
         "TRIAGE -> CONTAIN -> CHANGE -> RECOVER -> WATCH",
         ("incident", "defect", "security", "reliability-capacity", "planned-change", "data-repair"),
-        "a902763363279d28413428fb75776ac2cf7f22a42ff439c9a2f752982e3cbd5b",
+        "f02c8053b2d8454a5fbc3cb833040e9041233a84c72d8df9917dab3d7962538c",
         "f4f2734c8770d092f3018c78667186d926043ad931686ab8484c4e378d8b0318",
         ("Repair invalid methods while preserving the operational goal", "Contain harm before", "immutable backup or snapshot", "Refuse only when concealment"),
     ),

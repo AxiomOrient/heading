@@ -26,8 +26,8 @@ python3 -B scripts/run-evals.py --suite all --route luna-xhigh --auth-file "$HOM
 | 작업군 | 비교 후보 | 완료 기준 |
 | --- | --- | --- |
 | 명확한 국소 변경 | Luna high / xhigh / max | 동일 oracle·회귀·수리 횟수 |
-| 소유권·상태·복구 문제 | Astra low / medium / high | 실제 실패 재현·근본 수정·독립 검토 |
-| 비가역 고영향 | Astra high / xhigh, 승인된 max | 승인 경계·복구·오류 거부 |
+| 소유권·상태·복구 문제 | Astra low / medium | 실제 실패 재현·근본 수정·독립 검토 |
+| 비가역 고영향 | Astra medium, 특수 난도·예산 근거가 있는 ultra | 승인 경계·복구·오류 거부 |
 
 Luna high는 비교 baseline일 뿐 배포 기본 route가 아니다. `--route`는 정책에 등록한 후보만 받는다. 추가 baseline은 공식 지원값을 확인해 별도 통제된 native 명령으로 평가하거나 정책·회귀를 함께 변경한다.
 

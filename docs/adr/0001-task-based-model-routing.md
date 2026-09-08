@@ -8,7 +8,7 @@
 
 ## 결정
 
-역할 파일에는 역할·sandbox·행동 계약만 남긴다. Lead가 실제 task facts로 버전 정책에서 route를 선택하고 호스트 호출에 model+effort를 함께 지정한다. 요청과 관찰을 별도 기록한다. Astra low는 복잡성 기본, Luna xhigh는 다섯 조건을 모두 만족하는 쉬운 작업 기본, critical은 Astra high다. max는 실패·예산·탐색 조건이 있을 때만 사용한다.
+역할 파일에는 역할·sandbox·행동 계약만 남긴다. Lead가 실제 task facts로 버전 정책에서 route를 선택하고 호스트 호출에 model+effort를 함께 지정한다. 요청과 관찰을 별도 기록한다. Astra low는 복잡성 기본, Luna xhigh는 다섯 조건을 모두 만족하는 쉬운 작업 기본, critical은 Astra medium이다. 2026-09-08 정책부터 Astra는 low/medium을 사용하고, 특별한 난도 사유와 허용 예산이 있을 때만 native ultra를 요청한다. Astra high/xhigh/max는 제외한다. Luna max는 실패·예산·탐색 조건이 있을 때만 사용한다.
 
 ## 대안
 

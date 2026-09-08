@@ -34,7 +34,7 @@ def load_policy() -> dict[str, Any]:
 
 
 def validate_pair(model: str, effort: str, policy: dict[str, Any]) -> None:
-    """API/CLI IDs only. A UI label is never silently used as an API value."""
+    """Native host IDs only; this policy is not an API effort catalog. A UI label is never silently used as an API value."""
     require(model in policy["models"], f"model is not in the verified policy: {model}")
     require(effort in policy["models"][model], f"unsupported effort for {model}: {effort}")
 
@@ -42,7 +42,7 @@ def validate_pair(model: str, effort: str, policy: dict[str, Any]) -> None:
 def select(payload: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
     """Pure transition: task facts + failed-attempt evidence -> next request, no I/O."""
     require(isinstance(payload, dict), "input must be an object")
-    require(set(payload) <= {"task", "history", "allowMax", "boundedSearch"}, "unknown input field")
+    require(set(payload) <= {"task", "history", "allowMax", "boundedSearch", "allowUltra", "ultraReason"}, "unknown input field")
     task = payload.get("task")
     require(isinstance(task, dict), "task must be an object")
     require(set(task) == {*policy["facts"], "reversible"}, "task fields mismatch")
@@ -50,10 +50,14 @@ def select(payload: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
         require(isinstance(task[field], str) and task[field] in options, f"invalid task.{field}")
     require(task["reversible"] is None or type(task["reversible"]) is bool,
             "task.reversible must be boolean or null")
-    for field in ("allowMax", "boundedSearch"):
+    for field in ("allowMax", "boundedSearch", "allowUltra"):
         require(type(payload.get(field, False)) is bool, f"{field} must be boolean")
     allow_max = payload.get("allowMax", False)
     bounded = payload.get("boundedSearch", False)
+    allow_ultra = payload.get("allowUltra", False)
+    ultra_reason = payload.get("ultraReason", "")
+    require(isinstance(ultra_reason, str), "ultraReason must be text")
+    require(not allow_ultra or bool(ultra_reason.strip()), "ultra requires an exceptional-task reason")
     easy = (task["clarity"] == "clear" and task["scope"] == "local"
             and task["reversible"] is True and task["oracle"] == "strong"
             and task["risk"] == "routine")
@@ -96,6 +100,8 @@ def select(payload: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
             selected, reason = policy["lunaRetry"], "bounded_search_with_reasoning_failure"
         else:
             selected, reason = policy["defaults"]["hard"], "luna_failure_or_task_no_longer_easy"
+    if status == "REQUESTED" and allow_ultra:
+        selected, reason = "astra-ultra", f"exceptional_task:{ultra_reason.strip()}"
     if status == "REQUESTED":
         ladder = policy["astraLadder"]
         failed_astra = [ladder.index(key) for key in counts if key in ladder]
@@ -109,6 +115,8 @@ def select(payload: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
         # Never send a task back to an already failed setting or silently downgrade.
         if counts.get(selected, 0) >= policy["maxReasoningFailuresPerRoute"]:
             status, reason = "NEEDS_NEW_EVIDENCE", "selected_route_already_failed"
+        elif policy["routes"][selected]["effort"] == "ultra" and not allow_ultra:
+            status, reason = "NEEDS_NEW_EVIDENCE", "ultra_requires_exceptional_task_reason_and_budget"
         elif policy["routes"][selected]["effort"] == "max" and not allow_max:
             status, reason = "NEEDS_NEW_EVIDENCE", "max_requires_explicit_budget"
     route = policy["routes"][selected]

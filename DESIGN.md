@@ -1,4 +1,4 @@
-# Heading 0.4.0 design
+# Heading 0.4.1 design
 
 ## Core model
 
@@ -20,7 +20,7 @@ Reviewer   independent read-only candidate review
 Architect  irreducible read-only boundary analysis
 ```
 
-Task capability is orthogonal: easy -> Luna xhigh; hard/uncertain -> Astra low; critical -> Astra high. Luna max is an evidenced bounded retry. The versioned `model-policy.json` is the routing-value owner; `MODEL-ROUTING.md` owns meaning. These defaults are candidates, not measured quality equivalence.
+Task capability is orthogonal: easy -> Luna xhigh; hard/uncertain -> Astra low; critical -> Astra medium. Astra ultra is an exceptional, reasoned and budgeted native-host route; high/xhigh/max are excluded for Astra. Luna max is an evidenced bounded retry. The versioned `model-policy.json` is the routing-value owner; `MODEL-ROUTING.md` owns meaning. These defaults are candidates, not measured quality equivalence.
 
 The product tracks are six portable skill folders under `plugins/heading/skills/`. `plugins/heading/plugin.json` is the portable Agent Plugins manifest, while `.codex-plugin/plugin.json` is the Codex host manifest. The separate `runtime/heading/profile/heading.config.toml` file is an optional task-stage profile; it does not define package distribution.
 
