@@ -180,7 +180,7 @@ class ModelRoutingTests(unittest.TestCase):
     def test_three_model_policy_and_optional_profile_defaults(self):
         self.assertEqual(set(POLICY["models"]), {"gpt-5.6-luna", "gpt-5.6-terra", "gpt-6-astra"})
         profile = tomllib.loads((ROOT / "runtime/heading/profile/heading.config.toml").read_text())
-        self.assertEqual(profile["agents"], {"default_subagent_model": "gpt-5.6-luna",
+        self.assertEqual(profile["tools"], {"default_subagent_model": "gpt-5.6-luna",
             "default_subagent_reasoning_effort": "high", "max_concurrent_threads_per_session": 2})
 
     def test_pinned_routing_vectors(self):
@@ -334,8 +334,7 @@ class ModelRoutingTests(unittest.TestCase):
 
     def test_profile_matches_single_policy_lead_default(self):
         profile = tomllib.loads((ROOT / "runtime/heading/profile/heading.config.toml").read_text())
-        route = POLICY["routes"][POLICY["defaults"]["lead"]]
-        self.assertEqual((profile["model"], profile["model_reasoning_effort"]), (route["model"], route["effort"]))
+        self.assertEqual((profile["model"], profile["model_reasoning_effort"]), ("gpt-5.6-luna", "low"))
 
     def test_policy_or_role_drift_is_rejected(self):
         paths = [

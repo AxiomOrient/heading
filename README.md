@@ -52,7 +52,7 @@ This request is corrected to `prototype` and continues in the same conversation.
 
 ## Roles and task-based models
 
-Role controls authority; task evidence selects the model. The optional Lead profile requests **GPT-6 Astra low**. A skill alone does not switch the current chat model.
+Role controls authority; task evidence selects the model. The optional Lead profile pins the host-compatible GPT-5.6 Luna at low effort and supplies Luna high subagent defaults. A skill alone does not switch the current chat model.
 
 | Work shape | Candidate request |
 | --- | --- |
@@ -63,7 +63,7 @@ Role controls authority; task evidence selects the model. The optional Lead prof
 | Cross-boundary decision or unknown shape | GPT-6 Astra `low` |
 | Critical risk, including irreversible high-impact work | Astra `high` |
 
-Luna defaults to high, with xhigh/max allowed upfront; Terra defaults to medium, with high allowed. Luna max is already authorized and needs no extra approval. Sol is excluded from active routing. Select Astra `high`/`xhigh` upfront when complexity warrants it, with `astraEffort`, `effortReason`, and `effortEvidence`; no cheap failed attempt is required. Astra `max` and `ultra` require their exceptional budget contracts and host support. The optional profile defaults children to Luna high and caps them at two; it does not alter an existing session.
+Luna defaults to high, with xhigh/max allowed upfront; Terra defaults to medium, with high allowed. Luna max is already authorized and needs no extra approval. Sol is excluded from active routing. Select Astra `high`/`xhigh` upfront when complexity warrants it, with `astraEffort`, `effortReason`, and `effortEvidence`; no cheap failed attempt is required. Astra `max` and `ultra` require their exceptional budget contracts and host support. The optional profile uses GPT-5.6 Luna low as a host-compatible baseline, defaults children to Luna high, and caps them at two; it does not alter an existing session.
 
 Every 0.5.0 packet declares a work `shape` and uses the closed current packet schema. The benchmark plan contains only current route keys. These are candidate defaults, not a benchmark-proven optimum. `Light` is the UI label for `low`; use exact model IDs and permitted effort values from the [versioned policy](plugins/heading/skills/heading-orchestrate/references/model-policy.json).
 

@@ -52,7 +52,7 @@ $heading-build 이 아이디어를 사람들이 원하는지 검증해
 
 ## 역할과 작업별 모델
 
-**역할은 권한을, 작업의 증거는 모델을 결정합니다.** 선택적 Lead 프로파일은 **GPT-6 Astra low**를 요청합니다. 스킬을 읽는 것만으로 현재 채팅의 모델이 바뀌지는 않습니다.
+**역할은 권한을, 작업의 증거는 모델을 결정합니다.** 선택적 Lead 프로파일은 호스트 호환성이 확인된 GPT-5.6 Luna를 low effort로 사용하고, 하위 작업 기본값으로 Luna high를 제공합니다. 스킬을 읽는 것만으로 현재 채팅의 모델이 바뀌지는 않습니다.
 
 | 작업 형태 | 후보 요청 |
 | --- | --- |
@@ -63,7 +63,7 @@ $heading-build 이 아이디어를 사람들이 원하는지 검증해
 | 여러 경계의 판단 또는 형태 미확정 | GPT-6 Astra `low` |
 | 치명적 위험 또는 비가역·고영향 작업 | Astra `high` |
 
-Luna는 high 기본에 xhigh/max를, Terra는 medium 기본에 high를 처음부터 선택할 수 있습니다. Luna max는 이미 승인되어 추가 허락이 필요 없습니다. Sol은 활성 라우팅에서 제외합니다. 복잡한 판단은 `astraEffort`, `effortReason`, `effortEvidence`로 첫 시도부터 `high`·`xhigh`를 선택할 수 있습니다. 저비용 경로의 실패를 먼저 요구하지 않습니다. Astra `max`·`ultra`는 예외 예산 계약과 호스트 지원이 필요합니다. 선택적 프로파일은 하위 모델 Luna high, 동시 하위 작업 최대 두 개를 요청하며 기존 세션은 바꾸지 않습니다.
+Luna는 high 기본에 xhigh/max를, Terra는 medium 기본에 high를 처음부터 선택할 수 있습니다. Luna max는 이미 승인되어 추가 허락이 필요 없습니다. Sol은 활성 라우팅에서 제외합니다. 복잡한 판단은 `astraEffort`, `effortReason`, `effortEvidence`로 첫 시도부터 `high`·`xhigh`를 선택할 수 있습니다. 저비용 경로의 실패를 먼저 요구하지 않습니다. Astra `max`·`ultra`는 예외 예산 계약과 호스트 지원이 필요합니다. 선택적 프로파일은 호스트 호환성이 확인된 GPT-5.6 Luna를 low effort로 사용하고, 하위 모델 Luna high와 동시 하위 작업 최대 두 개를 요청합니다. 기존 세션은 바꾸지 않습니다.
 
 0.5.0의 모든 패킷은 작업 `shape`를 선언하고 현재의 닫힌 패킷 schema를 사용합니다. 비교 평가 계획에는 현재 route key만 넣습니다. 이 설정은 **후보 기본 정책**입니다. 실측된 최적값이나 서로 다른 모델의 성능 동등성을 주장하지 않습니다. UI의 `Light`는 `low`에 대응합니다. 정확한 모델 ID와 허용 effort는 [버전 정책](plugins/heading/skills/heading-orchestrate/references/model-policy.json)을 사용합니다.
 

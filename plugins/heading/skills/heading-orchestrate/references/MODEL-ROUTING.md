@@ -43,7 +43,7 @@ python3 -B scripts/model_routing.py <<'JSON'
 JSON
 ```
 
-This emits a request; it never calls a model or switches the active parent. The optional profile starts a new Lead at Astra low and supplies Luna high subagent defaults with a two-child ceiling. Existing sessions and global settings are not changed by reading a skill. If in-place switching is unavailable, send only the bounded hard question to an observed Astra high/xhigh child, or retain the active capable route and disclose its actual setting; never claim the parent changed.
+This emits a request; it never calls a model or switches the active parent. The optional profile pins the host-compatible GPT-5.6 Luna at low effort and supplies Luna high subagent defaults with a two-child ceiling. Existing sessions and global settings are not changed by reading a skill. If in-place switching is unavailable, send only the bounded hard question to an observed Astra high/xhigh child, or retain the active capable route and disclose its actual setting; never claim the parent changed.
 
 ## Prevent repeated work
 

@@ -97,7 +97,7 @@ TRACKS = {
         "Actual observations cross the locked threshold and support `ADOPT`, `REJECT`, `ITERATE`, or `INCONCLUSIVE`; only transferable learning survives.",
         "FRAME -> SELECT -> PROBE -> OBSERVE -> DECIDE",
         ("desirability", "workflow", "feasibility", "viability", "generative-quality"),
-        "af83581ebfa3a6fc60665b205c41eb848cb68315823e6acc9d583ec2276c6641",
+        "22f2f243cb0f0faccdae03a861809c406def00fb1a4e495167d863b352263b6e",
         "ea9a14d20d3cf0bc742d896e5fd9e0a65f15fddab25fa1e2299d57f885e295de",
         ("Repair the method instead of rejecting a valid goal", "Wizard-of-Oz or concierge run", "locked corpus, rubric, holdout cases", "Refuse only when deception"),
     ),
@@ -112,7 +112,7 @@ TRACKS = {
         "The entry-to-effect-to-durable-output path and every applicable failure, recovery, release, and operational proof pack pass.",
         "CLASSIFY -> CONTRACT -> SLICE -> PROVE -> RELEASE",
         ("product-slice", "library-api", "service", "adapter", "data-change", "delivery-infra"),
-        "dd60a3d93c073e3bc56aac5d97f21b50180096fd5309a1b8727d613fe0f2c9fd",
+        "00d08a67cdf7a0dbd59d70efd09df024b89c5123b28529dfc67c6a3ececcc091",
         "780e44b75f2f8a96fe38b482568cbec4f4a0e5f71c90d155b2d9754a97430988",
         ("Repair invalid methods while preserving the build goal", "native or authoritative fixture", "versioned model, prompt, tool", "Refuse only when bypass"),
     ),
@@ -127,7 +127,7 @@ TRACKS = {
         "The same oracle passes before and after, and evidence shows net deletion, simpler ownership, clearer interaction, or measured resource gain.",
         "ORACLE -> CUT -> COMPARE -> KEEP_OR_REVERT",
         ("delete", "collapse", "refactor", "ui", "performance"),
-        "0bad44d1b72f048cc993a272632048e5e0c9608c3202ded396cb79efabb242c3",
+        "8ae1f9faa9d49c0def5c3763961112e1a2a63d7e8c85a0916b8fd78d4a6830d0",
         "44b804d9788efacd3cc880e0e7f72439517be614a131454c42b3ea773a544cd7",
         ("Repair invalid methods while preserving the goal", "same outputs and failures", "warmup and repeated samples", "Refuse only when concealment"),
     ),
@@ -142,7 +142,7 @@ TRACKS = {
         "Implementation and data quality are separately proven; completed evidence supports `KEEP`, `ROLLBACK`, `ITERATE`, or `NOT_PROVEN` with an explicit evidence grade.",
         "DESIGN -> INSTRUMENT -> SHIP -> ANALYZE -> DECIDE",
         ("randomized", "sequential", "switchback", "holdout-rollout", "observational"),
-        "aeeda15e19bc03169f62eda0a5c44c17eb780a4cee022016f34d75fca89eabda",
+        "9ea985d0c7b81ab8505423aef596bfab7d1f3def60d8f2cd43b99018eb3c9ca1",
         "556451dba4dbd12537e9295e94d6316b7c42c62f4711e5203ecae701a9955174",
         ("Repair invalid methods while preserving the growth goal", "sample-ratio check", "precommitted sequential method", "Refuse only when fabricated reporting"),
     ),
@@ -157,7 +157,7 @@ TRACKS = {
         "Impact is controlled; cause or rationale is evidenced; change, recovery, regression, and post-change observations support `RESTORED`, `STABILIZED`, `CHANGED`, `PARTIAL`, or `BLOCKED`.",
         "TRIAGE -> CONTAIN -> CHANGE -> RECOVER -> WATCH",
         ("incident", "defect", "security", "reliability-capacity", "planned-change", "data-repair"),
-        "714032bee410488a3dd4af2ed250c259b6d7af589c0837d10f33350c621101cb",
+        "c27f1bbac344151dfb313ed0c7d835f8ba16b2e9310331d576558e290d8ea886",
         "f4f2734c8770d092f3018c78667186d926043ad931686ab8484c4e378d8b0318",
         ("Repair invalid methods while preserving the operational goal", "Contain harm before", "immutable backup or snapshot", "Refuse only when concealment"),
     ),
@@ -239,8 +239,8 @@ def validate_layout() -> None:
 def validate_profile() -> None:
     payload = tomllib.loads((RUNTIME_ROOT / "profile/heading.config.toml").read_text(encoding="utf-8"))
     require(payload == {
-        "model": "gpt-6-astra", "model_reasoning_effort": "low", "sandbox_mode": "workspace-write", "approval_policy": "on-request",
-        "agents": {"default_subagent_model": "gpt-5.6-luna", "default_subagent_reasoning_effort": "high",
+        "model": "gpt-5.6-luna", "model_reasoning_effort": "low", "sandbox_mode": "workspace-write", "approval_policy": "on-request",
+        "tools": {"default_subagent_model": "gpt-5.6-luna", "default_subagent_reasoning_effort": "high",
                    "max_concurrent_threads_per_session": 2},
     }, "profile contract mismatch")
 

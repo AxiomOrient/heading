@@ -1,9 +1,9 @@
-model = "gpt-6-astra"
+model = "gpt-5.6-luna"
 model_reasoning_effort = "low"
 sandbox_mode = "workspace-write"
 approval_policy = "on-request"
 
-[agents]
+[tools]
 default_subagent_model = "gpt-5.6-luna"
 default_subagent_reasoning_effort = "high"
 max_concurrent_threads_per_session = 2
