@@ -19,6 +19,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_SKILLS = ROOT / "plugins" / "heading" / "skills"
+PLUGIN_ID = "heading@heading"
 
 
 def load_cases(suite: str) -> list[dict[str, Any]]:
@@ -107,6 +108,18 @@ def model_policy() -> dict[str, Any]:
 def decoded(value: str | bytes | None) -> str:
     # TimeoutExpired streams can be bytes even with subprocess text=True.
     return value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value or ""
+
+
+def install_isolated_plugin(codex_bin: str, env: dict[str, str]) -> None:
+    """Use the actual local marketplace path; never mirror skills into a global directory."""
+    for command in (
+        [codex_bin, "plugin", "marketplace", "add", str(ROOT)],
+        [codex_bin, "plugin", "add", PLUGIN_ID],
+    ):
+        completed = subprocess.run(command, env=env, capture_output=True, text=True, check=False)
+        if completed.returncode != 0:
+            detail = (completed.stderr or completed.stdout).strip()[:1600]
+            raise RuntimeError(f"plugin setup failed ({completed.returncode}): {' '.join(command[:4])}: {detail or 'no command output'}")
 
 
 def execute_case(command: list[str], repo: Path, env: dict[str, str], timeout: int) -> tuple[str, str, dict[str, Any]]:
@@ -213,17 +226,11 @@ def main() -> int:
         print("run-evals: isolated native eval requires CODEX_API_KEY or --auth-file <auth.json>", file=sys.stderr)
         return 2
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    results_root = (args.results_root or ROOT / "eval-results" / timestamp).resolve()
-    results_root.mkdir(parents=True, exist_ok=False)
-
     with tempfile.TemporaryDirectory(prefix="heading-native-eval-") as temporary:
         sandbox = Path(temporary)
         home = sandbox / "home"
         codex_home = home / ".codex"
         codex_home.mkdir(parents=True)
-        skills_root = home / ".agents" / "skills"
-        shutil.copytree(PLUGIN_SKILLS, skills_root)
         env = os.environ.copy()
         env.update({"HOME": str(home), "CODEX_HOME": str(codex_home), "PYTHONDONTWRITEBYTECODE": "1"})
 
@@ -238,6 +245,16 @@ def main() -> int:
             except OSError as error:
                 print(f"run-evals: cannot stage isolated auth: {error}", file=sys.stderr)
                 return 2
+
+        try:
+            install_isolated_plugin(codex_path, env)
+        except RuntimeError as error:
+            print(f"run-evals: {error}", file=sys.stderr)
+            return 2
+
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        results_root = (args.results_root or ROOT / "eval-results" / timestamp).resolve()
+        results_root.mkdir(parents=True, exist_ok=False)
 
         failures = 0
         for index, (suite, case) in enumerate(plan):
@@ -266,7 +283,7 @@ def main() -> int:
             if observed["exitCode"] != 0 or not result_path.is_file():
                 failures += 1
 
-    summary = {"status": "PASS" if failures == 0 else "FAIL", "cases": len(plan), "executionFailures": failures, "resultsRoot": str(results_root), "auth": auth_mode, "skillSource": "temporary-plugin-skill-mirror"}
+    summary = {"status": "PASS" if failures == 0 else "FAIL", "cases": len(plan), "executionFailures": failures, "resultsRoot": str(results_root), "auth": auth_mode, "pluginSource": "isolated-local-marketplace"}
     summary["modelEscalation"] = "NOT_PROVEN"
     if failures:
         print(json.dumps(summary, indent=2, sort_keys=True), flush=True)

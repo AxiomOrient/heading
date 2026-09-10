@@ -1,4 +1,4 @@
-# Heading 0.4.1 design
+# Heading 0.5.0 design
 
 ## Core model
 
@@ -20,7 +20,7 @@ Reviewer   independent read-only candidate review
 Architect  irreducible read-only boundary analysis
 ```
 
-Task capability is orthogonal: easy -> Luna xhigh; hard/uncertain -> Astra low; critical -> Astra medium. Astra ultra is an exceptional, reasoned and budgeted native-host route; high/xhigh/max are excluded for Astra. Luna max is an evidenced bounded retry. The versioned `model-policy.json` is the routing-value owner; `MODEL-ROUTING.md` owns meaning. These defaults are candidates, not measured quality equivalence.
+Task capability is orthogonal: deterministic preflight -> direct tools; fixed extraction -> Luna high; bounded evidence -> Luna high; broad/weak-oracle evidence -> Terra medium; clear implementation -> Terra medium; cross-boundary/unknown -> Astra low; critical -> Astra high. Astra ultra is an exceptional native-host route with a task-specific reason and explicit budget authorization. Every task must declare its work shape and satisfy the closed packet schema. The versioned `model-policy.json` is the routing-value owner; `MODEL-ROUTING.md` owns meaning and `EVIDENCE-CAPSULE.md` owns research handoff. These defaults are candidates, not measured quality equivalence.
 
 The product tracks are six portable skill folders under `plugins/heading/skills/`. `plugins/heading/plugin.json` is the portable Agent Plugins manifest, while `.codex-plugin/plugin.json` is the Codex host manifest. The separate `runtime/heading/profile/heading.config.toml` file is an optional task-stage profile; it does not define package distribution.
 
@@ -36,7 +36,7 @@ INFER effective track
 
 A clear mismatch is auto-routed in the same conversation. For a multi-stage request, Heading starts with the earliest unresolved decision or risk gate and queues later outcomes. A question is reserved for one unresolved choice that materially changes the outcome. One outcome never changes tracks after writing begins.
 
-The dated official-source analysis is in `RESEARCH-2026-09-07.md`. Astra-specific guidance is translated into authorized reversible completion, material questions only, concise evidence and selective delegation—not weaker authority boundaries or hidden reasoning requirements.
+The dated official-source analysis is in `RESEARCH-2026-09-10.md`. Astra-specific guidance is translated into authorized reversible completion, material questions only, concise evidence and selective delegation—not weaker authority boundaries or hidden reasoning requirements.
 
 ## Bias for useful action
 
@@ -108,6 +108,6 @@ The static corpus verifies the contract and runner. Native Codex model behavior 
 
 ## Deterministic route selection versus runtime proof
 
-`model_routing.py` is a pure transition behind a small JSON CLI, not a dispatcher. Missing facts cannot qualify for the easy route. Critical or irreversible material-risk work has a higher effort floor. Environment and permission failures enter `REPAIR_REQUIRED`; they are not reasons to spend more reasoning. Failed higher-capability history cannot silently downgrade to a lower route.
+`model_routing.py` is a pure transition behind a small JSON CLI, not a dispatcher. Missing or omitted work shape is rejected. Deterministic work returns `DIRECT_TOOLS` with no model request. Critical or irreversible material-risk work has a higher effort floor. Environment and permission failures enter `REPAIR_REQUIRED`; they are not reasons to spend more reasoning. Failed higher-capability history cannot silently downgrade to a lower route.
 
-The native intake runner accepts `--route` and emits both CLI settings. It records duration, exit/timeout/spawn status and retained output without copying requested values into effective values. A successful intake evaluation is not a complex implementation benchmark. Production routing needs actual host metadata and independent final-state evidence.
+The native intake runner accepts `--route` and emits both CLI settings. It records duration, exit/timeout/spawn status and retained output without copying requested values into effective values. The current route benchmark plan is explicitly unexecuted. A successful intake evaluation is not a complex implementation benchmark. Production routing needs actual host metadata and independent final-state evidence.

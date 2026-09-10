@@ -17,6 +17,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_ROOT = ROOT / "plugins" / "heading"
 VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+CODEX_VERSION = json.loads((PLUGIN_ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))["version"]
 PLUGIN_ID = "heading@heading"
 
 
@@ -57,7 +58,7 @@ def load_plugin_list(text: str, section: str) -> dict[str, Any]:
 def validate_entry(entry: dict[str, Any], *, installed: bool) -> None:
     require(entry.get("name") == "heading", "installed plugin name mismatch")
     require(entry.get("marketplaceName") == "heading", "installed plugin marketplace mismatch")
-    require(entry.get("version") == VERSION, "installed plugin version mismatch")
+    require(entry.get("version") in {VERSION, CODEX_VERSION}, "installed plugin version mismatch")
     require(entry.get("installed") is installed, "installed state mismatch")
     require(entry.get("enabled") is installed, "enabled state mismatch")
     source = entry.get("source")
@@ -93,14 +94,16 @@ def main() -> int:
             installed = load_plugin_list(run([codex, "plugin", "list", "--marketplace", "heading", "--json"], env), "installed")
             validate_entry(installed, installed=True)
 
-            cache = codex_home / "plugins" / "cache" / "heading" / "heading" / VERSION
-            require(cache.is_dir(), "installed plugin cache is missing")
+            cache_root = codex_home / "plugins" / "cache" / "heading" / "heading"
+            cache_candidates = [cache_root / version for version in (CODEX_VERSION, VERSION)]
+            cache = next((path for path in cache_candidates if path.is_dir()), None)
+            require(cache is not None, "installed plugin cache is missing")
             for relative in (Path("plugin.json"), Path(".codex-plugin/plugin.json")):
                 require((cache / relative).read_bytes() == (PLUGIN_ROOT / relative).read_bytes(), f"cached manifest drift: {relative}")
     except (OSError, json.JSONDecodeError, SmokeError) as error:
         print(f"smoke-plugin-install: {error}", file=sys.stderr)
         return 1
-    print(json.dumps({"status": "PASS", "plugin": "heading", "version": VERSION, "marketplace": "heading", "installed": True, "enabled": True, "cacheManifests": "MATCH"}, sort_keys=True))
+    print(json.dumps({"status": "PASS", "plugin": "heading", "version": VERSION, "codexVersion": CODEX_VERSION, "marketplace": "heading", "installed": True, "enabled": True, "cacheManifests": "MATCH"}, sort_keys=True))
     return 0
 
 

@@ -1,50 +1,50 @@
-# Heading 0.4.1 — validation record
+# Heading 0.5.0 — validation record
 
-Date: 2026-09-07. Scope: source package and deterministic behavior in this Linux/Python environment. Model quality and actual host routing are separate.
+Date: 2026-09-10. Scope: deterministic source package behavior and local filesystem/plugin adapter contracts. Native model behavior and actual host routing are separate evidence.
 
-## 2026-09-08 policy revision verification
+## Executed source checks — 2026-09-10
 
-On macOS, policy `2026-09-08.1` was verified with the uninterrupted `./verify-source-package.sh`: both normal and optimized source validators passed, and all 65 tests passed in 9 batches with no skips. The separate plugin manifest validator and `git diff --check` passed. The 33 revised routing vectors and 216 task-fact combinations passed.
+### Current policy 2026-09-10.5
 
-New regression checks cover exceptional ultra justification, separation from Luna max authorization, environment/permission/transient repair precedence, exhaustion preservation, and rejection of retired Astra high/xhigh/max routes in history and native eval arguments. Astra normally requests low/medium; ultra is a reasoned, budgeted native-host exception. No authenticated model execution, live ultra support, benchmark optimality or installed-cache refresh was verified in this revision. The earlier record below describes the September 7 run.
+The user-directed effort revision passed `./verify-source-package.sh`: all 63 tests in 8 batches, normal and optimized validators, 17 routing vectors, all 1,296 fact/shape combinations, and the unchanged 182 intake/mode/dialogue cases. The four added tests exercise all Luna high/xhigh/max and Terra medium/high specialist choices, Luna max without another budget approval, invalid mixtures/model downgrades, preserved repair/failure limits, legacy history, and the actual router CLI. Test output: `/tmp/heading-effort-check.log` for this session.
 
-## Executed source checks
+All six skill validators, the plugin validator, and `git diff --check` passed. Real isolated Codex install smoke and local reinstall passed at `0.5.0+codex.20260910035021`; all 27 installed plugin files matched the source. The existing optional profile was backed up and changed only from Luna low to Luna high for default children. The five-file runtime passed its installation check. No global config was edited. This verifies policy and installation, not effective per-model execution, first-pass model quality, or token savings. No additional model-quality benchmark or independent model review was performed for this focused revision.
 
-| Check | Observed result |
-| --- | --- |
-| Source validator, Python normal | PASS: 66 files, 6 skills, 4 child roles |
-| Source validator, PYTHONOPTIMIZE=1 | PASS |
-| Portable/Codex plugin manifest validator | PASS |
-| Python syntax / shell syntax / production assert prohibition | PASS through source validator |
-| Unittest suite | 62 discovered; 61 passed; 1 macOS-only skip; 0 failures/errors |
-| Routing vectors | 33/33 passed |
-| Exhaustive supported task facts | 216/216 passed |
-| Non-destructive fresh install / check / drift rejection | PASS in isolated temporary roots |
-| Actual local subprocess exit / timeout evidence | PASS; not a model execution |
-| Native smoke / native model eval | NOT_PROVEN: both exit 2, Codex CLI not found |
-| Working-tree whitespace validation | git diff --check passed |
+### Previous policy 2026-09-10.4
 
-The convenience full-suite command exceeded this tool's execution window. All 62 tests were then observed in four bounded slices (0–16, 16–24, 24–44, 44–62); no test was omitted. This is not a claim that the uninterrupted convenience command completed here. Linux skipped only `test_macos_system_aliases_are_canonicalized_but_custom_symlinks_remain_unsafe`.
+Policy `2026-09-10.4`: `./verify-source-package.sh` passed. Normal and optimized validators reported 69 files, 6 skills, 4 child roles, 17 routing vectors, 4 benchmark-plan groups, and the unchanged 182 intake/mode/dialogue contract cases. All 59 tests passed in 8 batches. Six skill-creator validators, the plugin-creator validator, the repository plugin validator, and `git diff --check` passed.
 
+The run covered all 1,296 fact/shape combinations plus upfront high/xhigh selection, critical high floors, max budget requirements, refusal to disguise environment failures as reasoning failures, automatic retry limits, no return to a failed weaker tier, one/two-scout selection, and the optional profile defaults. Full test output was captured in `/tmp/heading-source-check.log` during this session.
 
-The retained adversarial deployment matrix covers non-destructive install, symlink/hardlink rejection, managed-content drift, namespace conflicts, permissions, locks, rollback, hostile paths and explicit roots. Tests that use simulated plugin commands verify adapter contracts only; they do not prove a real Codex plugin installation.
+A separate read-only forward-test exercised the actual router CLI on evidence retrieval, broad scans, implementation, recovery judgment, and failed-attempt/permission combinations. An initial ambiguity report was reassessed and withdrawn: `clarity` describes the question, not knowledge of the answer. That distinction is now explicit. No confirmed routing defect remained. The review requested Terra medium with no inherited conversation; its effective model was not independently attested, so this is behavioral evidence rather than routing-identity or model-quality proof.
 
-The original corpus remains 32 mode cases, 125 intake cases and 25 dialogue cases: 182 contract cases. The intake distribution is 100 `PROCEED`, 20 `ASK`, 5 `REFUSE`. These corpora are structurally/semantically validated, not 182 successful LLM runs.
+The real Codex CLI isolated marketplace smoke passed with matching enabled cache manifests at `0.5.0+codex.20260910033840`. `codex plugin add heading@heading` then updated the user's existing local installation; CLI read-back confirmed enabled status and the local source. The installed skill files were compared with the source. The existing optional five-file Heading runtime was updated and passed `scripts/install.py --check --codex-home /Users/ax/.codex`. The non-destructive installer initially refused older role content; a backup and exact-content-checked migration changed only the old Heading routing clause and the Heading profile's agent defaults. It did not alter global `config.toml`.
 
-New routing verification: 33 reviewed request/transition vectors, all 216 supported fact combinations, malformed-input rejection, max authorization, critical-risk floor, failed-route history preservation, environmental-failure handling, requested/observed separation and locked task/role/sandbox matching. The helper runs locally without calling a model.
+The route benchmark plan remains `PLANNED_NOT_EXECUTED`. None of these checks demonstrates production model quality, a specific allowance saving, or actual model switching in this already-running task.
+
+## Static corpus boundary
+
+- 32 mode cases.
+- 125 intake cases with 100 `PROCEED`, 20 `ASK`, 5 `REFUSE`.
+- 25 dialogue cases.
+
+These corpora validate the skill contract and intake evaluator shape. They are not 182 successful model executions.
+
+## Deployment and package boundary
+
+The adversarial deployment matrix covers explicit roots, symlink/hardlink rejection, content and mode drift, locks, rollback, hostile Unicode paths, and non-destructive checks. The plugin smoke test uses an isolated Codex home and simulated command adapter when a real host is not intentionally invoked; it proves the adapter contract, not a public installation.
 
 ## Native Codex CLI compatibility
 
-NOT_PROVEN. No Codex CLI is installed in this execution environment. Official-source compatibility is documented, but no authenticated model execution, live role dispatch, account availability, in-place effort switch or stopped-writer handover is claimed. The macOS-specific filesystem-alias test requires macOS and is separately skipped on Linux.
-
-`scripts/run-evals.py --route ... --dry-run` proves command construction, not invocation or model adherence. A native Codex eval requires an actual CLI and explicit credentials. The runner evaluates intake only, retains raw trace and records requested model/effort separately from unobserved effective values. Real execution failures must remain failures, even if a partial result JSON exists.
+`NOT_PROVEN` until an authenticated host run records actual task ID, role, sandbox, requested/effective model and effort, candidate revision, and acceptance evidence. The native Codex eval installs the local plugin through an isolated marketplace before it evaluates intake. It preserves trace, stderr, exit/timeout/spawn status, and keeps requested fields separate from unobserved effective fields.
 
 ## Reproduction
 
 ```bash
 ./verify-source-package.sh
 python3 -B scripts/validate-plugin.py
-python3 -B scripts/run-evals.py --dry-run --limit 1 --route astra-low
+python3 -B scripts/smoke-plugin-install.py
+python3 -B scripts/run-evals.py --dry-run --limit 1 --route terra-low
 ```
 
-A successful source check is not proof that Astra low and Luna xhigh/max are the fastest, cheapest or most accurate settings. The policy remains CANDIDATE_NOT_BENCHMARKED until the outcome comparisons in PLAN.md are observed.
+The source result does not prove native model dispatch, account availability, host support for Ultra, or benchmark optimality.

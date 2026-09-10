@@ -20,15 +20,16 @@ ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_ROOT = ROOT / "plugins" / "heading"
 SKILLS_ROOT = PLUGIN_ROOT / "skills"
 RUNTIME_ROOT = ROOT / "runtime" / "heading"
-VERSION = "0.4.1"
+VERSION = "0.5.0"
 TRACK_ORDER = ("prototype", "build", "sweep", "grow", "maintain")
 # Version-control metadata is not part of the package and never installed.
 IGNORED_ROOT_ENTRIES = (".git", ".DS_Store", ".coverage", ".pytest_cache", "eval-results")
 EVALS_DIGEST = "dcf9a9b55f9ea8869fd24029bb33cdf64af0ace3b4a919e88674fb3ea53ea376"
 INTAKE_EVALS_DIGEST = "87ca287ac7df3ce686b098042adeaa4c3c3ea42e8518468bd47d0eaae01e9967"
 DIALOGUE_EVALS_DIGEST = "d050367a4004a7f541a88bd7bce50476c1c728c49e5a715d37d308bc80dc5442"
-MODEL_POLICY_DIGEST = "9f81ee8fc8265c589315f95ba473be78a167348fff3e0b68fa6fe6c3ce34ea21"
-MODEL_ROUTING_EVALS_DIGEST = "57c696c1999851bd7e0cde240d3c435a81a9d37b30ad76367bef5a40cd082a00"
+MODEL_POLICY_DIGEST = "8ae5f9842e08aa9397f3a4c515f2f1f3b4ad5ecc87a4f1a27ed37fe800a1e8e3"
+MODEL_ROUTING_EVALS_DIGEST = "a3638d9f4108e0be5a4c363d6303798435e417fe3b5ebe1699ef6f6c3a202fb6"
+ROUTE_BENCHMARK_PLAN_DIGEST = "e5aef80836f205ebaa11c72fad56b8eb3e4861c94941af355b26936f698cc941"
 INTAKE_SCHEMA_DIGEST = "c200842fdd1249962194354110c1b8fcb992d68df24a80ca16b4f105909ce5dd"
 
 
@@ -61,8 +62,8 @@ class TrackSpec:
 
 
 ROUTING_AGENT_REQUIRED = (
-    "requestedModel", "requestedReasoningEffort", "taskClass", "modelEscalationReason",
-    "effectiveModel", "effectiveReasoningEffort", "modelEscalation: NOT_PROVEN",
+    "requestedModel", "requestedReasoningEffort", "riskBand", "workShape", "modelEscalationReason",
+    "effectiveModel", "effectiveReasoningEffort", "modelEscalation: NOT_PROVEN", "evidence capsule",
     "missing routing input permits read-only inspection only", "observable host metadata",
     "Do not change model, sandbox, owned surface, or writer ownership yourself",
 )
@@ -96,7 +97,7 @@ TRACKS = {
         "Actual observations cross the locked threshold and support `ADOPT`, `REJECT`, `ITERATE`, or `INCONCLUSIVE`; only transferable learning survives.",
         "FRAME -> SELECT -> PROBE -> OBSERVE -> DECIDE",
         ("desirability", "workflow", "feasibility", "viability", "generative-quality"),
-        "9456aecc396780badc1741c98a571a0f692f90bbe9c7adc04211668f7802befb",
+        "af83581ebfa3a6fc60665b205c41eb848cb68315823e6acc9d583ec2276c6641",
         "ea9a14d20d3cf0bc742d896e5fd9e0a65f15fddab25fa1e2299d57f885e295de",
         ("Repair the method instead of rejecting a valid goal", "Wizard-of-Oz or concierge run", "locked corpus, rubric, holdout cases", "Refuse only when deception"),
     ),
@@ -111,7 +112,7 @@ TRACKS = {
         "The entry-to-effect-to-durable-output path and every applicable failure, recovery, release, and operational proof pack pass.",
         "CLASSIFY -> CONTRACT -> SLICE -> PROVE -> RELEASE",
         ("product-slice", "library-api", "service", "adapter", "data-change", "delivery-infra"),
-        "45b136eaf3f5f3b2477dd70fea6df672378217f6baf9517438aea9c7234b8bdb",
+        "dd60a3d93c073e3bc56aac5d97f21b50180096fd5309a1b8727d613fe0f2c9fd",
         "780e44b75f2f8a96fe38b482568cbec4f4a0e5f71c90d155b2d9754a97430988",
         ("Repair invalid methods while preserving the build goal", "native or authoritative fixture", "versioned model, prompt, tool", "Refuse only when bypass"),
     ),
@@ -126,7 +127,7 @@ TRACKS = {
         "The same oracle passes before and after, and evidence shows net deletion, simpler ownership, clearer interaction, or measured resource gain.",
         "ORACLE -> CUT -> COMPARE -> KEEP_OR_REVERT",
         ("delete", "collapse", "refactor", "ui", "performance"),
-        "c613749fa8eedf9023041cdceab10aff234249b7411fef66b8f400e855670063",
+        "0bad44d1b72f048cc993a272632048e5e0c9608c3202ded396cb79efabb242c3",
         "44b804d9788efacd3cc880e0e7f72439517be614a131454c42b3ea773a544cd7",
         ("Repair invalid methods while preserving the goal", "same outputs and failures", "warmup and repeated samples", "Refuse only when concealment"),
     ),
@@ -141,7 +142,7 @@ TRACKS = {
         "Implementation and data quality are separately proven; completed evidence supports `KEEP`, `ROLLBACK`, `ITERATE`, or `NOT_PROVEN` with an explicit evidence grade.",
         "DESIGN -> INSTRUMENT -> SHIP -> ANALYZE -> DECIDE",
         ("randomized", "sequential", "switchback", "holdout-rollout", "observational"),
-        "62b279a2f3b433181dbd17f9434df541acf20c846532c0bec893aad9237e7fe3",
+        "aeeda15e19bc03169f62eda0a5c44c17eb780a4cee022016f34d75fca89eabda",
         "556451dba4dbd12537e9295e94d6316b7c42c62f4711e5203ecae701a9955174",
         ("Repair invalid methods while preserving the growth goal", "sample-ratio check", "precommitted sequential method", "Refuse only when fabricated reporting"),
     ),
@@ -156,7 +157,7 @@ TRACKS = {
         "Impact is controlled; cause or rationale is evidenced; change, recovery, regression, and post-change observations support `RESTORED`, `STABILIZED`, `CHANGED`, `PARTIAL`, or `BLOCKED`.",
         "TRIAGE -> CONTAIN -> CHANGE -> RECOVER -> WATCH",
         ("incident", "defect", "security", "reliability-capacity", "planned-change", "data-repair"),
-        "f02c8053b2d8454a5fbc3cb833040e9041233a84c72d8df9917dab3d7962538c",
+        "714032bee410488a3dd4af2ed250c259b6d7af589c0837d10f33350c621101cb",
         "f4f2734c8770d092f3018c78667186d926043ad931686ab8484c4e378d8b0318",
         ("Repair invalid methods while preserving the operational goal", "Contain harm before", "immutable backup or snapshot", "Refuse only when concealment"),
     ),
@@ -181,7 +182,7 @@ def expected_files() -> set[Path]:
         Path(".gitignore"), Path("DESIGN.md"), Path("LICENSE"), Path("PLAYBOOK.ko.md"), Path("PLAYBOOK.md"),
         Path("README.ko.md"), Path("README.md"), Path("VALIDATION.md"), Path("VERSION"),
         Path(".agents/plugins/marketplace.json"), Path("verify-source-package.sh"),
-        Path("evals/cases.json"), Path("evals/dialogue_cases.json"), Path("evals/intake-output.schema.json"), Path("evals/intake_cases.json"),
+        Path("evals/cases.json"), Path("evals/dialogue_cases.json"), Path("evals/intake-output.schema.json"), Path("evals/intake_cases.json"), Path("evals/route-benchmark-plan.json"),
         Path("scripts/grade-evals.py"), Path("scripts/install.py"), Path("scripts/install.sh"), Path("scripts/run-evals.py"),
         Path("scripts/run-tests.py"), Path("scripts/smoke-plugin-install.py"), Path("scripts/validate.py"), Path("scripts/validate-plugin.py"), Path("scripts/validate.sh"),
         Path("tests/__init__.py"), Path("tests/test_heading.py"), Path("tests/test_intake.py"),
@@ -205,8 +206,8 @@ def expected_files() -> set[Path]:
         "evals/model-routing-cases.json", "tests/test_model_routing.py",
     ))
     files.update(orchestrate / name for name in (
-        "references/MODEL-ROUTING.md", "references/RESEARCH-2026-09-07.md",
-        "references/model-policy.json", "scripts/model_routing.py",
+        "references/EVIDENCE-CAPSULE.md", "references/MODEL-ROUTING.md", "references/RESEARCH-2026-09-10.md",
+        "references/model-policy.json", "scripts/evidence_capsule.py", "scripts/model_routing.py",
     ))
     return files
 
@@ -239,6 +240,8 @@ def validate_profile() -> None:
     payload = tomllib.loads((RUNTIME_ROOT / "profile/heading.config.toml").read_text(encoding="utf-8"))
     require(payload == {
         "model": "gpt-6-astra", "model_reasoning_effort": "low", "sandbox_mode": "workspace-write", "approval_policy": "on-request",
+        "agents": {"default_subagent_model": "gpt-5.6-luna", "default_subagent_reasoning_effort": "high",
+                   "max_concurrent_threads_per_session": 2},
     }, "profile contract mismatch")
 
 
@@ -284,9 +287,12 @@ def validate_skills() -> None:
         "Missing tools or platforms reduce only the affected proof to `NOT_PROVEN`",
         "MODEL-ROUTING.md",
         "model-policy.json",
-        "Choose by task, not role",
+        "Choose by work shape, not role",
         "Astra `low`",
-        "Luna `xhigh`",
+        "Luna `high`",
+        "Terra `medium`",
+        "Terra `medium`",
+        "evidence capsule",
         "Role files intentionally omit model and effort; dispatch must supply both",
         "observe the old writer and its processes stopped",
         "## Verification scope",
@@ -359,12 +365,12 @@ def validate_skills() -> None:
     orchestrate_skill = (orchestrate / "SKILL.md").read_text(encoding="utf-8")
     frontmatter = parse_frontmatter(orchestrate_skill, orchestrate.relative_to(ROOT) / "SKILL.md")
     require(frontmatter["name"] == "heading-orchestrate", "orchestration skill name mismatch")
-    for phrase in ("task packet", "Direct lane", "Native lane", "User-visible task lane", "Never silently substitute", "higher model tier", "Task-based model routing", "MODEL-ROUTING.md", "model-policy.json", "requestedModel", "effectiveModel", "requestedReasoningEffort", "effectiveReasoningEffort", "modelEscalationReason", "modelEscalation: NOT_PROVEN", "non-empty task ID", "primary reviewer", "NOT_PROVEN", "BLOCKED"):
+    for phrase in ("task packet", "Direct lane", "Native lane", "User-visible task lane", "Never silently substitute", "higher model tier", "Task-based model routing", "MODEL-ROUTING.md", "model-policy.json", "EVIDENCE-CAPSULE.md", "work shape", "DIRECT_TOOLS", "requestedModel", "effectiveModel", "requestedReasoningEffort", "effectiveReasoningEffort", "modelEscalationReason", "modelEscalation: NOT_PROVEN", "modelEscalation: NOT_APPLICABLE", "non-empty task ID", "primary reviewer", "NOT_PROVEN", "BLOCKED"):
         require(phrase in orchestrate_skill, f"orchestration contract missing: {phrase}")
     metadata = (orchestrate / "agents/openai.yaml").read_text(encoding="utf-8")
     require('display_name: "Heading Orchestrate"' in metadata and "allow_implicit_invocation: false" in metadata, "orchestration metadata mismatch")
     reference = (orchestrate / "references/ORCHESTRATION.md").read_text(encoding="utf-8")
-    for phrase in ("exactly one writer", "observed facts", "Task packet schema", "higher model tier", "Task-based model routing", "model-policy.json", "MODEL-ROUTING.md", "modelEscalation: NOT_PROVEN", "PASS", "PARTIAL", "NOT_PROVEN", "BLOCKED"):
+    for phrase in ("exactly one writer", "observed facts", "Task packet schema", "higher model tier", "Task-based model routing", "model-policy.json", "MODEL-ROUTING.md", "EVIDENCE-CAPSULE.md", "work shape", "DIRECT_TOOLS", "modelEscalation: NOT_PROVEN", "modelEscalation: NOT_APPLICABLE", "PASS", "PARTIAL", "NOT_PROVEN", "BLOCKED"):
         require(phrase in reference, f"orchestration reference missing: {phrase}")
 
 
@@ -597,26 +603,86 @@ def validate_evals() -> tuple[int, int, int]:
 
 
 
-def validate_model_routing() -> int:
+def validate_model_routing() -> tuple[int, dict]:
     base = SKILLS_ROOT / "heading-orchestrate"
     load_pinned_json("plugins/heading/skills/heading-orchestrate/references/model-policy.json", MODEL_POLICY_DIGEST)
     corpus = load_pinned_json("evals/model-routing-cases.json", MODEL_ROUTING_EVALS_DIGEST)
-    require(set(corpus) == {"schemaVersion", "cases"} and corpus["schemaVersion"] == 1, "routing eval schema mismatch")
+    require(set(corpus) == {"schemaVersion", "cases"} and corpus["schemaVersion"] == 2, "routing eval schema mismatch")
     spec = importlib.util.spec_from_file_location("heading_model_routing", base / "scripts/model_routing.py")
     require(spec is not None and spec.loader is not None, "routing helper loader unavailable")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     policy = module.load_policy()
     require(policy["status"] == "CANDIDATE_NOT_BENCHMARKED", "routing policy cannot imply measured optimality")
+    require(policy["policyVersion"] == "2026-09-10.5", "unexpected routing policy version")
+    require(set(policy["routes"]) == {"luna-low", "luna-medium", "luna-high", "luna-xhigh", "luna-max", "terra-low", "terra-medium", "terra-high", "astra-low", "astra-medium", "astra-high", "astra-xhigh", "astra-max", "astra-ultra"},
+            "routing policy includes a retired route")
+    require(policy["models"] == {
+        "gpt-6-astra": ["low", "medium", "high", "xhigh", "max", "ultra"],
+        "gpt-5.6-terra": ["low", "medium", "high"],
+        "gpt-5.6-luna": ["low", "medium", "high", "xhigh", "max"],
+    }, "routing policy effort boundary mismatch")
     ids: set[str] = set()
     for case in corpus["cases"]:
-        require(set(case) == {"id", "input", "expected"} and case["id"] not in ids, "routing case fields or ID mismatch")
+        require(set(case) == {"id", "input", "expected"} and isinstance(case["id"], str) and case["id"] not in ids,
+                "routing case fields or ID mismatch")
         ids.add(case["id"])
         actual = module.select(case["input"], policy)
+        require(("task" + "Class") not in actual and actual["riskBand"] in {"ROUTINE", "CRITICAL", "QUALIFICATION-REQUIRED"},
+                f"routing output has an obsolete classifier: {case['id']}")
         require(all(actual.get(key) == value for key, value in case["expected"].items()), f"routing result mismatch: {case['id']}")
-        require(actual["effectiveModel"] is None and actual["effectiveReasoningEffort"] is None
-                and actual["modelEscalation"] == "NOT_PROVEN", "selection must not fabricate model execution")
-    return len(ids)
+        require(actual["effectiveModel"] is None and actual["effectiveReasoningEffort"] is None,
+                "selection must not fabricate model execution")
+        if actual["routingStatus"] == "DIRECT_TOOLS":
+            require(actual["requestedModel"] is None and actual["requestedReasoningEffort"] is None
+                    and actual["modelEscalation"] == "NOT_APPLICABLE", "deterministic route must remain model-free")
+        else:
+            require(actual["modelEscalation"] == "NOT_PROVEN", "selection must not fabricate model execution")
+    capsule_spec = importlib.util.spec_from_file_location("heading_evidence_capsule", base / "scripts/evidence_capsule.py")
+    require(capsule_spec is not None and capsule_spec.loader is not None, "capsule helper loader unavailable")
+    capsule = importlib.util.module_from_spec(capsule_spec)
+    capsule_spec.loader.exec_module(capsule)
+    sample = {
+        "schemaVersion": 1, "outcomeId": "validator-sample", "baseRevision": "abc123",
+        "purpose": "Validate the bounded handoff contract.",
+        "facts": [{"id": "source", "source": "repository", "reference": "README.md:1",
+                   "observation": "The sample has a source reference.", "confidence": "observed"}],
+        "openQuestions": [], "constraints": ["Read-only."],
+    }
+    require(capsule.validate_capsule(sample)["status"] == "VALID", "capsule helper contract mismatch")
+    return len(ids), policy
+
+
+def validate_route_benchmark_plan(policy: dict) -> int:
+    plan = load_pinned_json("evals/route-benchmark-plan.json", ROUTE_BENCHMARK_PLAN_DIGEST)
+    require(set(plan) == {"schemaVersion", "policyVersion", "status", "requiredPrecommitment", "requiredRunFields", "comparisons"},
+            "route benchmark plan fields mismatch")
+    require(plan["schemaVersion"] == 1 and plan["policyVersion"] == policy["policyVersion"], "route benchmark plan version mismatch")
+    require(plan["status"] == "PLANNED_NOT_EXECUTED", "route benchmark plan must not claim execution")
+    for field in ("requiredPrecommitment", "requiredRunFields"):
+        require(isinstance(plan[field], list) and len(plan[field]) >= 4
+                and all(isinstance(item, str) and item for item in plan[field]), f"invalid route benchmark {field}")
+    required_run_fields = {"caseId", "baseRevision", "routeKey", "requestedModel", "requestedReasoningEffort",
+                           "effectiveModel", "effectiveReasoningEffort", "executionStatus", "accepted",
+                           "durationSeconds", "inputTokens", "outputTokens", "toolCalls", "reworkCount",
+                           "independentReviewFindings", "cachedInputTokens", "reasoningTokens", "astraInputTokens",
+                           "astraOutputTokens", "allAgentTokens", "contextBytes", "forkTurns", "processingMode",
+                           "billingSurface", "observedCost", "costSource", "usageObservation", "attempts"}
+    require(set(plan["requiredRunFields"]) == required_run_fields, "route benchmark evidence fields mismatch")
+    comparisons = plan["comparisons"]
+    require(isinstance(comparisons, list) and len(comparisons) == 4, "route benchmark comparison count mismatch")
+    identifiers: set[str] = set()
+    for comparison in comparisons:
+        require(isinstance(comparison, dict) and set(comparison) == {"id", "workShape", "routes", "acceptance"},
+                "route benchmark comparison fields mismatch")
+        require(isinstance(comparison["id"], str) and comparison["id"] not in identifiers, "route benchmark ID mismatch")
+        identifiers.add(comparison["id"])
+        require(comparison["workShape"] in policy["taskShapes"], "route benchmark work shape mismatch")
+        require(isinstance(comparison["routes"], list) and len(comparison["routes"]) >= 2
+                and len(comparison["routes"]) == len(set(comparison["routes"]))
+                and all(route in policy["routes"] for route in comparison["routes"]), "route benchmark candidates mismatch")
+        require(isinstance(comparison["acceptance"], str) and comparison["acceptance"], "route benchmark acceptance missing")
+    return len(comparisons)
 
 
 def validate_docs() -> None:
@@ -631,7 +697,7 @@ def validate_docs() -> None:
         require(spec.flow in docs["DESIGN.md"], f"design flow missing: {track}")
     for name in ("README.md", "README.ko.md"):
         text = docs[name]
-        for phrase in ("--dry-run", "./scripts/install.sh", "--check", "Python 3.11", "5 files", "--install-legacy-skills", "PROCEED", "ASK", "REFUSE", "NOT_PROVEN", "$heading-orchestrate", "plugin.json", ".codex-plugin/plugin.json", "marketplace.json"):
+        for phrase in ("--dry-run", "./scripts/install.sh", "--check", "Python 3.11", "5 files", "PROCEED", "ASK", "REFUSE", "NOT_PROVEN", "$heading-orchestrate", "plugin.json", ".codex-plugin/plugin.json", "marketplace.json"):
             require(phrase in text, f"README contract missing: {name}: {phrase}")
         require(("--" + "clean" + "-break") not in text, f"obsolete install option leaked: {name}")
         require("non-destructive" in text or "비파괴" in text, f"non-destructive install contract missing: {name}")
@@ -642,6 +708,31 @@ def validate_docs() -> None:
     validation = docs["VALIDATION.md"]
     for phrase in ("100 `PROCEED`, 20 `ASK`, 5 `REFUSE`", "125 intake", "25 dialogue", "native Codex eval", "adversarial deployment matrix", "Native Codex CLI compatibility", "plugin"):
         require(phrase in validation, f"validation boundary missing: {phrase}")
+
+
+def validate_clean_break() -> None:
+    """Keep retired routing and global-skill installer contracts out of 0.5.0."""
+    banned = (
+        "--skills" + "-root", "--install-" + "legacy-skills", "allow" + "Max", "bounded" + "Search",
+        "RESEARCH-2026-09-07" + ".md", "task" + "Class",
+    )
+    bases = (
+        ROOT / "README.md", ROOT / "README.ko.md", ROOT / "DESIGN.md", ROOT / "SPEC.md",
+        ROOT / "PLAN.md", ROOT / "ARCHITECTURE.md", ROOT / "IMPLEMENTATION_STATUS.md",
+        ROOT / "ANALYSIS.md", ROOT / "VALIDATION.md", ROOT / "docs/adr/0001-task-based-model-routing.md",
+        ROOT / "scripts/install.py", ROOT / "scripts/validate.py", ROOT / "scripts/run-evals.py",
+        SKILLS_ROOT / "heading-orchestrate", *(SKILLS_ROOT / f"heading-{track}" / "SKILL.md" for track in TRACK_ORDER),
+        ROOT / "evals/model-routing-cases.json", ROOT / "tests/test_model_routing.py",
+    )
+    for path in bases:
+        if path.is_dir():
+            paths = (child for child in path.rglob("*") if child.is_file())
+        else:
+            paths = (path,)
+        for child in paths:
+            text = child.read_text(encoding="utf-8")
+            for token in banned:
+                require(token not in text, f"retired 0.4 contract leaked: {child.relative_to(ROOT)}: {token}")
 
 
 def validate_identity_boundary() -> None:
@@ -676,9 +767,9 @@ def validate_plugin_package() -> None:
     require(result.returncode == 0, result.stderr.strip() or "plugin package validation failed")
 
 
-def validate_installed(codex_home: Path, skills_root: Path) -> None:
+def validate_installed(codex_home: Path) -> None:
     result = subprocess.run(
-        [sys.executable, "-B", str(ROOT / "scripts/install.py"), "--check", "--codex-home", str(codex_home), "--skills-root", str(skills_root)],
+        [sys.executable, "-B", str(ROOT / "scripts/install.py"), "--check", "--codex-home", str(codex_home)],
         capture_output=True, text=True, check=False,
     )
     require(result.returncode == 0, result.stderr.strip() or "installed package check failed")
@@ -688,7 +779,6 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--installed", action="store_true")
     parser.add_argument("--codex-home", type=Path)
-    parser.add_argument("--skills-root", type=Path)
     return parser.parse_args()
 
 
@@ -697,18 +787,20 @@ def main() -> int:
     try:
         validate_layout(); validate_profile(); validate_agents(); validate_skills()
         mode_evals, intake_evals, dialogue_evals = validate_evals()
-        routing_evals = validate_model_routing()
-        validate_docs(); validate_identity_boundary(); validate_scripts(); validate_plugin_package()
+        routing_evals, policy = validate_model_routing()
+        route_benchmarks = validate_route_benchmark_plan(policy)
+        validate_docs(); validate_clean_break(); validate_identity_boundary(); validate_scripts(); validate_plugin_package()
         if args.installed:
-            require(args.codex_home is not None and args.skills_root is not None, "--installed requires both target roots")
-            validate_installed(args.codex_home, args.skills_root)
+            require(args.codex_home is not None, "--installed requires --codex-home")
+            validate_installed(args.codex_home)
     except (OSError, tomllib.TOMLDecodeError, json.JSONDecodeError, ValidationError, ValueError) as error:
         print(f"validate: {error}", file=sys.stderr)
         return 1
     print(json.dumps({
         "status": "PASS", "version": VERSION, "files": len(expected_files()), "tracks": len(TRACK_ORDER), "skills": len(TRACK_ORDER) + 1, "childRoles": len(AGENTS),
         "modes": sum(len(spec.modes) for spec in TRACKS.values()), "evals": mode_evals + intake_evals + dialogue_evals,
-        "modeEvals": mode_evals, "intakeEvals": intake_evals, "dialogueEvals": dialogue_evals, "modelRoutingEvals": routing_evals,
+        "modeEvals": mode_evals, "intakeEvals": intake_evals, "dialogueEvals": dialogue_evals,
+        "modelRoutingEvals": routing_evals, "routeBenchmarks": route_benchmarks,
     }, sort_keys=True))
     return 0
 

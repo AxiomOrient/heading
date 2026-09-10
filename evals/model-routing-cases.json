@@ -1,865 +1,370 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "cases": [
     {
-      "id": "easy-all-positive",
+      "id": "deterministic-local-preflight",
       "input": {
         "task": {
           "clarity": "clear",
           "scope": "local",
           "reversible": true,
           "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
+          "risk": "routine",
+          "shape": "deterministic"
+        }
       },
       "expected": {
-        "routeKey": "luna-xhigh",
-        "taskClass": "EASY",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-5.6-luna",
-        "requestedReasoningEffort": "xhigh"
+        "routeKey": "deterministic-tools",
+        "routingStatus": "DIRECT_TOOLS",
+        "executionMode": "DETERMINISTIC",
+        "requestedModel": null,
+        "requestedReasoningEffort": null,
+        "modelEscalation": "NOT_APPLICABLE"
       }
     },
     {
-      "id": "easy-max-authorized-not-forced",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": true,
-        "boundedSearch": true
-      },
-      "expected": {
-        "routeKey": "luna-xhigh",
-        "taskClass": "EASY",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-5.6-luna",
-        "requestedReasoningEffort": "xhigh"
-      }
-    },
-    {
-      "id": "not-easy-clarity-uncertain",
-      "input": {
-        "task": {
-          "clarity": "uncertain",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "not-easy-scope-cross-boundary",
+      "id": "deterministic-critical-preflight",
       "input": {
         "task": {
           "clarity": "clear",
           "scope": "cross-boundary",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "not-easy-scope-unknown",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "unknown",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "not-easy-reversible-false",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
           "reversible": false,
           "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
+          "risk": "critical",
+          "shape": "deterministic"
+        }
       },
       "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
+        "routeKey": "deterministic-tools",
+        "routingStatus": "DIRECT_TOOLS",
+        "riskBand": "CRITICAL",
+        "requestedModel": null,
+        "modelEscalation": "NOT_APPLICABLE"
       }
     },
     {
-      "id": "not-easy-reversible-none",
+      "id": "fixed-extraction-uses-luna-high",
       "input": {
         "task": {
           "clarity": "clear",
           "scope": "local",
-          "reversible": null,
+          "reversible": true,
           "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
+          "risk": "routine",
+          "shape": "fixed-extraction"
+        }
       },
       "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
+        "routeKey": "luna-high",
         "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
+        "requestedModel": "gpt-5.6-luna",
+        "requestedReasoningEffort": "high"
       }
     },
     {
-      "id": "not-easy-oracle-weak",
+      "id": "fixed-extraction-weak-oracle-uses-astra",
       "input": {
         "task": {
           "clarity": "clear",
           "scope": "local",
           "reversible": true,
           "oracle": "weak",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
+          "risk": "routine",
+          "shape": "fixed-extraction"
+        }
       },
       "expected": {
         "routeKey": "astra-low",
-        "taskClass": "HARD",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
         "requestedReasoningEffort": "low"
       }
     },
     {
-      "id": "not-easy-oracle-unknown",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "unknown",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "not-easy-risk-material",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "material"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "not-easy-risk-unknown",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "unknown"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "critical-read-only-review",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "critical"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-medium",
-        "taskClass": "CRITICAL",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "medium"
-      }
-    },
-    {
-      "id": "material-irreversible",
+      "id": "fixed-extraction-irreversible-material-uses-astra-high",
       "input": {
         "task": {
           "clarity": "clear",
           "scope": "local",
           "reversible": false,
           "oracle": "strong",
-          "risk": "material"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false
+          "risk": "material",
+          "shape": "fixed-extraction"
+        }
       },
       "expected": {
-        "routeKey": "astra-medium",
-        "taskClass": "CRITICAL",
+        "routeKey": "astra-high",
         "routingStatus": "REQUESTED",
+        "riskBand": "CRITICAL",
         "requestedModel": "gpt-6-astra",
+        "requestedReasoningEffort": "high"
+      }
+    },
+    {
+      "id": "read-heavy-uses-terra-with-capsule",
+      "input": {
+        "task": {
+          "clarity": "clear",
+          "scope": "cross-boundary",
+          "reversible": true,
+          "oracle": "weak",
+          "risk": "routine",
+          "shape": "read-heavy-exploration"
+        }
+      },
+      "expected": {
+        "routeKey": "terra-medium",
+        "routingStatus": "REQUESTED",
+        "requestedModel": "gpt-5.6-terra",
+        "requestedReasoningEffort": "medium",
+        "evidenceCapsuleRequired": true,
+        "evidenceScoutCount": 0
+      }
+    },
+    {
+      "id": "read-heavy-explicit-independent-scouts",
+      "input": {
+        "task": {
+          "clarity": "clear",
+          "scope": "cross-boundary",
+          "reversible": true,
+          "oracle": "weak",
+          "risk": "routine",
+          "shape": "read-heavy-exploration"
+        },
+        "allowEvidenceScouts": true,
+        "parallelism": "independent"
+      },
+      "expected": {
+        "routeKey": "terra-medium",
+        "routingStatus": "REQUESTED",
+        "evidenceCapsuleRequired": true,
+        "evidenceScoutCount": 2,
         "requestedReasoningEffort": "medium"
       }
     },
     {
-      "id": "luna-quality-failure",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "EASY",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "luna-bounded-max",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": true,
-        "boundedSearch": true
-      },
-      "expected": {
-        "routeKey": "luna-max",
-        "taskClass": "EASY",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-5.6-luna",
-        "requestedReasoningEffort": "max"
-      }
-    },
-    {
-      "id": "luna-max-requires-bounds",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": true,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "EASY",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "luna-max-requires-budget",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": true
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "EASY",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "luna-max-exhausted-to-astra",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          },
-          {
-            "route": "luna-max",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": true,
-        "boundedSearch": true
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "EASY",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "no-luna-max-for-new-complexity",
+      "id": "critical-read-heavy-overrides-terra",
       "input": {
         "task": {
           "clarity": "clear",
           "scope": "cross-boundary",
           "reversible": true,
           "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": true,
-        "boundedSearch": true
+          "risk": "critical",
+          "shape": "read-heavy-exploration"
+        }
       },
       "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
+        "routeKey": "astra-high",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
+        "requestedReasoningEffort": "high",
+        "evidenceCapsuleRequired": true,
+        "evidenceScoutCount": 0
       }
     },
     {
-      "id": "critical-after-luna",
+      "id": "clear-implementation-uses-terra-medium",
       "input": {
         "task": {
           "clarity": "clear",
-          "scope": "local",
+          "scope": "cross-boundary",
           "reversible": true,
           "oracle": "strong",
-          "risk": "critical"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
+          "risk": "routine",
+          "shape": "implementation"
+        }
       },
       "expected": {
-        "routeKey": "astra-medium",
-        "taskClass": "CRITICAL",
+        "routeKey": "terra-medium",
         "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
+        "requestedModel": "gpt-5.6-terra",
         "requestedReasoningEffort": "medium"
       }
     },
     {
-      "id": "astra-low-failure",
+      "id": "uncertain-implementation-uses-astra-low",
       "input": {
         "task": {
           "clarity": "uncertain",
           "scope": "local",
           "reversible": true,
           "oracle": "strong",
-          "risk": "routine"
+          "risk": "routine",
+          "shape": "implementation"
+        }
+      },
+      "expected": {
+        "routeKey": "astra-low",
+        "routingStatus": "REQUESTED",
+        "requestedModel": "gpt-6-astra",
+        "requestedReasoningEffort": "low"
+      }
+    },
+    {
+      "id": "cross-boundary-decision-uses-astra-low",
+      "input": {
+        "task": {
+          "clarity": "clear",
+          "scope": "cross-boundary",
+          "reversible": true,
+          "oracle": "weak",
+          "risk": "routine",
+          "shape": "cross-boundary-decision"
+        }
+      },
+      "expected": {
+        "routeKey": "astra-low",
+        "routingStatus": "REQUESTED",
+        "requestedModel": "gpt-6-astra",
+        "requestedReasoningEffort": "low"
+      }
+    },
+    {
+      "id": "unknown-shape-uses-astra-low",
+      "input": {
+        "task": {
+          "clarity": "clear",
+          "scope": "unknown",
+          "reversible": null,
+          "oracle": "unknown",
+          "risk": "unknown",
+          "shape": "unknown"
+        }
+      },
+      "expected": {
+        "routeKey": "astra-low",
+        "routingStatus": "REQUESTED",
+        "requestedModel": "gpt-6-astra",
+        "requestedReasoningEffort": "low"
+      }
+    },
+    {
+      "id": "terra-reasoning-failure-escalates-to-astra",
+      "input": {
+        "task": {
+          "clarity": "clear",
+          "scope": "cross-boundary",
+          "reversible": true,
+          "oracle": "strong",
+          "risk": "routine",
+          "shape": "read-heavy-exploration"
+        },
+        "history": [
+          {
+            "route": "terra-low",
+            "failure": "reasoning",
+            "evidence": "research/coverage.log:12"
+          }
+        ]
+      },
+      "expected": {
+        "routeKey": "astra-low",
+        "routingStatus": "REQUESTED",
+        "requestedModel": "gpt-6-astra",
+        "requestedReasoningEffort": "low",
+        "evidenceCapsuleRequired": true
+      }
+    },
+    {
+      "id": "environment-failure-requires-repair",
+      "input": {
+        "task": {
+          "clarity": "clear",
+          "scope": "cross-boundary",
+          "reversible": true,
+          "oracle": "weak",
+          "risk": "routine",
+          "shape": "read-heavy-exploration"
+        },
+        "history": [
+          {
+            "route": "terra-low",
+            "failure": "environment",
+            "evidence": "host.log:2"
+          }
+        ]
+      },
+      "expected": {
+        "routeKey": "terra-low",
+        "routingStatus": "REPAIR_REQUIRED",
+        "requestedModel": "gpt-5.6-terra",
+        "requestedReasoningEffort": "low"
+      }
+    },
+    {
+      "id": "astra-low-failure-escalates-to-medium",
+      "input": {
+        "task": {
+          "clarity": "clear",
+          "scope": "cross-boundary",
+          "reversible": true,
+          "oracle": "weak",
+          "risk": "routine",
+          "shape": "cross-boundary-decision"
         },
         "history": [
           {
             "route": "astra-low",
             "failure": "reasoning",
-            "evidence": "observed/test.log:1"
+            "evidence": "decision.log:7"
           }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
+        ]
       },
       "expected": {
         "routeKey": "astra-medium",
-        "taskClass": "HARD",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
         "requestedReasoningEffort": "medium"
       }
     },
     {
-      "id": "astra-medium-failure",
+      "id": "explicit-ultra-exception",
       "input": {
         "task": {
-          "clarity": "uncertain",
-          "scope": "local",
+          "clarity": "clear",
+          "scope": "cross-boundary",
           "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
+          "oracle": "weak",
+          "risk": "routine",
+          "shape": "cross-boundary-decision"
         },
-        "history": [
-          {
-            "route": "astra-medium",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-ultra",
-        "taskClass": "HARD",
-        "routingStatus": "NEEDS_NEW_EVIDENCE",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "ultra"
-      }
-    },
-    {
-      "id": "exceptional-task-direct-ultra",
-      "input": {
-        "task": {
-          "clarity": "uncertain",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [],
-        "allowMax": false,
-        "boundedSearch": false,
         "allowUltra": true,
-        "ultraReason": "Coupled recovery proof exceeds the normal medium workload; bounded ultra budget accepted."
+        "ultraBudgetAuthorized": true,
+        "ultraReason": "Coupled recovery proof under an authorized session budget."
       },
       "expected": {
         "routeKey": "astra-ultra",
-        "taskClass": "HARD",
         "routingStatus": "REQUESTED",
         "requestedModel": "gpt-6-astra",
         "requestedReasoningEffort": "ultra"
       }
     },
     {
-      "id": "critical-effort-floor",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "critical"
-        },
-        "history": [
-          {
-            "route": "astra-low",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-medium",
-        "taskClass": "CRITICAL",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "medium"
-      }
-    },
-    {
-      "id": "luna-max-budget-does-not-authorize-ultra",
+      "id": "ultra-exhaustion-needs-new-evidence",
       "input": {
         "task": {
           "clarity": "clear",
           "scope": "cross-boundary",
           "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
+          "oracle": "weak",
+          "risk": "routine",
+          "shape": "cross-boundary-decision"
         },
-        "history": [
-          {
-            "route": "astra-medium",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": true,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-ultra",
-        "taskClass": "HARD",
-        "routingStatus": "NEEDS_NEW_EVIDENCE",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "ultra"
-      }
-    },
-    {
-      "id": "astra-ultra-authorized",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "cross-boundary",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "astra-medium",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": true,
-        "boundedSearch": false,
         "allowUltra": true,
-        "ultraReason": "Medium failed the recovery invariant; deepest reasoning is justified for this outcome."
-      },
-      "expected": {
-        "routeKey": "astra-ultra",
-        "taskClass": "HARD",
-        "routingStatus": "REQUESTED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "ultra"
-      }
-    },
-    {
-      "id": "astra-ladder-exhausted",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "cross-boundary",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
+        "ultraBudgetAuthorized": true,
+        "ultraReason": "Coupled recovery proof under an authorized session budget.",
         "history": [
           {
             "route": "astra-ultra",
             "failure": "reasoning",
-            "evidence": "observed/test.log:1"
+            "evidence": "tests.log:5"
           }
-        ],
-        "allowMax": true,
-        "boundedSearch": false
+        ]
       },
       "expected": {
         "routeKey": "astra-ultra",
-        "taskClass": "HARD",
-        "routingStatus": "NEEDS_NEW_EVIDENCE",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "ultra"
-      }
-    },
-    {
-      "id": "no-escalation-for-environment",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "environment",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "luna-xhigh",
-        "taskClass": "EASY",
-        "routingStatus": "REPAIR_REQUIRED",
-        "requestedModel": "gpt-5.6-luna",
-        "requestedReasoningEffort": "xhigh"
-      }
-    },
-    {
-      "id": "no-escalation-for-permission",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "permission",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "luna-xhigh",
-        "taskClass": "EASY",
-        "routingStatus": "REPAIR_REQUIRED",
-        "requestedModel": "gpt-5.6-luna",
-        "requestedReasoningEffort": "xhigh"
-      }
-    },
-    {
-      "id": "no-escalation-for-transient",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "luna-xhigh",
-            "failure": "transient",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "luna-xhigh",
-        "taskClass": "EASY",
-        "routingStatus": "REPAIR_REQUIRED",
-        "requestedModel": "gpt-5.6-luna",
-        "requestedReasoningEffort": "xhigh"
-      }
-    },
-    {
-      "id": "environment-after-astra-failure",
-      "input": {
-        "task": {
-          "clarity": "uncertain",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "astra-low",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          },
-          {
-            "route": "astra-low",
-            "failure": "environment",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-low",
-        "taskClass": "HARD",
-        "routingStatus": "REPAIR_REQUIRED",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "low"
-      }
-    },
-    {
-      "id": "history-preserves-strongest-failure",
-      "input": {
-        "task": {
-          "clarity": "uncertain",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "astra-medium",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          },
-          {
-            "route": "luna-max",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": false,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-ultra",
-        "taskClass": "HARD",
-        "routingStatus": "NEEDS_NEW_EVIDENCE",
-        "requestedModel": "gpt-6-astra",
-        "requestedReasoningEffort": "ultra"
-      }
-    },
-    {
-      "id": "exhaustion-cannot-be-reset-by-luna",
-      "input": {
-        "task": {
-          "clarity": "clear",
-          "scope": "local",
-          "reversible": true,
-          "oracle": "strong",
-          "risk": "routine"
-        },
-        "history": [
-          {
-            "route": "astra-ultra",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          },
-          {
-            "route": "luna-max",
-            "failure": "reasoning",
-            "evidence": "observed/test.log:1"
-          }
-        ],
-        "allowMax": true,
-        "boundedSearch": false
-      },
-      "expected": {
-        "routeKey": "astra-ultra",
-        "taskClass": "EASY",
         "routingStatus": "NEEDS_NEW_EVIDENCE",
         "requestedModel": "gpt-6-astra",
         "requestedReasoningEffort": "ultra"

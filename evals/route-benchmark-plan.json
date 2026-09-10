@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "2026-09-10.5",
+  "status": "PLANNED_NOT_EXECUTED",
+  "requiredPrecommitment": [
+    "case set and sample size",
+    "base revision and tool versions",
+    "acceptance oracle and independent review rule",
+    "budget, timeout, and tie-break rule",
+    "compare total cost per independently accepted outcome; include all failed and retried attempts",
+    "fixed context packet, cache state, processing mode, and independent review for each paired run",
+    "Luna low/medium and Terra low are historical/control routes only, never default live work; compare higher first-pass effort against full retry/review cost"
+  ],
+  "requiredRunFields": [
+    "caseId",
+    "baseRevision",
+    "routeKey",
+    "requestedModel",
+    "requestedReasoningEffort",
+    "effectiveModel",
+    "effectiveReasoningEffort",
+    "executionStatus",
+    "accepted",
+    "durationSeconds",
+    "inputTokens",
+    "outputTokens",
+    "toolCalls",
+    "reworkCount",
+    "independentReviewFindings",
+    "cachedInputTokens",
+    "reasoningTokens",
+    "astraInputTokens",
+    "astraOutputTokens",
+    "allAgentTokens",
+    "contextBytes",
+    "forkTurns",
+    "processingMode",
+    "billingSurface",
+    "observedCost",
+    "costSource",
+    "usageObservation",
+    "attempts"
+  ],
+  "comparisons": [
+    {
+      "id": "fixed-extraction",
+      "workShape": "fixed-extraction",
+      "routes": [
+        "luna-low",
+        "luna-high",
+        "luna-xhigh",
+        "luna-max"
+      ],
+      "acceptance": "same deterministic oracle; no surrounding redesign"
+    },
+    {
+      "id": "read-heavy-exploration",
+      "workShape": "read-heavy-exploration",
+      "routes": [
+        "luna-high",
+        "luna-xhigh",
+        "terra-medium",
+        "terra-high",
+        "astra-low"
+      ],
+      "acceptance": "same evidence capsule rubric and source coverage"
+    },
+    {
+      "id": "implementation",
+      "workShape": "implementation",
+      "routes": [
+        "terra-medium",
+        "terra-high",
+        "astra-low",
+        "astra-high"
+      ],
+      "acceptance": "same regression oracle, change boundary, and independent review"
+    },
+    {
+      "id": "upfront-judgment",
+      "workShape": "cross-boundary-decision",
+      "routes": [
+        "astra-low",
+        "astra-medium",
+        "astra-high",
+        "astra-xhigh"
+      ],
+      "acceptance": "same coupled decision and independent oracle; compare first-pass and end-to-end accepted cost including retries, not successful runs alone"
+    }
+  ]
+}

@@ -297,12 +297,15 @@ class IntakeContractTests(unittest.TestCase):
                 "assert auth.is_file()\n"
                 "assert stat.S_IMODE(auth.stat().st_mode) == 0o600\n"
                 "args = sys.argv[1:]\n"
-                "if args[:1] == ['plugin']:\n"
-                "    raise SystemExit(88)\n"
-                "index = args.index('--output-last-message')\n"
-                "target = pathlib.Path(args[index + 1])\n"
-                f"target.write_text({final_json!r} + '\\n', encoding='utf-8')\n"
-                "print(json.dumps({'type': 'turn.completed', 'usage': {}}))\n",
+                "if args[:3] == ['plugin', 'marketplace', 'add']:\n"
+                "    print('marketplace added')\n"
+                "elif args[:2] == ['plugin', 'add']:\n"
+                "    print(json.dumps({'pluginId': 'heading@heading'}))\n"
+                "else:\n"
+                "    index = args.index('--output-last-message')\n"
+                "    target = pathlib.Path(args[index + 1])\n"
+                f"    target.write_text({final_json!r} + '\\n', encoding='utf-8')\n"
+                "    print(json.dumps({'type': 'turn.completed', 'usage': {}}))\n",
                 encoding="utf-8",
             )
             fake.chmod(0o755)
@@ -320,7 +323,7 @@ class IntakeContractTests(unittest.TestCase):
             summary, _ = json.JSONDecoder().raw_decode(authenticated.stdout.lstrip())
             self.assertEqual(summary["status"], "PASS")
             self.assertEqual(summary["auth"], "auth-file")
-            self.assertEqual(summary["skillSource"], "temporary-plugin-skill-mirror")
+            self.assertEqual(summary["pluginSource"], "isolated-local-marketplace")
             self.assertNotIn("must-not-leak", authenticated.stdout + authenticated.stderr)
 
             metadata = json.loads((results / "intake/prototype-short-desirability.meta.json").read_text())

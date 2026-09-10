@@ -1,4 +1,4 @@
-# Heading 0.4.1
+# Heading 0.5.0
 
 Heading is a portable skills plugin with five product-work tracks and one optional orchestration track.
 
@@ -54,22 +54,26 @@ This request is corrected to `prototype` and continues in the same conversation.
 
 Role controls authority; task evidence selects the model. The optional Lead profile requests **GPT-6 Astra low**. A skill alone does not switch the current chat model.
 
-| Task | Starting request |
+| Work shape | Candidate request |
 | --- | --- |
-| Clear, local, reversible, strongly testable routine task—all conditions | GPT-5.6 Luna `xhigh` |
-| Same easy task with an evidenced reasoning failure and authorized bounded search | Luna `max` once |
-| Hard, ambiguous, cross-boundary or uncertain task | GPT-6 Astra `low` |
-| Critical risk, including irreversible high-impact work | Astra `medium` |
+| Deterministic preflight or mechanical inspection | Direct tools; no model request |
+| Fixed extraction with a strong oracle | GPT-5.6 Luna `high` |
+| Bounded local evidence / broad or weak-oracle exploration | Luna `high` / Terra `medium`; evidence capsule required |
+| Clear implementation with a strong oracle | GPT-5.6 Terra `medium` |
+| Cross-boundary decision or unknown shape | GPT-6 Astra `low` |
+| Critical risk, including irreversible high-impact work | Astra `high` |
 
-Astra normally uses only `low` (Light) and `medium`. Reserve `ultra` for exceptionally difficult work with a concrete task reason and authorized budget; never select Astra `high`, `xhigh`, or `max`. Native Ultra support must be checked on the host; it is not an API effort alias.
+Luna defaults to high, with xhigh/max allowed upfront; Terra defaults to medium, with high allowed. Luna max is already authorized and needs no extra approval. Sol is excluded from active routing. Select Astra `high`/`xhigh` upfront when complexity warrants it, with `astraEffort`, `effortReason`, and `effortEvidence`; no cheap failed attempt is required. Astra `max` and `ultra` require their exceptional budget contracts and host support. The optional profile defaults children to Luna high and caps them at two; it does not alter an existing session.
 
-These are candidate defaults, not a benchmark-proven optimum. `Light` is the UI label for `low`; use exact model IDs and supported effort values from the [versioned policy](plugins/heading/skills/heading-orchestrate/references/model-policy.json).
+Every 0.5.0 packet declares a work `shape` and uses the closed current packet schema. The benchmark plan contains only current route keys. These are candidate defaults, not a benchmark-proven optimum. `Light` is the UI label for `low`; use exact model IDs and permitted effort values from the [versioned policy](plugins/heading/skills/heading-orchestrate/references/model-policy.json).
 
-Lead owns acceptance; Planner, Reviewer and Architect are read-only; Executor is the sole delegated writer. A fresh Reviewer checks material changes and reports only to Lead. Role files intentionally omit model and effort: current Codex custom-role values would otherwise override dispatch. Supply both settings per task and separate requested settings from actual host metadata. Missing evidence is `modelEscalation: NOT_PROVEN`, not successful model switching.
+Lead owns acceptance; Planner, Reviewer and Architect are read-only; Executor is the sole delegated writer. A fresh Reviewer checks material changes and reports only to Lead. Role files intentionally omit model and effort: current Codex custom-role values would otherwise override dispatch. Supply both settings per task and separate requested settings from actual host metadata. Missing evidence is `modelEscalation: NOT_PROVEN`, not successful model switching; direct deterministic work is `NOT_APPLICABLE` rather than a hidden model call.
 
 Preserve the same Executor for one outcome while the requested route can be honored. A required route change that cannot happen in place needs an exact-candidate checkpoint, an observed stop of the old writer and its processes, then one replacement writer. Missing optional delegation does not block a separately declared direct lane; never silently substitute a required route or weaken permissions.
 
-See [routing and task packets](plugins/heading/skills/heading-orchestrate/references/MODEL-ROUTING.md) and [dated official research](plugins/heading/skills/heading-orchestrate/references/RESEARCH-2026-09-07.md).
+Use zero scouts for exact tool lookups, one authorized scout for useful synthesis, and at most two for independent questions. Use `fork_turns="none"` with a self-contained packet. Each returns a bounded [evidence capsule](plugins/heading/skills/heading-orchestrate/references/EVIDENCE-CAPSULE.md), never raw context, write authority, or final acceptance.
+
+See [routing and task packets](plugins/heading/skills/heading-orchestrate/references/MODEL-ROUTING.md), [dated official research](plugins/heading/skills/heading-orchestrate/references/RESEARCH-2026-09-10.md), and the [unexecuted benchmark plan](evals/route-benchmark-plan.json).
 
 ## Install as a plugin
 
@@ -88,7 +92,7 @@ For a Git checkout, replace the local path with `AxiomOrient/heading --ref main`
 
 ## Optional execution profile
 
-Requirements: POSIX and Python 3.11 or later. The compatibility profile installation contains 5 files and never copies plugin skill folders into a global skill namespace.
+Requirements: POSIX and Python 3.11 or later. The optional profile installation contains 5 files and never copies plugin skill folders into a global skill namespace.
 
 Use this section only when you intentionally want the separate local `heading` runtime profile. It is not required to install, discover, or implicitly invoke the plugin skills.
 
@@ -100,7 +104,7 @@ Use this section only when you intentionally want the separate local `heading` r
 codex --profile heading
 ```
 
-This profile is a task-stage runtime choice, not the plugin distribution mechanism. Plugin users do not need to install it: the five product skills work from the installed plugin alone. Its installer is non-destructive: it never removes existing files or namespaces. `--install-legacy-skills` is an explicit compatibility escape hatch only; it can shadow an installed plugin with the same skill name and should not be used for normal plugin deployment.
+This profile is a task-stage runtime choice, not the plugin distribution mechanism. Plugin users do not need to install it: the five product skills work from the installed plugin alone. Its installer is non-destructive: it never removes existing files or namespaces, and it never copies skill folders into a second global namespace.
 
 Heading keeps execution evidence internally, but its response detail follows the task: simple work is brief, while complex or risky work includes the evidence needed to decide. Ask for raw result fields when you need them.
 
@@ -112,7 +116,7 @@ Use `$heading-orchestrate` only after one of the five tracks locks the outcome a
 
 ## Distribution boundary
 
-The distributable source is `plugins/heading/`: the six skills, their references, and the portable/Codex manifests. `plugin.json` is the portable Agent Plugins manifest; `.codex-plugin/plugin.json` is the Codex manifest; both identify `heading` at the same version and the Codex manifest alone points to `./skills/`. `runtime/heading/` contains the separate optional profile and role templates. The repository marketplace supports local and team testing; public directory submission remains a separate publisher review step. The optional profile installer writes into the caller's selected Codex profile and does not replace the plugin package.
+The distributable source is `plugins/heading/`: the six skills, their references, and the portable/Codex manifests. `plugin.json` is the portable Agent Plugins manifest; `.codex-plugin/plugin.json` is the Codex manifest; both identify the same `heading` base release and the Codex manifest alone points to `./skills/`. A local Codex cachebuster may add a `+codex.*` suffix to the Codex manifest without changing the portable release. `runtime/heading/` contains the separate optional profile and role templates. The repository marketplace supports local and team testing; public directory submission remains a separate publisher review step. The optional profile installer writes into the caller's selected Codex profile and does not replace the plugin package.
 
 `./verify-source-package.sh` proves the deterministic source package and both manifest contracts. `scripts/smoke-plugin-install.py` separately proves local marketplace registration, installation, enabled state, and cached-manifest equivalence in an isolated Codex home. A fresh interactive chat is still required to observe stochastic implicit selection; native model behavior, authenticated evaluation, and public-directory approval remain separate evidence.
 
@@ -136,9 +140,9 @@ The source is upgraded; your account and local installation are not modified by 
 
 ```bash
 STAGE="$(mktemp -d)"
-./scripts/install.sh --dry-run --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
-./scripts/install.sh --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
-./scripts/install.sh --check --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
+./scripts/install.sh --dry-run --codex-home "$STAGE/codex"
+./scripts/install.sh --codex-home "$STAGE/codex"
+./scripts/install.sh --check --codex-home "$STAGE/codex"
 ```
 
 Keep staging outside the verified source tree and inspect it before touching the live installation. No automatic migration or destructive force option is introduced.

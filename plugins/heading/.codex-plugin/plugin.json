@@ -1,6 +1,6 @@
 {
   "name": "heading",
-  "version": "0.4.1",
+  "version": "0.5.0+codex.20260910035021",
   "description": "Evidence-first product work tracks with capability-gated delegation.",
   "author": {
     "name": "AxiomOrient",
@@ -9,7 +9,12 @@
   "homepage": "https://github.com/AxiomOrient/heading",
   "repository": "https://github.com/AxiomOrient/heading",
   "license": "MIT",
-  "keywords": ["product", "engineering", "evidence", "orchestration"],
+  "keywords": [
+    "product",
+    "engineering",
+    "evidence",
+    "orchestration"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Heading",

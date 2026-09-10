@@ -1,106 +1,72 @@
-# Heading task-based model routing
+# Heading model routing
 
-Policy version: `2026-09-08.1`. State: **candidate, not benchmark-proven**.
+Policy `2026-09-10.5`: **CANDIDATE_NOT_BENCHMARKED**. `model-policy.json` owns route values; this file owns selection and dispatch semantics. Lead owns acceptance; the host owns effective execution identity. Role files own authority and sandbox, never model overrides.
 
-## Owners
+## Choose work before model
 
-`model-policy.json` owns native model IDs, permitted efforts, route defaults and retry limits. This file owns their meaning and dispatch protocol. Lead owns task classification and dispatch. The host owns effective runtime identity. Role files own role and sandbox only. Track methods own product acceptance. No model output can grant permission or certify itself.
+Use the least expensive route likely to meet the acceptance rule on the whole outcome. Minimize Astra input/reasoning and avoidable rework subject to correctness; cheap token prices alone do not establish accepted-outcome cost. Do not run every task through every tier.
 
-Reading this shared reference does not activate `heading-orchestrate`. All five product tracks can use it without delegation. A skill cannot switch an already running parent model. The optional profile requests Astra low for a new Lead session. Product work on the current host remains available when a model-switch API is absent, but its requested-route proof stays `NOT_PROVEN`.
+| Work | Candidate request |
+| --- | --- |
+| Exact listing, search, parsing, filtering, diff, test discovery | `DIRECT_TOOLS`; no additional model request |
+| Fixed extraction; local evidence collection with a strong oracle | Luna `high` |
+| Broad/cross-boundary source discovery or weak-oracle evidence scan | Terra `medium` |
+| Clear implementation with a strong regression oracle | Terra `medium` |
+| Bounded decision, integration, or unknown work shape | Astra `low` |
+| Critical risk or irreversible material change | Astra `high` floor |
 
-## Decision table
+`clarity` describes whether the question and task contract are clear, not whether its answer is known. A clear request to discover an unknown owner is broad exploration; an unclear requested outcome still needs Lead qualification. Specialist routes require clear, routine, reversible work; fixed extraction and implementation also require a strong oracle. `local` means a bounded question with independently checkable coverage, not merely one directory. Unknown reachability or conflicting state ownership belongs in broad exploration or Astra judgment. Sol is excluded from active defaults and retry routes to simplify this user's Luna–Terra–Astra policy; this is not a claim that Sol is universally inferior.
 
-| Observed task | Request | Reason |
-| --- | --- | --- |
-| Clear requirement, local scope, reversible, strong oracle, routine risk—all five | Luna xhigh | Smaller-model candidate for a fixed, checkable task. |
-| Same easy task; one evidenced reasoning failure; bounded search; max budget authorized | Luna max once | More search within a stable task, not a substitute for architectural judgment. |
-| Ambiguity, weak oracle, nonlocal state/ownership, recovery/security/contracts, or unknown difficulty | Astra low | Capability first; narrow effort until evidence requires more. |
-| risk=critical, or risk=material with reversible=false | Astra medium | Risk-sensitive exception to the low starting effort. |
-| Astra low reasoning failure with concrete counterexample | Astra medium | Preserve the same acceptance oracle. |
-| Exceptionally difficult task with concrete justification and authorized ultra budget | Astra ultra | Optional direct exception or a justified retry after medium; native host support required. |
-| Astra medium failure without an ultra exception | NEEDS_NEW_EVIDENCE | Do not automatically spend more reasoning budget. |
-| Missing tool/platform, unavailable model, denied permission, or transient service failure | Repair that boundary | More reasoning is not an environment repair. |
+## Select effort before expensive work
 
-These are Heading choices informed by official capability descriptions, not OpenAI's measured recommendation for this exact workload. Low is not always sufficient for hard work; xhigh is not always the cheapest setting for easy work. Measure cost and latency per **accepted outcome**, including failures, repairs and review. Do not infer performance equivalence across different models from effort names.
+Luna starts at **high**. Choose **xhigh** upfront for coupled evidence, multi-hop references, or expensive omissions within its bounded scope; **max** is also authorized when that bounded question benefits from more reasoning. Terra starts at **medium** for both broad exploration and implementation; use **high** for complex local logic, edge cases, or costly rework. Increasing effort does not widen the role or give Luna architectural authority.
 
-A short prompt can be hard. A large repetitive edit can be easy. A read-only security review can be critical. Label the actual risk, not the role name, file count, task length or user's adjective. Unknown facts never qualify a task for the easy route. Lack of an environment alone must not trigger escalation.
+For these choices, set `specialistEffort` and include `effortReason` and `effortEvidence`. It changes only the specialist model selected for this packet, including its next route after a failure; it cannot choose another model or override an Astra requirement. Valid current values are Luna high/xhigh/max and Terra medium/high. Luna max is authorized by the user's policy and does **not** require `maxBudgetAuthorized` or another approval. That existing flag is specific to Astra max. Do not combine `specialistEffort` with `astraEffort` or `allowUltra`. Environment repairs, exhausted routes, and the two-failure automatic budget still take precedence.
 
-## Deterministic helper
+Old Luna low/medium and Terra low route IDs remain readable for existing failure history and explicit benchmark controls. They are never selected as new defaults or specialist overrides. Judge default effort by first-pass acceptance and the total tokens/cost of all attempts and reviews, not one request's token count. The higher defaults reflect the user's rework preference; savings remain unmeasured.
 
-From the installed `heading-orchestrate` skill directory:
+Astra low is a coordination default, not a required first attempt. Use medium for several interacting but bounded constraints, high for difficult RCA, concurrency, security, recovery, or important acceptance decisions, and xhigh for exceptionally coupled constraints or expensive-to-reverse decisions. A demand to be accurate alone does not make every lookup high. Verify information and access before adding compute.
+
+To request Astra effort upfront, supply `astraEffort` (`low`, `medium`, `high`, `xhigh`, or `max`), a task-specific `effortReason`, and a source/constraint `effortEvidence`. Higher risk and already-failed capability set a floor: an explicit lower effort cannot bypass them. No cheap failure is required. Astra max additionally needs `maxBudgetAuthorized: true`. The existing ultra contract is `allowUltra: true`, non-empty `ultraReason`, and `ultraBudgetAuthorized: true`; do not combine the two request mechanisms. Budget authorization can come from the existing session; do not ask again when it is already supplied. Astra max/ultra also require observed host support. They are exceptional requests, not automatic retries or API aliases.
 
 ```bash
 python3 -B scripts/model_routing.py <<'JSON'
 {
   "task": {
-    "clarity": "clear", "scope": "local", "reversible": true,
-    "oracle": "strong", "risk": "routine"
+    "clarity": "clear", "scope": "cross-boundary", "reversible": false,
+    "oracle": "weak", "risk": "material", "shape": "cross-boundary-decision"
   },
-  "history": [], "allowMax": false, "boundedSearch": false,
-  "allowUltra": false, "ultraReason": ""
+  "astraEffort": "xhigh",
+  "effortReason": "One recovery decision couples transaction ownership and replay ordering",
+  "effortEvidence": "src/recovery.py:88; tests/replay_failure.py:41"
 }
 JSON
 ```
 
-Astra normally uses only `low` (Light) and `medium`; `high`, `xhigh`, and `max` are excluded from Heading routes. `allowMax` applies only to Luna's existing bounded retry. `allowUltra: true` requires a non-empty `ultraReason` describing why this particular outcome is exceptionally difficult and a budget already authorized by the user/session. Existing authorization is sufficient; do not ask again. This permits a direct ultra exception without forcing an intentionally inadequate medium attempt. Otherwise a medium failure returns `NEEDS_NEW_EVIDENCE`, never an automatic ultra dispatch. Environment failures still require repair, even with an ultra exception. An exhausted ultra attempt cannot be reset by an exception or a Luna retry.
+This emits a request; it never calls a model or switches the active parent. The optional profile starts a new Lead at Astra low and supplies Luna high subagent defaults with a two-child ceiling. Existing sessions and global settings are not changed by reading a skill. If in-place switching is unavailable, send only the bounded hard question to an observed Astra high/xhigh child, or retain the active capable route and disclose its actual setting; never claim the parent changed.
 
-Policy `2026-09-08.1` retires `astra-high`, `astra-xhigh`, and `astra-max`; old history entries with those keys are rejected. Preserve their original evidence and obtain a new Lead decision for the current outcome instead of silently relabeling or discarding failures.
+## Prevent repeated work
 
-The helper reads facts supplied by Lead; it does not classify natural language, authenticate evidence, call an API, select the current chat model, or launch an agent. It emits a **request**, with `effectiveModel` and `effectiveReasoningEffort` unset. Invalid facts fail explicitly. If Python is absent, apply this same table as instructions and distinguish manual selection from automated selection.
+1. Use `rg`/git/LSP/parsers to narrow candidate paths and line ranges before semantic reading. A tool calculation needs no LLM inference internally, but tool instructions, results, and follow-up still use model context. Keep full logs in an artifact; return exit status, diagnostic excerpts, and a path. Never truncate away a failure and call it success.
+2. For a useful read-only synthesis, use one authorized scout; only independent questions justify two. `allowEvidenceScouts: true` requests one by default; `parallelism: "independent"` requests two. Neither field grants permission or creates workers. Exact one-tool lookups remain direct.
+3. Default delegated packets to `fork_turns="none"`, as the actual host schema permits. Include outcome, base revision, scoped paths, constraints, existing evidence, requested model/effort, oracle, and done rule explicitly. Use recent bounded turns only when needed. Full-history forks cannot carry model overrides on the current host; do not inherit the entire conversation accidentally.
+4. Reuse the scout for a related missing fact. Do not ask several scouts to read the same files. Do not resend a full transcript during escalation: reuse the evidence and candidate, adding the failed claim, decisive excerpt, and unresolved question.
+5. Use an [evidence capsule](EVIDENCE-CAPSULE.md): sources, facts, uncertainty, and coverage limits, not essays. Lead spot-checks decisive claims, contradictory sources, reachability, and changed regions. A failed check expands only the affected slice; it does not force a duplicate repository scan.
+6. Preserve stable instructions and reuse existing work. Do not automatically enable Fast mode or alter unrelated MCP/plugin settings for cost optimization. Caching reduces billed/compute cost, not raw input count; actual native-host controls take precedence over API examples.
 
-A failed-attempt entry is `{ "route": "luna-xhigh", "failure": "reasoning", "evidence": "tests/output-shape.log: expected three fields, got two" }`. Allowed failure classes are in the policy and helper. `evidence` must reference an actual observation, not a fixture passed off as production behavior. Retain the entire current-outcome attempt history. Do not clear it to evade the retry budget. New evidence and a new Lead decision are needed when the ladder is exhausted.
+## Failure transitions
 
-`REPAIR_REQUIRED` and `NEEDS_NEW_EVIDENCE` are routing states, not permission to dispatch the returned pair. Only `REQUESTED` advances to the host check. All three can coexist with other useful, already-authorized work.
+Retain the whole observed history: `{ "route": "luna-high", "failure": "reasoning", "evidence": "coverage.log:4" }`. Only a demonstrated reasoning/coverage failure is a capability miss; missing files, missing access, environment errors, and transient failures need repair or evidence acquisition.
 
-## Host dispatch and observation
+- Environment/permission/transient failures return `REPAIR_REQUIRED` at the failed route; effort overrides cannot bypass repair.
+- A bounded Luna extraction/exploration failure can move to Terra medium. Terra failure or an unresolved semantic decision moves to Astra; critical work keeps the high floor. Never revisit a failed lower capability after an interleaved failure.
+- Astra effort can advance low → medium → high → xhigh, but after two evidenced route failures automatic escalation stops with `NEEDS_NEW_EVIDENCE`. Do not blindly walk a ladder. A deliberate higher request with a reason and evidence may skip levels; each failed route remains exhausted once.
+- Astra max/ultra require their explicit exceptional contracts. Exhausted ultra remains exhausted. `REPAIR_REQUIRED` and `NEEDS_NEW_EVIDENCE` are not dispatchable requests.
 
-1. Lock Goal, Context, Owned surface, Constraints, Done and Evidence. Put taskClass, route reason and requested settings in Constraints. Do not add extra unowned writers.
-2. Read the host's actual tool schema and supported model/effort catalog. The native Codex documentation lists `ultra` only where the model supports it. The Responses API Astra effort list does not include `ultra`; do not send this native route to the API or silently map it to `max`. For ChatGPT Work, Ultra is a product mode with maximum reasoning and proactive delegation, not simply an API effort. Unsupported native ultra stays `NOT_PROVEN`/`BLOCKED` for that lane. `astra-low` and `luna-xhigh` are Heading route keys, **not** API model IDs. `Light` is the UI label corresponding to `low`; do not send `light` as API effort. Never invent dated snapshot IDs.
-3. Native dispatch supplies both `model` and the host's effort field. API Responses uses `model` and `reasoning.effort`; Codex config uses `model` and `model_reasoning_effort`. Do not guess a spawn field name. `agents/openai.yaml` is UI/invocation metadata, not model execution configuration.
-4. Current Codex custom-agent file values override dispatch settings. Heading's four files therefore omit both model keys. Do not edit installed role files during work. Do not silently inherit a parent setting in place of a required explicit route.
-5. Record requested/effective model and effort separately, plus source of host observation, task ID, role, sandbox, candidate revision and reason. Do not use the worker's answer or role template as runtime proof. The helper's observation comparator checks model/effort and the separately locked taskId/role/sandbox; the caller must still authenticate their provenance and final state. Matching fields is not a signed host attestation.
-6. Require an observed role/permission boundary before delegated writes. Missing route observation blocks claims about that route. Material work needing a stronger route must not continue under an unverified weaker one; preserve the candidate and continue safe inspection. A declared direct lane is a separate decision, not a silent fallback.
-7. Keep accepted repairs in the same Executor when the host honors the selected pair in place. Otherwise checkpoint base/candidate revisions, dirty diff, owned processes, done/oracle, evidence, pending repairs and route reason. Observe old writer and owned processes stopped before one replacement accepts the unchanged outcome. Unknown stop state prohibits a replacement writer.
-8. A fresh read-only Reviewer checks the actual candidate. Independence means separate judgment and no write authority, not a different model brand. Lead alone accepts the outcome. Missing independent review is `NOT_PROVEN`.
+## Dispatch and proof
 
-## Model-specific task packets
+Read actual host model/effort and tool schemas. Current native support starts at low for Luna even though its API also documents none; never infer host support from API documentation. For `REQUESTED`, pass both model and effort, use the declared authority boundary, and record the non-empty task ID and requested/effective fields separately. `requestedForkTurns` is a request, not context-inheritance proof. `DIRECT_TOOLS` has null model fields and `NOT_APPLICABLE`; model requests remain `NOT_PROVEN` until host metadata supplies matching values. Self-reports and templates are not host evidence.
 
-### Astra: complete outcome, explicit boundaries
+Keep exactly one writer. When a required route cannot change in the same Executor, checkpoint the candidate, observe the old writer and its processes stopped, and transfer the unchanged outcome to one replacement. A fresh read-only Reviewer checks material changes independently. Lead alone accepts; unavailable independent review leaves that proof `NOT_PROVEN`.
 
-```text
-Goal: [one complete outcome]
-Context: [actual entry path, decisive sources and current evidence]
-Owned surface: [files/interfaces and writer]
-Constraints: [invariants, authority/approval boundary, route request and reason]
-Done: [observable acceptance criterion]
-Evidence: [commands, counterexamples, read-back and candidate revision]
-
-Complete the authorized reversible work. Resolve routine gaps from evidence;
-ask only about an unresolved choice that materially changes the outcome.
-Follow the user's requirements within higher-priority instructions and permissions.
-Keep the domain decision and I/O boundary explicit. Return observed results and
-unknowns; do not use an explanation of reasoning as verification.
-```
-
-Do not prescribe hidden reasoning steps or repeat the same policy across every packet. Read only relevant methods/references. A short handover must retain public contracts and decisive counterexamples; it must not invent absent history. Keep updates brief and proportionate. Expand testing for actual dependency risk rather than automatically running all suites.
-
-### Luna: fixed task, strong oracle
-
-```text
-Goal: [one bounded transformation or implementation slice]
-Context: [exact source paths and facts needed]
-Owned surface: [only allowed files/interfaces]
-Constraints: [public shape, forbidden changes, requested model and effort]
-Done: [exact observable behavior; examples only when genuinely useful]
-Evidence: [local command or deterministic oracle]
-
-Do not redesign surrounding architecture. Complete the slice and run its oracle.
-If the assumption or scope proves wrong, preserve the candidate and return the
-counterexample to Lead. Do not compensate with an unbounded search or hidden fallback.
-```
-
-## Verification and refresh
-
-See [RESEARCH-2026-09-07.md](RESEARCH-2026-09-07.md) for dated primary sources, API limitations and source conflicts. Refresh model IDs, supported efforts, custom-agent precedence and account availability before deployment after a client/catalog change. Do not auto-rewrite policy from an untrusted webpage. The packaged policy is a versioned snapshot; a change requires review and regression tests.
-
-Before claiming this routing is optimal: compare easy tasks on Luna high/xhigh/max and hard tasks on Astra low/medium, adding native ultra only for justified exceptional tasks, with the same input, oracle, tools, revision and independent acceptance. Keep failed and blocked runs in denominators. Separate routing decision quality, actual route application and completed-product quality. The supplied native intake runner measures intake behavior, **not** complex end-to-end implementation quality.
+Read [RESEARCH-2026-09-10.md](RESEARCH-2026-09-10.md) when auditing sources or choosing a new policy. Repository maintainers can use `evals/route-benchmark-plan.json` for paired evaluation; that file is not included in the installed plugin. Deterministic routing tests prove transitions, not model quality or savings.

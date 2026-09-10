@@ -1,4 +1,4 @@
-# Heading 0.4.1 — 규격
+# Heading 0.5.0 — 규격
 
 ## 유지 계약
 
@@ -6,11 +6,13 @@
 
 ## 모델 요청 계약
 
-정본은 `plugins/heading/skills/heading-orchestrate/references/model-policy.json`이다. 입력 fact는 clarity, scope, reversible, oracle, risk다. 다섯 긍정 조건을 모두 충족할 때만 easy다. risk=critical 또는 risk=material이면서 reversible=false이면 critical, 나머지는 hard다. 모델 선택과 도구 권한은 독립이다.
+정본은 `plugins/heading/skills/heading-orchestrate/references/model-policy.json`이다. 입력 fact는 clarity, scope, reversible, oracle, risk, shape이며 모두 필수다. shape는 deterministic, fixed-extraction, read-heavy-exploration, implementation, cross-boundary-decision, unknown 중 하나다. deterministic은 모델 요청 없이 `DIRECT_TOOLS`, fixed-extraction은 Luna high, read-heavy-exploration은 local·strong oracle이면 Luna high, 그 외는 Terra medium과 evidence capsule, implementation은 Terra medium, decision/unknown은 Astra low로 시작한다. risk=critical 또는 risk=material이면서 reversible=false이면 Astra high이 우선한다. 모델 선택과 도구 권한은 독립이다.
 
-history에는 현재 outcome의 실패 route·실패 유형·실제 증거 참조를 유지한다. 환경·권한·일시 장애는 `REPAIR_REQUIRED`; 추론 실패는 정책 ladder를 따르며, Luna max와 Astra ultra는 각각의 예산·근거 조건이 필요하다. 소진·예산 미승인은 `NEEDS_NEW_EVIDENCE`다. `REQUESTED`만 호스트 확인 단계로 진행하며, 실패 이력을 지워 반복하지 않는다.
+history에는 현재 outcome의 실패 route·실패 유형·실제 증거 참조를 유지한다. 환경·권한·일시 장애는 `REPAIR_REQUIRED`; Luna 추출 실패는 Terra로, Terra 실패는 Astra로 이동하며 critical high 하한을 유지한다. 자동 승격은 실패 두 번에서 멈춘다. `astraEffort`·`effortReason`·`effortEvidence`로 high/xhigh를 처음부터 요청할 수 있다. Astra max는 `maxBudgetAuthorized`, ultra는 `allowUltra`·`ultraReason`·`ultraBudgetAuthorized`와 host 지원이 필요하다. 소진·예산 미승인은 `NEEDS_NEW_EVIDENCE`다. `REQUESTED`만 호스트 확인 단계로 진행하며, 실패 이력을 지워 반복하지 않는다.
 
-helper는 요청값만 반환한다. effective 값은 null, modelEscalation은 NOT_PROVEN이다. 관찰 비교 함수는 별도로 고정한 taskId·role·sandbox와 model·effort를 비교하지만 출처 인증이나 결과 승인을 하지 않는다. 실제 도구 schema로 모델과 effort를 함께 전달해야 한다.
+`specialistEffort`·`effortReason`·`effortEvidence`로 선택된 Luna의 high/xhigh/max 또는 Terra의 medium/high를 지정한다. Luna max는 추가 승인 없이 허용된다. Astra 전용 입력과 혼용하거나 모델·위험 하한을 바꿀 수 없다. 과거 low 경로는 실패 이력과 명시적 비교 대조군으로만 유지한다.
+
+helper는 요청값만 반환한다. 출력 `riskBand`는 `ROUTINE`·`CRITICAL`·`QUALIFICATION-REQUIRED` 중 하나이며 task shape를 대체하지 않는다. 모델 route의 effective 값은 null이고 modelEscalation은 NOT_PROVEN이다. deterministic 결과는 모델 route가 아니므로 modelEscalation은 NOT_APPLICABLE이다. 관찰 비교 함수는 별도로 고정한 taskId·role·sandbox와 model·effort를 비교하지만 출처 인증이나 결과 승인을 하지 않는다. 실제 도구 schema로 모델과 effort를 함께 전달해야 한다.
 
 ## 실행·승인
 

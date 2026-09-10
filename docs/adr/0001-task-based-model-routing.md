@@ -1,21 +1,15 @@
-# ADR-0001: 역할과 모델 능력 분리
+# ADR-0001: work shape와 역할·모델 능력 분리
 
-상태: ACCEPTED FOR SOURCE; native qualification pending. 날짜: 2026-09-07.
+상태: ACCEPTED FOR SOURCE; native qualification pending. 날짜: 2026-09-10.
 
 ## 맥락
 
-기존 role 파일의 고정 model/effort는 공식 custom-agent precedence에 따라 task dispatch보다 우선했다. role과 모델 능력이 결합되어 사용자 요구인 어려운 작업=Astra, 쉬운 작업=Luna를 정확히 표현할 수 없었다.
+역할의 권한과 모델 능력을 결합하면 동일 outcome에 대한 writer ownership과 route 근거가 흐려진다. 읽기 중심 탐색, 좁은 고정 추출, 구현, 경계 판단은 요구하는 작업 형태와 증거가 다르다. 공식 모델 설명은 후보 선택에 도움이 되지만 계정별 host availability나 Heading 성능 최적성을 증명하지 않는다.
 
 ## 결정
 
-역할 파일에는 역할·sandbox·행동 계약만 남긴다. Lead가 실제 task facts로 버전 정책에서 route를 선택하고 호스트 호출에 model+effort를 함께 지정한다. 요청과 관찰을 별도 기록한다. Astra low는 복잡성 기본, Luna xhigh는 다섯 조건을 모두 만족하는 쉬운 작업 기본, critical은 Astra medium이다. 2026-09-08 정책부터 Astra는 low/medium을 사용하고, 특별한 난도 사유와 허용 예산이 있을 때만 native ultra를 요청한다. Astra high/xhigh/max는 제외한다. Luna max는 실패·예산·탐색 조건이 있을 때만 사용한다.
-
-## 대안
-
-role별 고정 모델은 거부했다. Astra/Luna별로 role을 복제하면 같은 권한의 복수 소유자가 생기고 유지비가 늘어난다. 모든 작업 Astra max도 비용·시간 최적성을 증명하지 못한다. 현재 세션 모델을 프롬프트 문장만으로 바꾸었다고 간주하는 방식은 실제 제어가 아니므로 거부했다.
+역할 파일에는 역할·sandbox·행동 계약만 둔다. Lead가 실제 task facts와 필수 `shape`로 current policy route를 선택하고 host 호출에 model과 effort를 함께 지정한다. deterministic preflight는 direct tools, fixed extraction은 Luna high, read-heavy exploration은 좁은 범위·강한 oracle이면 Luna high, 그 외 Terra medium와 evidence capsule, clear implementation은 Terra medium, cross-boundary decision은 Astra low, critical risk는 Astra high를 요청한다. Ultra는 task-specific reason, `ultraBudgetAuthorized: true`, native host support가 모두 있을 때만 요청한다.
 
 ## 결과와 한계
 
-공개 스킬 이름·역할 이름·권한·트랙 METHOD는 유지한다. 같은 thread의 모델 변경이 불가능할 때는 관찰된 종료 후 동일 outcome을 단일 인계한다. 이 규칙은 안전한 수리 연속성을 보존하지만 native 실행 검증이 필요하다. 공식 모델 지원은 특정 계정에서의 제공이나 Heading 성능 최적성을 증명하지 않는다.
-
-근거: [공식 자료 분석](../../plugins/heading/skills/heading-orchestrate/references/RESEARCH-2026-09-07.md), [라우팅 프로토콜](../../plugins/heading/skills/heading-orchestrate/references/MODEL-ROUTING.md).
+요청값과 host 관찰값은 분리한다. 모델 route는 host metadata가 없으면 `NOT_PROVEN`이고, 한 outcome에는 writer 하나만 둔다. 병렬화는 명시적으로 독립인 read-heavy evidence work에만 제한하며 capsule은 authority나 final acceptance가 아니다. 현재 정책은 candidate이며 [공식 자료 분석](../../plugins/heading/skills/heading-orchestrate/references/RESEARCH-2026-09-10.md)과 [라우팅 프로토콜](../../plugins/heading/skills/heading-orchestrate/references/MODEL-ROUTING.md)에 근거한다.

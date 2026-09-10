@@ -15,21 +15,11 @@ import shutil
 import stat
 import sys
 import tempfile
-from typing import Iterable
 
 
 ROOT = Path(__file__).resolve().parent.parent
-PLUGIN_ROOT = ROOT / "plugins" / "heading"
 RUNTIME_ROOT = ROOT / "runtime" / "heading"
 PRODUCT = "heading"
-SKILLS = (
-    "heading-prototype",
-    "heading-build",
-    "heading-sweep",
-    "heading-grow",
-    "heading-maintain",
-    "heading-orchestrate",
-)
 LOCK_NAME = ".heading-deploy.lock"
 MACOS_SYSTEM_ALIASES = {
     "/var": "/private/var",
@@ -192,12 +182,6 @@ def assert_safe_root(root: Path, label: str) -> None:
         require(kind == "directory", f"{label} path component is {kind}: {current}")
 
 
-def assert_disjoint_roots(codex: Path, skills: Path) -> None:
-    require(codex != skills, "codex and skills roots must differ")
-    require(codex not in skills.parents, f"skills root must not be inside codex root: {skills}")
-    require(skills not in codex.parents, f"codex root must not be inside skills root: {codex}")
-
-
 def ensure_directory_chain(path: Path, created_dirs: list[Path]) -> None:
     assert_safe_root(path, "target")
     current = Path(path.parts[0])
@@ -241,26 +225,12 @@ def source_item(root: str, source: Path, relative: Path) -> Item:
     return Item(root, source, relative, mode, digest_file(source))
 
 
-def source_files(directory: Path) -> Iterable[Path]:
-    require(path_kind(directory) == "directory", f"missing source directory: {directory}")
-    for path in sorted(directory.rglob("*")):
-        require(not path.is_symlink(), f"source symlink is not allowed: {path}")
-        if path.is_file() and "__pycache__" not in path.parts and path.suffix != ".pyc":
-            yield path
-
-
-def inventory(*, include_legacy_skills: bool) -> list[Item]:
+def inventory() -> list[Item]:
     items = [source_item("codex", RUNTIME_ROOT / "profile/heading.config.toml", Path("heading.config.toml"))]
     agent_files = sorted((RUNTIME_ROOT / "agents").glob("heading-*.toml"))
     require(len(agent_files) == 4, "expected four agent files")
     for source in agent_files:
         items.append(source_item("codex", source, Path("agents") / source.name))
-
-    if include_legacy_skills:
-        for skill in SKILLS:
-            base = PLUGIN_ROOT / "skills" / skill
-            for source in source_files(base):
-                items.append(source_item("skills", source, Path(skill) / source.relative_to(base)))
 
     keys = [(item.root, item.relative.as_posix()) for item in items]
     require(len(keys) == len(set(keys)), "duplicate install destination")
@@ -281,8 +251,6 @@ def heading_namespace_entries(roots: dict[str, Path]) -> list[Path]:
     """
     values: set[Path] = set()
     codex = roots["codex"]
-    skills = roots.get("skills")
-
     assert_directory_or_missing(codex, "codex root")
     if path_kind(codex) == "directory":
         values.update(entry for entry in codex.iterdir() if entry.name.casefold() == f"{PRODUCT}.config.toml")
@@ -296,21 +264,11 @@ def heading_namespace_entries(roots: dict[str, Path]) -> list[Path]:
             if entry.name.casefold().startswith(f"{PRODUCT}-") and entry.suffix.casefold() == ".toml"
         )
 
-    if skills is not None:
-        assert_directory_or_missing(skills, "skills root")
-    if skills is not None and path_kind(skills) == "directory":
+    shadowing_skills = codex / "skills"
+    assert_directory_or_missing(shadowing_skills, "shadowing skills root")
+    if path_kind(shadowing_skills) == "directory":
         values.update(
-            entry
-            for entry in skills.iterdir()
-            if entry.name.casefold().startswith(f"{PRODUCT}-") and path_kind(entry) in {"directory", "symlink"}
-        )
-
-    historical = codex / "skills"
-    assert_directory_or_missing(historical, "historical skills root")
-    if path_kind(historical) == "directory":
-        values.update(
-            entry
-            for entry in historical.iterdir()
+            entry for entry in shadowing_skills.iterdir()
             if entry.name.casefold().startswith(f"{PRODUCT}-") and path_kind(entry) in {"directory", "symlink"}
         )
 
@@ -321,13 +279,8 @@ def expected_namespace_paths(roots: dict[str, Path], items: list[Item]) -> set[P
     return {roots[item.root].joinpath(*item.relative.parts) for item in items if len(item.relative.parts) == 1 or item.relative.parts[0] == "agents"}
 
 
-def expected_skill_roots(roots: dict[str, Path]) -> set[Path]:
-    skills = roots.get("skills")
-    return set() if skills is None else {skills / skill for skill in SKILLS}
-
-
 def validate_heading_namespace(roots: dict[str, Path], items: list[Item]) -> None:
-    allowed = expected_namespace_paths(roots, items) | expected_skill_roots(roots)
+    allowed = expected_namespace_paths(roots, items)
     unexpected = sorted(
         (path for path in heading_namespace_entries(roots) if path not in allowed),
         key=os.fspath,
@@ -361,46 +314,6 @@ def classify(root: Path, item: Item) -> str:
     return "current" if mode == item.mode else "mode-drift"
 
 
-def walk_no_follow(base: Path) -> Iterable[tuple[Path, str]]:
-    for entry in sorted(base.iterdir(), key=lambda path: path.name):
-        kind = path_kind(entry)
-        yield entry, kind
-        if kind == "directory":
-            yield from walk_no_follow(entry)
-
-
-def validate_skill_namespaces(skills_root: Path, items: list[Item]) -> None:
-    allowed_files: dict[str, set[Path]] = {skill: set() for skill in SKILLS}
-    for item in items:
-        if item.root != "skills":
-            continue
-        skill, *rest = item.relative.parts
-        allowed_files[skill].add(Path(*rest))
-
-    for skill, files in allowed_files.items():
-        base = skills_root / skill
-        kind = path_kind(base)
-        if kind == "missing":
-            continue
-        require(kind == "directory", f"managed skill path is {kind}: {base}")
-        allowed_dirs = {Path(".")}
-        for relative in files:
-            parent = relative.parent
-            while parent != Path("."):
-                allowed_dirs.add(parent)
-                parent = parent.parent
-        for entry, entry_kind in walk_no_follow(base):
-            relative = entry.relative_to(base)
-            require(entry_kind != "symlink", f"symlink in managed skill namespace: {entry}")
-            if entry_kind == "directory":
-                require(relative in allowed_dirs, f"unexpected directory in managed skill namespace: {entry}")
-            elif entry_kind == "file":
-                require(relative in files, f"unexpected file in managed skill namespace: {entry}")
-                require(entry.lstat().st_nlink == 1, f"hard link in managed skill namespace: {entry}")
-            else:
-                raise InstallError(f"special file in managed skill namespace: {entry}")
-
-
 def preflight(
     roots: dict[str, Path],
     items: list[Item],
@@ -413,8 +326,6 @@ def preflight(
         require(kind in {"missing", "directory"}, f"{label} root is {kind}: {root}")
 
     validate_heading_namespace(roots, items)
-    if "skills" in roots:
-        validate_skill_namespaces(roots["skills"], items)
     allowed = {"current"} if check else {"missing", "current", "mode-drift"}
     plan: list[tuple[Item, str]] = []
     destinations: set[Path] = set()
@@ -520,8 +431,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true", help="print the non-destructive install plan without changing files")
     parser.add_argument("--check", action="store_true", help="verify the current Heading installation")
     parser.add_argument("--codex-home", type=Path, default=Path(os.environ.get("CODEX_HOME", "~/.codex")))
-    parser.add_argument("--skills-root", type=Path, default=Path("~/.agents/skills"), help="legacy skill destination; used only with --install-legacy-skills")
-    parser.add_argument("--install-legacy-skills", action="store_true", help="also copy skill folders to --skills-root; this can shadow the plugin and is not the default")
     args = parser.parse_args()
     require(not (args.check and args.dry_run), "--check and --dry-run are mutually exclusive")
     return args
@@ -534,13 +443,10 @@ def main() -> int:
     try:
         args = parse_args()
         roots = {"codex": normalize_root(args.codex_home)}
-        if args.install_legacy_skills:
-            roots["skills"] = normalize_root(args.skills_root)
-            assert_disjoint_roots(roots["codex"], roots["skills"])
         for label, root in roots.items():
             assert_safe_root(root, label)
 
-        items = inventory(include_legacy_skills=args.install_legacy_skills)
+        items = inventory()
         if args.dry_run:
             print(json.dumps(plan_payload(roots, items), ensure_ascii=False, sort_keys=True))
             return 0

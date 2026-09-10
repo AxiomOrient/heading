@@ -1,4 +1,4 @@
-# Heading 0.4.1
+# Heading 0.5.0
 
 Heading은 다섯 제품 작업 트랙과 선택적 오케스트레이션 트랙을 제공하는 이식 가능한 skills 플러그인입니다.
 
@@ -54,22 +54,26 @@ $heading-build 이 아이디어를 사람들이 원하는지 검증해
 
 **역할은 권한을, 작업의 증거는 모델을 결정합니다.** 선택적 Lead 프로파일은 **GPT-6 Astra low**를 요청합니다. 스킬을 읽는 것만으로 현재 채팅의 모델이 바뀌지는 않습니다.
 
-| 작업 조건 | 시작 요청 |
+| 작업 형태 | 후보 요청 |
 | --- | --- |
-| 명확한 요구·국소 범위·가역성·강한 검증 기준·일상적 위험을 모두 충족 | GPT-5.6 Luna `xhigh` |
-| 같은 쉬운 작업에서 추론 실패가 관찰되고 제한된 탐색과 예산이 승인됨 | Luna `max` 1회 |
-| 어려움·모호성·여러 경계·난도 불확실 | GPT-6 Astra `low` |
-| 치명적 위험 또는 비가역·고영향 작업 | Astra `medium` |
+| 결정적인 사전 점검 또는 기계적 검사 | direct 도구; 모델 요청 없음 |
+| 강한 oracle이 있는 고정 추출 | GPT-5.6 Luna `high` |
+| 범위가 좁고 검증 가능한 탐색 / 넓거나 검증 기준이 약한 탐색 | Luna `high` / Terra `medium`; evidence capsule 필수 |
+| 강한 oracle이 있는 명확한 구현 | GPT-5.6 Terra `medium` |
+| 여러 경계의 판단 또는 형태 미확정 | GPT-6 Astra `low` |
+| 치명적 위험 또는 비가역·고영향 작업 | Astra `high` |
 
-Astra는 평소 `low`(Light)와 `medium`만 사용한다. `ultra`는 구체적인 난도 근거와 허용된 예산이 있는 매우 어려운 작업에만 사용한다. Astra `high`·`xhigh`·`max` 경로는 사용하지 않는다. Ultra는 실제 native 호스트의 지원을 확인하며 API effort 별칭으로 취급하지 않는다.
+Luna는 high 기본에 xhigh/max를, Terra는 medium 기본에 high를 처음부터 선택할 수 있습니다. Luna max는 이미 승인되어 추가 허락이 필요 없습니다. Sol은 활성 라우팅에서 제외합니다. 복잡한 판단은 `astraEffort`, `effortReason`, `effortEvidence`로 첫 시도부터 `high`·`xhigh`를 선택할 수 있습니다. 저비용 경로의 실패를 먼저 요구하지 않습니다. Astra `max`·`ultra`는 예외 예산 계약과 호스트 지원이 필요합니다. 선택적 프로파일은 하위 모델 Luna high, 동시 하위 작업 최대 두 개를 요청하며 기존 세션은 바꾸지 않습니다.
 
-이 설정은 **후보 기본 정책**입니다. 실측된 최적값이나 서로 다른 모델의 성능 동등성을 주장하지 않습니다. UI의 `Light`는 `low`에 대응합니다. 정확한 API 모델 ID와 추론 값은 [버전 정책](plugins/heading/skills/heading-orchestrate/references/model-policy.json)을 사용합니다.
+0.5.0의 모든 패킷은 작업 `shape`를 선언하고 현재의 닫힌 패킷 schema를 사용합니다. 비교 평가 계획에는 현재 route key만 넣습니다. 이 설정은 **후보 기본 정책**입니다. 실측된 최적값이나 서로 다른 모델의 성능 동등성을 주장하지 않습니다. UI의 `Light`는 `low`에 대응합니다. 정확한 모델 ID와 허용 effort는 [버전 정책](plugins/heading/skills/heading-orchestrate/references/model-policy.json)을 사용합니다.
 
-Lead는 승인과 최종 판단, Planner·Reviewer·Architect는 읽기 전용, Executor는 유일한 위임 작성자를 맡습니다. Reviewer는 실제 변경을 독립적으로 검토하고 Lead에게만 보고합니다. 역할 파일에서는 모델·추론 강도를 제거했습니다. 최신 Codex에서 이 값이 호출 시 설정보다 우선하기 때문입니다. dispatch는 두 값을 함께 전달하고 요청값과 실제 호스트 관찰값을 분리합니다. 미관찰은 `modelEscalation: NOT_PROVEN`이며 전환 성공이 아닙니다.
+Lead는 승인과 최종 판단, Planner·Reviewer·Architect는 읽기 전용, Executor는 유일한 위임 작성자를 맡습니다. Reviewer는 실제 변경을 독립적으로 검토하고 Lead에게만 보고합니다. 역할 파일에서는 모델·추론 강도를 제거했습니다. 최신 Codex에서 이 값이 호출 시 설정보다 우선하기 때문입니다. dispatch는 두 값을 함께 전달하고 요청값과 실제 호스트 관찰값을 분리합니다. 미관찰은 `modelEscalation: NOT_PROVEN`이며 전환 성공이 아닙니다. 결정적 direct 작업은 숨은 모델 호출이 아니라 `NOT_APPLICABLE`입니다.
 
 같은 outcome의 수리는 가능한 한 같은 Executor를 유지합니다. 필수 모델 변경을 같은 thread에 적용할 수 없다면 변경본·증거를 보존하고, 기존 작성자와 소유 프로세스의 종료를 관찰한 뒤 작성자 하나에게 인계합니다. 선택적 위임이 없으면 별도로 선언한 direct 경로를 사용할 수 있지만, 필수 모델·권한·검토를 조용히 대체하지 않습니다.
 
-[라우팅·작업 패킷](plugins/heading/skills/heading-orchestrate/references/MODEL-ROUTING.md)과 [2026-09-07 공식 자료 분석](plugins/heading/skills/heading-orchestrate/references/RESEARCH-2026-09-07.md)을 참고합니다.
+정확한 도구 조회는 직접 실행하고, 해석이 필요한 조사는 승인된 scout 하나를 기본으로 사용합니다. 독립 질문일 때만 최대 둘을 사용합니다. `fork_turns="none"`과 필요한 근거만 담은 패킷으로 전체 대화 상속을 줄입니다. 각 scout는 원시 context·쓰기 권한·최종 판단 대신 제한된 [evidence capsule](plugins/heading/skills/heading-orchestrate/references/EVIDENCE-CAPSULE.md)을 반환합니다.
+
+[라우팅·작업 패킷](plugins/heading/skills/heading-orchestrate/references/MODEL-ROUTING.md), [2026-09-10 공식 자료 분석](plugins/heading/skills/heading-orchestrate/references/RESEARCH-2026-09-10.md), [미실행 비교 평가 계획](evals/route-benchmark-plan.json)을 참고합니다.
 
 ## 플러그인 설치
 
@@ -88,7 +92,7 @@ Git 저장소에서는 로컬 경로 대신 `AxiomOrient/heading --ref main`을 
 
 ## 선택적 실행 프로파일
 
-지원 조건: POSIX, Python 3.11 이상. 호환용 프로파일 설치 결과는 5 files이며, 플러그인 skill 폴더를 전역 skill namespace에 복사하지 않습니다.
+지원 조건: POSIX, Python 3.11 이상. 선택적 프로파일 설치 결과는 5 files이며, 플러그인 skill 폴더를 전역 skill namespace에 복사하지 않습니다.
 
 이 절은 별도의 로컬 `heading` 런타임 프로파일을 의도적으로 사용할 때만 적용합니다. 플러그인 스킬 설치·검색·암시 호출에는 필요하지 않습니다.
 
@@ -100,7 +104,7 @@ Git 저장소에서는 로컬 경로 대신 `AxiomOrient/heading --ref main`을 
 codex --profile heading
 ```
 
-이 프로파일은 작업 단계의 런타임 선택지이며 플러그인 배포 방식이 아닙니다. 플러그인 사용자는 설치할 필요가 없습니다. 다섯 제품 스킬은 설치된 플러그인만으로 동작합니다. 설치기는 비파괴 방식입니다. 기존 파일이나 네임스페이스를 삭제하지 않습니다. `--install-legacy-skills`는 명시적인 호환용 탈출구일 뿐이며, 같은 이름의 설치된 플러그인을 가릴 수 있으므로 일반 플러그인 배포에는 사용하지 않습니다.
+이 프로파일은 작업 단계의 런타임 선택지이며 플러그인 배포 방식이 아닙니다. 플러그인 사용자는 설치할 필요가 없습니다. 다섯 제품 스킬은 설치된 플러그인만으로 동작합니다. 설치기는 비파괴 방식이며 기존 파일이나 네임스페이스를 삭제하지 않습니다. 0.5.0은 skill 폴더를 두 번째 전역 namespace로 복사하지 않습니다.
 
 Heading은 실행 증거를 내부 판단에 사용하지만, 답변 길이는 작업에 맞춥니다. 단순한 일은 짧게, 복잡하거나 위험한 일은 판단에 필요한 증거까지 설명합니다. 원시 결과 필드가 필요하면 요청하면 됩니다.
 
@@ -112,7 +116,7 @@ Heading은 실행 증거를 내부 판단에 사용하지만, 답변 길이는 �
 
 ## 배포 경계
 
-배포 가능한 source는 `plugins/heading/`입니다. 여섯 skill, reference, 결정적 라우팅 helper, portable manifest, Codex manifest를 포함합니다. `plugin.json`은 portable Agent Plugins manifest이고 `.codex-plugin/plugin.json`은 Codex manifest입니다. 둘은 같은 `heading` 이름과 버전을 가지며, skill 경로 `./skills/`는 Codex manifest에만 있습니다. 별도 `runtime/heading/`에는 선택적 profile과 role template이 있습니다. repository marketplace는 로컬·팀 테스트용이고, public directory 제출은 별도의 게시자 심사 단계입니다. 선택적 profile 설치기는 사용자가 선택한 Codex profile에만 쓰며 플러그인을 대체하지 않습니다.
+배포 가능한 source는 `plugins/heading/`입니다. 여섯 skill, reference, 결정적 라우팅 helper, portable manifest, Codex manifest를 포함합니다. `plugin.json`은 portable Agent Plugins manifest이고 `.codex-plugin/plugin.json`은 Codex manifest입니다. 둘은 같은 `heading` 기본 릴리스를 가리키며 skill 경로 `./skills/`는 Codex manifest에만 있습니다. 로컬 Codex cachebuster는 portable 릴리스를 바꾸지 않고 Codex manifest에만 `+codex.*` suffix를 더할 수 있습니다. 별도 `runtime/heading/`에는 선택적 profile과 role template이 있습니다. repository marketplace는 로컬·팀 테스트용이고, public directory 제출은 별도의 게시자 심사 단계입니다. 선택적 profile 설치기는 사용자가 선택한 Codex profile에만 쓰며 플러그인을 대체하지 않습니다.
 
 `./verify-source-package.sh`는 결정적인 source package와 두 manifest 계약을 검증합니다. `scripts/smoke-plugin-install.py`는 격리된 Codex home에서 로컬 marketplace 등록, 설치, enabled 상태, cache manifest 동등성을 별도로 검증합니다. 확률적인 암시 선택은 새 interactive chat에서만 관측할 수 있습니다. Native Codex 실행, 모델 동작, 인증이 필요한 evaluation, public directory 승인 여부는 별도 증거입니다.
 
@@ -123,9 +127,9 @@ Heading은 실행 증거를 내부 판단에 사용하지만, 답변 길이는 �
 ```bash
 # STAGE는 소스 폴더 밖의 새 경로로 지정합니다.
 STAGE="$(mktemp -d)"
-./scripts/install.sh --dry-run --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
-./scripts/install.sh --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
-./scripts/install.sh --check --codex-home "$STAGE/codex" --skills-root "$STAGE/skills"
+./scripts/install.sh --dry-run --codex-home "$STAGE/codex"
+./scripts/install.sh --codex-home "$STAGE/codex"
+./scripts/install.sh --check --codex-home "$STAGE/codex"
 ```
 
 staging 경로를 실제 사용자 경로로 자동 승격하지 않습니다. 플러그인 설치와 선택적 profile 설치는 별개입니다.
