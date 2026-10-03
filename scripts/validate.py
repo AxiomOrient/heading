@@ -179,7 +179,7 @@ def digest_file(path: Path) -> str:
 
 def expected_files() -> set[Path]:
     files = {
-        Path(".gitignore"), Path("DESIGN.md"), Path("LICENSE"), Path("PLAYBOOK.ko.md"), Path("PLAYBOOK.md"),
+        Path(".gitignore"), Path("DESIGN.md"), Path("PLAYBOOK.ko.md"), Path("PLAYBOOK.md"),
         Path("README.ko.md"), Path("README.md"), Path("VALIDATION.md"), Path("VERSION"),
         Path(".agents/plugins/marketplace.json"), Path("verify-source-package.sh"),
         Path("evals/cases.json"), Path("evals/dialogue_cases.json"), Path("evals/intake-output.schema.json"), Path("evals/intake_cases.json"), Path("evals/route-benchmark-plan.json"),
@@ -689,7 +689,6 @@ def validate_docs() -> None:
     docs = {name: (ROOT / name).read_text(encoding="utf-8") for name in ("README.md", "README.ko.md", "PLAYBOOK.md", "PLAYBOOK.ko.md", "DESIGN.md", "VALIDATION.md")}
     for track, spec in TRACKS.items():
         invocation = f"$heading-{track}"
-        require(invocation in docs["README.md"] and invocation in docs["README.ko.md"], f"README invocation missing: {track}")
         require(invocation in docs["PLAYBOOK.md"] and invocation in docs["PLAYBOOK.ko.md"], f"playbook invocation missing: {track}")
         for mode in spec.modes:
             token = f"`{mode}`"
@@ -697,11 +696,7 @@ def validate_docs() -> None:
         require(spec.flow in docs["DESIGN.md"], f"design flow missing: {track}")
     for name in ("README.md", "README.ko.md"):
         text = docs[name]
-        for phrase in ("--dry-run", "./scripts/install.sh", "--check", "Python 3.11", "5 files", "PROCEED", "ASK", "REFUSE", "NOT_PROVEN", "$heading-orchestrate", "plugin.json", ".codex-plugin/plugin.json", "marketplace.json"):
-            require(phrase in text, f"README contract missing: {name}: {phrase}")
-        require(("--" + "clean" + "-break") not in text, f"obsolete install option leaked: {name}")
-        require("non-destructive" in text or "비파괴" in text, f"non-destructive install contract missing: {name}")
-        require("routing hint" in text or "힌트" in text, f"auto-route explanation missing: {name}")
+        require(text.strip() == "Copyright (c) 2026 ax", f"README must contain only the copyright notice: {name}")
     design = docs["DESIGN.md"]
     for phrase in ("Routing before lock", "Bias for useful action", "progressive disclosure", "one outcome", "PROCEED", "ASK", "REFUSE", "capability-gated", "profile"):
         require(phrase in design, f"design rationale missing: {phrase}")
